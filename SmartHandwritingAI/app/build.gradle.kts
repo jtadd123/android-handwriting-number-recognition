@@ -1,0 +1,68 @@
+plugins {
+    alias(libs.plugins.android.application)
+    // alias(libs.plugins.google.services) // Uncomment khi cấu hình Firebase
+}
+
+android {
+    namespace = "dat.nguyenvan.smarthandwritingai"
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
+
+    defaultConfig {
+        applicationId = "dat.nguyenvan.smarthandwritingai"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    // Không nén file .tflite trong assets
+    androidResources {
+        noCompress += "tflite"
+    }
+}
+
+dependencies {
+    // AndroidX Core
+    implementation(libs.activity.ktx)
+    implementation(libs.appcompat)
+    implementation(libs.constraintlayout)
+    implementation(libs.material)
+    implementation(libs.cardview)
+    implementation(libs.recyclerview)
+
+    // TensorFlow Lite (chỉ cần core, ImageProcessor tự xử lý ảnh)
+    implementation(libs.tflite)
+
+    // Room Database
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+
+    // Firebase (uncomment khi cấu hình Firebase)
+    // implementation(platform(libs.firebase.bom))
+    // implementation(libs.firebase.storage)
+
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.ext.junit)
+}

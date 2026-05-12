@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">SmartHandwritingAI</string>
+
+    
+    <string name="title_main">Nhận Dạng Số Viết Tay</string>
+    <string name="subtitle_main">Powered by TensorFlow Lite</string>
+    <string name="btn_camera">📷  Chụp Ảnh</string>
+    <string name="btn_gallery">🖼️  Chọn Ảnh Từ Thư Viện</string>
+    <string name="btn_draw">✏️  Vẽ Tay</string>
+    <string name="btn_history">📋  Lịch Sử</string>
+    <string name="result_label">Kết quả nhận dạng</string>
+    <string name="confidence_label">Độ tin cậy</string>
+    <string name="no_result">Chưa có kết quả</string>
+    <string name="btn_back">Quay lại</string>
+    <string name="tap_to_start">Chụp ảnh hoặc vẽ tay để bắt đầu</string>
+    <string name="model_loading">Đang tải model AI…</string>
+    <string name="model_ready">Model AI sẵn sàng ✓</string>
+    <string name="model_error">Lỗi tải model AI ✗</string>
+
+    
+    <string name="title_draw">Vẽ Số</string>
+    <string name="btn_clear">Xóa</string>
+    <string name="btn_predict">Nhận Dạng</string>
+    <string name="draw_hint">Dùng ngón tay vẽ một chữ số (0-9)</string>
+    <string name="draw_empty">Vui lòng vẽ một số trước!</string>
+
+    
+    <string name="title_history">Lịch Sử Dự Đoán</string>
+    <string name="no_history">Chưa có lịch sử dự đoán</string>
+    <string name="btn_clear_history">Xóa tất cả</string>
+    <string name="confirm_clear">Xác nhận xóa tất cả lịch sử?</string>
+    <string name="yes">Đồng ý</string>
+    <string name="no">Hủy</string>
+    <string name="history_cleared">Đã xóa tất cả lịch sử</string>
+</resources>
