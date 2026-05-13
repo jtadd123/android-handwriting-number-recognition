@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
     // alias(libs.plugins.google.services) // Uncomment khi cấu hình Firebase
 }
 
@@ -39,6 +40,9 @@ android {
     androidResources {
         noCompress += "tflite"
     }
+    buildFeatures {
+        mlModelBinding = true
+    }
 }
 
 dependencies {
@@ -46,6 +50,8 @@ dependencies {
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.firestore)
     implementation(libs.material)
     implementation(libs.cardview)
     implementation(libs.recyclerview)

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "624712105706",
+    "project_id": "smarthandwritingai",
+    "storage_bucket": "smarthandwritingai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624712105706:android:b35875c89900c1ce56a193",
+        "android_client_info": {
+          "package_name": "dat.nguyenvan.smarthandwritingai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5sINTn1yK6nXqVHCKSOh6ncYKurlm4lE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

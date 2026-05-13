@@ -217,60 +217,67 @@ public class MainActivity extends AppCompatActivity {
         }
 
         executorService.execute(() -> {
-            float[] result = digitClassifier.predict(bitmap);
-            int predictedDigit = (int) result[0];
-            float confidence = result[1];
+            try {
+                DigitClassifier.PredictionResult result = digitClassifier.predict(bitmap);
+                String predictedLabel = result.label;
+                float confidence = result.confidence;
 
-            savePrediction(bitmap, predictedDigit, confidence);
+                savePrediction(bitmap, predictedLabel, confidence);
 
-            runOnUiThread(() -> {
-                layoutHomeOptions.setVisibility(View.GONE);
-                layoutRecognition.setVisibility(View.VISIBLE);
-                cardResult.setVisibility(View.VISIBLE);
-                btnBack.setVisibility(View.VISIBLE);
-                tvResult.setText(String.valueOf(predictedDigit));
-                tvConfidence.setText(String.format("%.1f%%", confidence));
+                runOnUiThread(() -> {
+                    layoutHomeOptions.setVisibility(View.GONE);
+                    layoutRecognition.setVisibility(View.VISIBLE);
+                    cardResult.setVisibility(View.VISIBLE);
+                    btnBack.setVisibility(View.VISIBLE);
+                    tvResult.setText(predictedLabel);
+                    tvConfidence.setText(String.format("%.1f%%", confidence));
 
-                if (confidence >= 90) {
-                    tvConfidence.setTextColor(getColor(R.color.success));
-                } else if (confidence >= 70) {
-                    tvConfidence.setTextColor(getColor(R.color.warning));
-                } else {
-                    tvConfidence.setTextColor(getColor(R.color.error));
-                }
-            });
+                    if (confidence >= 90) {
+                        tvConfidence.setTextColor(getColor(R.color.success));
+                    } else if (confidence >= 70) {
+                        tvConfidence.setTextColor(getColor(R.color.warning));
+                    } else {
+                        tvConfidence.setTextColor(getColor(R.color.error));
+                    }
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "Lỗi nhận dạng ảnh: " + e.getMessage());
+                runOnUiThread(() -> Toast.makeText(this, "Lỗi xử lý hình ảnh", Toast.LENGTH_SHORT).show());
+            }
         });
     }
 
-    private void savePrediction(Bitmap bitmap, int result, float confidence) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            Bitmap resized = Bitmap.createScaledBitmap(bitmap, 56, 56, true);
-            resized.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+    private void savePrediction(Bitmap bitmap, String result, float confidence) {
+        executorService.execute(() -> {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                Bitmap resized = Bitmap.createScaledBitmap(bitmap, 56, 56, true);
+                resized.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
 
-            PredictionEntity entity = new PredictionEntity(
-                    base64, result, confidence, System.currentTimeMillis());
+                PredictionEntity entity = new PredictionEntity(
+                        base64, result, confidence, System.currentTimeMillis());
 
-            AppDatabase.getInstance(this).predictionDao().insert(entity);
-            Log.d(TAG, "Prediction saved: " + result + " (" + confidence + "%)");
-        } catch (Exception e) {
-            Log.e(TAG, "Error saving prediction: " + e.getMessage());
-        }
+                AppDatabase.getInstance(this).predictionDao().insert(entity);
+                Log.d(TAG, "Prediction saved: " + result + " (" + confidence + "%)");
+            } catch (Exception e) {
+                Log.e(TAG, "Error saving prediction: " + e.getMessage());
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (getIntent().hasExtra("draw_result")) {
-            int drawResult = getIntent().getIntExtra("draw_result", -1);
+            String drawResult = getIntent().getStringExtra("draw_result");
             float drawConfidence = getIntent().getFloatExtra("draw_confidence", 0);
-            if (drawResult >= 0) {
+            if (drawResult != null) {
                 layoutHomeOptions.setVisibility(View.GONE);
                 layoutRecognition.setVisibility(View.VISIBLE);
                 cardResult.setVisibility(View.VISIBLE);
                 btnBack.setVisibility(View.VISIBLE);
-                tvResult.setText(String.valueOf(drawResult));
+                tvResult.setText(drawResult);
                 tvConfidence.setText(String.format("%.1f%%", drawConfidence));
                 tvHint.setVisibility(View.GONE);
             }

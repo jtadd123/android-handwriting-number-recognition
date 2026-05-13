@@ -11,11 +11,11 @@ public class PredictionEntity {
     private int id;
 
     private String imageBase64;    
-    private int result;            
+    private String result;            
     private float confidence;      
     private long timestamp;        
 
-    public PredictionEntity(String imageBase64, int result, float confidence, long timestamp) {
+    public PredictionEntity(String imageBase64, String result, float confidence, long timestamp) {
         this.imageBase64 = imageBase64;
         this.result = result;
         this.confidence = confidence;
@@ -29,8 +29,8 @@ public class PredictionEntity {
     public String getImageBase64() { return imageBase64; }
     public void setImageBase64(String imageBase64) { this.imageBase64 = imageBase64; }
 
-    public int getResult() { return result; }
-    public void setResult(int result) { this.result = result; }
+    public String getResult() { return result; }
+    public void setResult(String result) { this.result = result; }
 
     public float getConfidence() { return confidence; }
     public void setConfidence(float confidence) { this.confidence = confidence; }

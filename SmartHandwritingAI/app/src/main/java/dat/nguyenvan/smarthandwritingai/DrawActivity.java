@@ -1,17 +1,17 @@
 package dat.nguyenvan.smarthandwritingai;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-
-import com.google.android.material.button.MaterialButton;
 
 import java.io.ByteArrayOutputStream;
 import java.util.concurrent.ExecutorService;
@@ -19,123 +19,116 @@ import java.util.concurrent.Executors;
 
 public class DrawActivity extends AppCompatActivity {
 
-    private static final String TAG = "DrawActivity";
-
     private DrawingView drawingView;
-    private TextView tvDrawResult;
-    private TextView tvDrawConfidence;
-    private CardView cardDrawResult;
-    private MaterialButton btnClear;
-    private MaterialButton btnPredict;
-
     private DigitClassifier digitClassifier;
-    private ExecutorService executorService;
+    private TextView tvDrawResult, tvDrawConfidence, tvCurrentSetting;
+    private CardView cardDrawResult;
+    private Button btnRotate, btnFlip;
+    private AppDatabase db;
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_draw);
 
-        initViews();
-        initModel();
-        setupListeners();
-    }
-
-    private void initViews() {
+        db = AppDatabase.getInstance(this);
+        digitClassifier = new DigitClassifier(this);
+        
         drawingView = findViewById(R.id.drawing_view);
         tvDrawResult = findViewById(R.id.tv_draw_result);
         tvDrawConfidence = findViewById(R.id.tv_draw_confidence);
+        tvCurrentSetting = findViewById(R.id.tv_current_setting);
         cardDrawResult = findViewById(R.id.card_draw_result);
-        btnClear = findViewById(R.id.btn_clear);
-        btnPredict = findViewById(R.id.btn_predict);
+        btnRotate = findViewById(R.id.btn_rotate);
+        btnFlip = findViewById(R.id.btn_flip);
 
-        executorService = Executors.newSingleThreadExecutor();
-    }
+        prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
+        ImageProcessor.rotationDegrees = prefs.getInt("rotation", 0);
+        ImageProcessor.isFlipped = prefs.getBoolean("flip", false);
+        updateDirectionUI();
 
-    private void initModel() {
-        executorService.execute(() -> {
-            digitClassifier = new DigitClassifier(this);
-            runOnUiThread(() -> {
-                if (!digitClassifier.isInitialized()) {
-                    Toast.makeText(this, R.string.model_error, Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
-    }
-
-    private void setupListeners() {
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
-        btnClear.setOnClickListener(v -> {
+        findViewById(R.id.btn_clear).setOnClickListener(v -> {
             drawingView.clearCanvas();
             cardDrawResult.setVisibility(View.GONE);
         });
 
-        btnPredict.setOnClickListener(v -> {
+        findViewById(R.id.btn_predict).setOnClickListener(v -> {
             if (drawingView.isEmpty()) {
-                Toast.makeText(this, R.string.draw_empty, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Hãy vẽ gì đó trước!", Toast.LENGTH_SHORT).show();
                 return;
             }
             predictDrawing();
         });
-    }
 
-    private void predictDrawing() {
-        if (digitClassifier == null || !digitClassifier.isInitialized()) {
-            Toast.makeText(this, R.string.model_error, Toast.LENGTH_SHORT).show();
-            return;
-        }
+        btnRotate.setOnClickListener(v -> {
+            ImageProcessor.rotationDegrees = (ImageProcessor.rotationDegrees + 90) % 360;
+            saveAndReclassify();
+        });
 
-        Bitmap bitmap = drawingView.getBitmap();
-
-        executorService.execute(() -> {
-            float[] result = digitClassifier.predict(bitmap);
-            int predictedDigit = (int) result[0];
-            float confidence = result[1];
-
-            savePrediction(bitmap, predictedDigit, confidence);
-
-            runOnUiThread(() -> {
-                cardDrawResult.setVisibility(View.VISIBLE);
-                tvDrawResult.setText(String.valueOf(predictedDigit));
-                tvDrawConfidence.setText(String.format("%.1f%%", confidence));
-
-                if (confidence >= 90) {
-                    tvDrawConfidence.setTextColor(getColor(R.color.success));
-                } else if (confidence >= 70) {
-                    tvDrawConfidence.setTextColor(getColor(R.color.warning));
-                } else {
-                    tvDrawConfidence.setTextColor(getColor(R.color.error));
-                }
-            });
+        btnFlip.setOnClickListener(v -> {
+            ImageProcessor.isFlipped = !ImageProcessor.isFlipped;
+            saveAndReclassify();
         });
     }
 
-    private void savePrediction(Bitmap bitmap, int result, float confidence) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            Bitmap resized = Bitmap.createScaledBitmap(bitmap, 56, 56, true);
-            resized.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-
-            PredictionEntity entity = new PredictionEntity(
-                    base64, result, confidence, System.currentTimeMillis());
-
-            AppDatabase.getInstance(this).predictionDao().insert(entity);
-            Log.d(TAG, "Draw prediction saved: " + result);
-        } catch (Exception e) {
-            Log.e(TAG, "Error saving prediction: " + e.getMessage());
+    private void saveAndReclassify() {
+        prefs.edit()
+                .putInt("rotation", ImageProcessor.rotationDegrees)
+                .putBoolean("flip", ImageProcessor.isFlipped)
+                .apply();
+        updateDirectionUI();
+        if (!drawingView.isEmpty()) {
+            predictDrawing();
         }
+    }
+
+    private void updateDirectionUI() {
+        String info = "Hướng: " + ImageProcessor.rotationDegrees + "°" + (ImageProcessor.isFlipped ? " (Lật)" : "");
+        if (tvCurrentSetting != null) {
+            tvCurrentSetting.setText(info);
+        }
+    }
+
+    private void predictDrawing() {
+        Bitmap bitmap = drawingView.getBitmap();
+        executorService.execute(() -> {
+            try {
+                DigitClassifier.PredictionResult result = digitClassifier.predict(bitmap);
+                
+                // Chuyển bitmap sang Base64 để lưu
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                String base64Image = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
+
+                // Lưu vào database sử dụng PredictionEntity và predictionDao
+                PredictionEntity entity = new PredictionEntity(
+                        base64Image, 
+                        result.label, 
+                        result.confidence, 
+                        System.currentTimeMillis()
+                );
+                db.predictionDao().insert(entity);
+
+                runOnUiThread(() -> {
+                    tvDrawResult.setText(result.label);
+                    tvDrawConfidence.setText(String.format("%.1f%%", result.confidence));
+                    cardDrawResult.setVisibility(View.VISIBLE);
+                });
+            } catch (Exception e) {
+                Log.e("DrawActivity", "Error during prediction", e);
+                runOnUiThread(() -> Toast.makeText(this, "Lỗi nhận dạng: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
+        digitClassifier.close();
+        executorService.shutdown();
         super.onDestroy();
-        if (digitClassifier != null) {
-            digitClassifier.close();
-        }
-        if (executorService != null) {
-            executorService.shutdown();
-        }
     }
 }

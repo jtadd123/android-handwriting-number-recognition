@@ -10,7 +10,7 @@
     android:padding="20dp"
     tools:context=".DrawActivity">
 
-    
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -38,16 +38,15 @@
 
     </LinearLayout>
 
-    
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/draw_hint"
+        android:text="Dùng ngón tay vẽ một chữ số hoặc chữ cái (0-9, A-Z)"
         android:textColor="@color/text_hint"
         android:textSize="13sp" />
 
-    
+    <!-- Drawing Area -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -64,7 +63,44 @@
 
     </androidx.cardview.widget.CardView>
 
-    
+    <!-- AI Calibration Tools -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:background="#1AFFFFFF">
+        
+        <Button
+            android:id="@+id/btn_rotate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Xoay 90°"
+            android:textSize="11sp"
+            android:backgroundTint="#4CAF50"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btn_flip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lật Gương"
+            android:textSize="11sp"
+            android:backgroundTint="#FF9800"/>
+
+        <TextView
+            android:id="@+id/tv_current_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hướng: 0°"
+            android:textColor="@color/white"
+            android:layout_marginStart="12dp"
+            android:textSize="11sp"/>
+    </LinearLayout>
+
+    <!-- Result Area -->
     <androidx.cardview.widget.CardView
         android:id="@+id/card_draw_result"
         android:layout_width="match_parent"
@@ -114,7 +150,7 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    
+    <!-- Bottom Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -122,7 +158,6 @@
         android:layout_marginBottom="8dp"
         android:orientation="horizontal">
 
-        
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_clear"
             android:layout_width="0dp"
@@ -135,7 +170,6 @@
             app:backgroundTint="@color/btn_clear"
             app:cornerRadius="14dp" />
 
-        
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_predict"
             android:layout_width="0dp"
