@@ -2,6 +2,7 @@ package dat.nguyenvan.smarthandwritingai;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
@@ -46,9 +47,11 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton btnGallery;
     private MaterialButton btnDraw;
     private MaterialButton btnHistory;
+    private MaterialButton btnAnalytics;
     private MaterialButton btnBack;
     private View layoutHomeOptions;
-    private View layoutRecognition;
+    private View layoutLoading;
+    private View scanLine;
 
     private DigitClassifier digitClassifier;
     private Bitmap currentBitmap;
@@ -131,9 +134,11 @@ public class MainActivity extends AppCompatActivity {
         btnGallery = findViewById(R.id.btn_gallery);
         btnDraw = findViewById(R.id.btn_draw);
         btnHistory = findViewById(R.id.btn_history);
+        btnAnalytics = findViewById(R.id.btn_analytics);
         btnBack = findViewById(R.id.btn_back_main);
         layoutHomeOptions = findViewById(R.id.layout_home_options);
-        layoutRecognition = findViewById(R.id.layout_recognition);
+        layoutLoading = findViewById(R.id.layout_loading);
+        scanLine = findViewById(R.id.scan_line);
 
         executorService = Executors.newSingleThreadExecutor();
     }
@@ -178,6 +183,16 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        btnAnalytics.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AnalyticsActivity.class);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.btn_settings).setOnClickListener(v -> {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+        });
+
         btnBack.setOnClickListener(v -> resetState());
     }
 
@@ -189,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
         tvHint.setVisibility(View.VISIBLE);
         cardResult.setVisibility(View.GONE);
         btnBack.setVisibility(View.GONE);
-        layoutRecognition.setVisibility(View.GONE);
         layoutHomeOptions.setVisibility(View.VISIBLE);
     }
 
@@ -198,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             cameraLauncher.launch(takePictureIntent);
         } catch (Exception e) {
-            Toast.makeText(this, "Không thể mở Camera: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Không thể mở Camera: " + e.getMessage());
         }
     }
 
@@ -206,29 +220,57 @@ public class MainActivity extends AppCompatActivity {
         try {
             galleryLauncher.launch("image/*");
         } catch (Exception e) {
-            Toast.makeText(this, "Không thể mở Thư viện: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Không thể mở Thư viện: " + e.getMessage());
         }
     }
 
     private void classifyImage(Bitmap bitmap) {
         if (digitClassifier == null || !digitClassifier.isInitialized()) {
-            Toast.makeText(this, "Model chưa sẵn sàng", Toast.LENGTH_SHORT).show();
+            UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Model chưa sẵn sàng");
             return;
         }
 
+        SharedPreferences prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
+        int threshold = prefs.getInt("confidence_threshold", 50);
+
+        layoutLoading.setVisibility(View.VISIBLE);
+        layoutLoading.setAlpha(0f);
+        layoutLoading.animate().alpha(1f).setDuration(200).start();
+
+        scanLine.setVisibility(View.VISIBLE);
+        scanLine.setTranslationY(0f);
+        scanLine.animate().translationY(600f).setDuration(1200).withEndAction(() -> scanLine.setVisibility(View.GONE)).start();
+
         executorService.execute(() -> {
             try {
+                Thread.sleep(1200);
+
                 DigitClassifier.PredictionResult result = digitClassifier.predict(bitmap);
                 String predictedLabel = result.label;
                 float confidence = result.confidence;
 
+                if (confidence < threshold) {
+                    runOnUiThread(() -> {
+                        layoutLoading.animate().alpha(0f).setDuration(200).withEndAction(() -> layoutLoading.setVisibility(View.GONE)).start();
+                        UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Độ tự tin (" + String.format("%.1f%%", confidence) + ") thấp hơn ngưỡng cài đặt (" + threshold + "%)");
+                    });
+                    return;
+                }
+
                 savePrediction(bitmap, predictedLabel, confidence);
 
                 runOnUiThread(() -> {
-                    layoutHomeOptions.setVisibility(View.GONE);
-                    layoutRecognition.setVisibility(View.VISIBLE);
+                    layoutLoading.animate().alpha(0f).setDuration(200).withEndAction(() -> layoutLoading.setVisibility(View.GONE)).start();
+                    layoutHomeOptions.animate().alpha(0f).setDuration(300).withEndAction(() -> layoutHomeOptions.setVisibility(View.GONE)).start();
+                    
+                    cardResult.setAlpha(0f);
                     cardResult.setVisibility(View.VISIBLE);
+                    cardResult.animate().alpha(1f).setDuration(500).start();
+                    
+                    btnBack.setAlpha(0f);
                     btnBack.setVisibility(View.VISIBLE);
+                    btnBack.animate().alpha(1f).setDuration(500).start();
+
                     tvResult.setText(predictedLabel);
                     tvConfidence.setText(String.format("%.1f%%", confidence));
 
@@ -239,10 +281,13 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         tvConfidence.setTextColor(getColor(R.color.error));
                     }
+                    UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Nhận dạng thành công!");
                 });
             } catch (Exception e) {
-                Log.e(TAG, "Lỗi nhận dạng ảnh: " + e.getMessage());
-                runOnUiThread(() -> Toast.makeText(this, "Lỗi xử lý hình ảnh", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    layoutLoading.setVisibility(View.GONE);
+                    UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Lỗi xử lý hình ảnh");
+                });
             }
         });
     }
@@ -274,7 +319,6 @@ public class MainActivity extends AppCompatActivity {
             float drawConfidence = getIntent().getFloatExtra("draw_confidence", 0);
             if (drawResult != null) {
                 layoutHomeOptions.setVisibility(View.GONE);
-                layoutRecognition.setVisibility(View.VISIBLE);
                 cardResult.setVisibility(View.VISIBLE);
                 btnBack.setVisibility(View.VISIBLE);
                 tvResult.setText(drawResult);

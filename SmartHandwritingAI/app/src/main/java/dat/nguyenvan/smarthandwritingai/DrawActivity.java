@@ -24,6 +24,7 @@ public class DrawActivity extends AppCompatActivity {
     private TextView tvDrawResult, tvDrawConfidence, tvCurrentSetting;
     private CardView cardDrawResult;
     private Button btnRotate, btnFlip;
+    private View btnUndo, btnRedo;
     private AppDatabase db;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private SharedPreferences prefs;
@@ -43,6 +44,8 @@ public class DrawActivity extends AppCompatActivity {
         cardDrawResult = findViewById(R.id.card_draw_result);
         btnRotate = findViewById(R.id.btn_rotate);
         btnFlip = findViewById(R.id.btn_flip);
+        btnUndo = findViewById(R.id.btn_undo);
+        btnRedo = findViewById(R.id.btn_redo);
 
         prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
         ImageProcessor.rotationDegrees = prefs.getInt("rotation", 0);
@@ -56,12 +59,25 @@ public class DrawActivity extends AppCompatActivity {
             cardDrawResult.setVisibility(View.GONE);
         });
 
+        btnUndo.setOnClickListener(v -> drawingView.onClickUndo());
+        btnRedo.setOnClickListener(v -> drawingView.onClickRedo());
+
+        // Listener cho Realtime Prediction
+        drawingView.setOnDrawListener(() -> {
+            if (!drawingView.isEmpty()) {
+                predictDrawing(false); // Không lưu vào lịch sử nếu chỉ là realtime predict
+            } else {
+                cardDrawResult.setVisibility(View.GONE);
+            }
+        });
+
         findViewById(R.id.btn_predict).setOnClickListener(v -> {
             if (drawingView.isEmpty()) {
-                Toast.makeText(this, "Hãy vẽ gì đó trước!", Toast.LENGTH_SHORT).show();
+                UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Hãy vẽ gì đó trước!");
                 return;
             }
-            predictDrawing();
+            predictDrawing(true); // Lưu vào DB
+            UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã lưu vào lịch sử");
         });
 
         btnRotate.setOnClickListener(v -> {
@@ -82,7 +98,7 @@ public class DrawActivity extends AppCompatActivity {
                 .apply();
         updateDirectionUI();
         if (!drawingView.isEmpty()) {
-            predictDrawing();
+            predictDrawing(false);
         }
     }
 
@@ -93,25 +109,35 @@ public class DrawActivity extends AppCompatActivity {
         }
     }
 
-    private void predictDrawing() {
+    private void predictDrawing(boolean saveToHistory) {
         Bitmap bitmap = drawingView.getBitmap();
         executorService.execute(() -> {
             try {
                 DigitClassifier.PredictionResult result = digitClassifier.predict(bitmap);
                 
-                // Chuyển bitmap sang Base64 để lưu
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                String base64Image = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
+                SharedPreferences prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
+                int threshold = prefs.getInt("confidence_threshold", 50);
 
-                // Lưu vào database sử dụng PredictionEntity và predictionDao
-                PredictionEntity entity = new PredictionEntity(
-                        base64Image, 
-                        result.label, 
-                        result.confidence, 
-                        System.currentTimeMillis()
-                );
-                db.predictionDao().insert(entity);
+                if (result.confidence < threshold) {
+                    runOnUiThread(() -> tvDrawResult.setText("?"));
+                    return; // Không đủ tự tin thì không hiện kết quả
+                }
+                
+                if (saveToHistory) {
+                    // Chuyển bitmap sang Base64 để lưu
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                    String base64Image = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
+
+                    // Lưu vào database
+                    PredictionEntity entity = new PredictionEntity(
+                            base64Image, 
+                            result.label, 
+                            result.confidence, 
+                            System.currentTimeMillis()
+                    );
+                    db.predictionDao().insert(entity);
+                }
 
                 runOnUiThread(() -> {
                     tvDrawResult.setText(result.label);
@@ -120,7 +146,7 @@ public class DrawActivity extends AppCompatActivity {
                 });
             } catch (Exception e) {
                 Log.e("DrawActivity", "Error during prediction", e);
-                runOnUiThread(() -> Toast.makeText(this, "Lỗi nhận dạng: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Lỗi nhận dạng: " + e.getMessage()));
             }
         });
     }

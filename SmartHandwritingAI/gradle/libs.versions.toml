@@ -16,6 +16,8 @@ firebaseBom = "33.7.0"
 googleServices = "4.4.2"
 firebaseFirestore = "26.3.0"
 firebaseDatabase = "22.0.1"
+mpandroidchart = "v3.1.0"
+lottie = "6.4.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -35,6 +37,8 @@ firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.r
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
+lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

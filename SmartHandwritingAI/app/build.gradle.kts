@@ -59,6 +59,12 @@ dependencies {
     // TensorFlow Lite (chỉ cần core, ImageProcessor tự xử lý ảnh)
     implementation(libs.tflite)
 
+    // Biểu đồ MPAndroidChart
+    implementation(libs.mpandroidchart)
+
+    // Lottie Animation
+    implementation(libs.lottie)
+
     // Room Database
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
