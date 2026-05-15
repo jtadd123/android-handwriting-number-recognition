@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartHandwritingAI</string>
+    <string name="title_main">Handwriting Recognition</string>
+    <string name="subtitle_main">Powered by TensorFlow Lite</string>
+    <string name="btn_camera">📷  Camera</string>
+    <string name="btn_gallery">🖼️  Gallery</string>
+    <string name="btn_draw">✏️  Draw</string>
+    <string name="btn_history">📋  History</string>
+    <string name="result_label">Result</string>
+    <string name="confidence_label">Confidence</string>
+    <string name="no_result">No Result</string>
+    <string name="btn_back">Back</string>
+    <string name="tap_to_start">Tap to start</string>
+    <string name="model_loading">Loading AI model…</string>
+    <string name="model_ready">AI model ready ✓</string>
+    <string name="model_error">AI model error ✗</string>
+    <string name="title_draw">Draw Number</string>
+    <string name="btn_clear">Clear</string>
+    <string name="btn_predict">Predict</string>
+    <string name="draw_hint">Draw a digit (0-9)</string>
+    <string name="draw_empty">Please draw first!</string>
+    <string name="title_history">Prediction History</string>
+    <string name="no_history">No history found</string>
+    <string name="btn_clear_history">Clear All</string>
+    <string name="confirm_clear">Clear all history?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="history_cleared">History cleared</string>
+</resources>

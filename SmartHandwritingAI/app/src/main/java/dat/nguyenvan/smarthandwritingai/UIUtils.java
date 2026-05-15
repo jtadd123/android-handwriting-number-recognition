@@ -21,4 +21,11 @@ public class UIUtils {
         snackbar.setTextColor(Color.WHITE);
         snackbar.show();
     }
+
+    public static void showWarningSnackbar(View view, String message) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
+        snackbar.setBackgroundTint(Color.parseColor("#FFFFD740")); // warning color
+        snackbar.setTextColor(Color.BLACK);
+        snackbar.show();
+    }
 }

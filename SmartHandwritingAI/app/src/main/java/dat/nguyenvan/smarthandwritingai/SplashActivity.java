@@ -16,7 +16,13 @@ public class SplashActivity extends AppCompatActivity {
 
         // Chuyển sang MainActivity sau 2.5 giây
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            startActivity(new Intent(SplashActivity.this, MainActivity.class));
+            android.content.SharedPreferences prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
+            boolean isFirstRun = prefs.getBoolean("isFirstRun", true);
+            if (isFirstRun) {
+                startActivity(new Intent(SplashActivity.this, OnboardingActivity.class));
+            } else {
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+            }
             finish();
         }, 2500);
     }

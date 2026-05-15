@@ -13,9 +13,13 @@ public class PredictionEntity {
     private String imageBase64;    
     private String result;            
     private float confidence;      
-    private long timestamp;        
+    private long timestamp;
+
+    @androidx.room.ColumnInfo(name = "is_favorite")
+    public boolean isFavorite = false;        
 
     public PredictionEntity(String imageBase64, String result, float confidence, long timestamp) {
+        this.isFavorite = false;
         this.imageBase64 = imageBase64;
         this.result = result;
         this.confidence = confidence;
@@ -36,5 +40,6 @@ public class PredictionEntity {
     public void setConfidence(float confidence) { this.confidence = confidence; }
 
     public long getTimestamp() { return timestamp; }
-    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+    public void setTimestamp(long timestamp) {
+        this.isFavorite = false; this.timestamp = timestamp; }
 }

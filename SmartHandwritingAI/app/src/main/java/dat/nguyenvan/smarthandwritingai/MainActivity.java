@@ -9,11 +9,17 @@ import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions;
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanning;
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult;
+
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +36,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.button.MaterialButton;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,73 +44,97 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    private ImageView ivPreview;
-    private TextView tvResult;
-    private TextView tvConfidence;
-    private TextView tvModelStatus;
-    private TextView tvHint;
-    private CardView cardResult;
-    private MaterialButton btnCamera;
-    private MaterialButton btnGallery;
-    private MaterialButton btnDraw;
-    private MaterialButton btnHistory;
-    private MaterialButton btnAnalytics;
-    private MaterialButton btnBack;
-    private View layoutHomeOptions;
-    private View layoutLoading;
-    private View scanLine;
+    private ImageView ivPreview, ivDebug;
+    private View layoutDebug;
+    private TextView tvResult, tvConfidence, tvModelStatus, tvHint;
+    private View cardResult, layoutHomeOptions, layoutLoading, scanLine;
+    private MaterialButton btnCamera, btnGallery, btnDraw, btnHistory, btnAnalytics, btnBack;
 
     private DigitClassifier digitClassifier;
     private Bitmap currentBitmap;
     private ExecutorService executorService;
 
+    private Uri photoUri;
+
     private final ActivityResultLauncher<Intent> cameraLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    Bundle extras = result.getData().getExtras();
-                    if (extras != null) {
-                        currentBitmap = (Bitmap) extras.get("data");
-                        if (currentBitmap != null) {
-                            ivPreview.setImageBitmap(currentBitmap);
-                            tvHint.setVisibility(View.GONE);
-                            classifyImage(currentBitmap);
+                if (result.getResultCode() == RESULT_OK) {
+                    try {
+                        if (photoUri != null) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), photoUri);
+                                currentBitmap = ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true);
+                            } else {
+                                currentBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), photoUri);
+                            }
+                            
+                            if (currentBitmap != null) {
+                                currentBitmap = rotateImageIfRequired(currentBitmap, photoUri);
+                                ivPreview.setImageBitmap(currentBitmap);
+                                tvHint.setVisibility(View.GONE);
+                                classifyImage(currentBitmap);
+                            }
                         }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error reading camera image: " + e.getMessage());
+                        Toast.makeText(this, "Lỗi đọc ảnh camera", Toast.LENGTH_SHORT).show();
                     }
-                } else if (result.getResultCode() == RESULT_CANCELED) {
-                    Toast.makeText(this, "Đã hủy chụp ảnh", Toast.LENGTH_SHORT).show();
                 }
             });
+
+    private Bitmap rotateImageIfRequired(Bitmap img, Uri selectedImage) throws java.io.IOException {
+        java.io.InputStream input = getContentResolver().openInputStream(selectedImage);
+        androidx.exifinterface.media.ExifInterface ei;
+        if (Build.VERSION.SDK_INT > 23)
+            ei = new androidx.exifinterface.media.ExifInterface(input);
+        else
+            ei = new androidx.exifinterface.media.ExifInterface(selectedImage.getPath());
+
+        int orientation = ei.getAttributeInt(androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION, androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
+        }
+    }
+
+    private static Bitmap rotateImage(Bitmap img, int degree) {
+        android.graphics.Matrix matrix = new android.graphics.Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
+    }
 
     private final ActivityResultLauncher<String> galleryLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 if (uri != null) {
                     try {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            ImageDecoder.Source source = ImageDecoder.createSource(
-                                    getContentResolver(), uri);
-                            currentBitmap = ImageDecoder.decodeBitmap(source)
-                                    .copy(Bitmap.Config.ARGB_8888, true);
+                            ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), uri);
+                            currentBitmap = ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true);
                         } else {
-                            currentBitmap = MediaStore.Images.Media.getBitmap(
-                                    getContentResolver(), uri);
+                            currentBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                         }
                         ivPreview.setImageBitmap(currentBitmap);
                         tvHint.setVisibility(View.GONE);
                         classifyImage(currentBitmap);
                     } catch (Exception e) {
-                        Toast.makeText(this, "Lỗi đọc ảnh: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Lỗi đọc ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
 
     private final ActivityResultLauncher<String> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
-                if (granted) {
-                    openCamera();
-                } else {
-                    Toast.makeText(this, "Cần quyền Camera để chụp ảnh", Toast.LENGTH_SHORT).show();
-                }
+                if (granted) openCamera();
+                else Toast.makeText(this, "Cần quyền Camera để chụp ảnh", Toast.LENGTH_SHORT).show();
             });
 
     @Override
@@ -125,6 +156,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void initViews() {
         ivPreview = findViewById(R.id.iv_preview);
+        ivDebug = findViewById(R.id.iv_debug);
+        layoutDebug = findViewById(R.id.layout_debug);
         tvResult = findViewById(R.id.tv_result);
         tvConfidence = findViewById(R.id.tv_confidence);
         tvModelStatus = findViewById(R.id.tv_model_status);
@@ -163,36 +196,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupListeners() {
         btnCamera.setOnClickListener(v -> {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                    == PackageManager.PERMISSION_GRANTED) {
-                openCamera();
-            } else {
-                permissionLauncher.launch(Manifest.permission.CAMERA);
-            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) openCamera();
+            else permissionLauncher.launch(Manifest.permission.CAMERA);
         });
 
-        btnGallery.setOnClickListener(v -> openGallery());
-
-        btnDraw.setOnClickListener(v -> {
-            Intent intent = new Intent(this, DrawActivity.class);
-            startActivity(intent);
-        });
-
-        btnHistory.setOnClickListener(v -> {
-            Intent intent = new Intent(this, HistoryActivity.class);
-            startActivity(intent);
-        });
-
-        btnAnalytics.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AnalyticsActivity.class);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.btn_settings).setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-        });
-
+        btnGallery.setOnClickListener(v -> galleryLauncher.launch("image/*"));
+        btnDraw.setOnClickListener(v -> startActivity(new Intent(this, DrawActivity.class)));
+        btnHistory.setOnClickListener(v -> startActivity(new Intent(this, HistoryActivity.class)));
+        btnAnalytics.setOnClickListener(v -> startActivity(new Intent(this, AnalyticsActivity.class)));
+        findViewById(R.id.btn_settings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
         btnBack.setOnClickListener(v -> resetState());
     }
 
@@ -205,22 +217,18 @@ public class MainActivity extends AppCompatActivity {
         cardResult.setVisibility(View.GONE);
         btnBack.setVisibility(View.GONE);
         layoutHomeOptions.setVisibility(View.VISIBLE);
+        layoutDebug.setVisibility(View.GONE);
     }
 
     private void openCamera() {
         try {
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            cameraLauncher.launch(takePictureIntent);
+            java.io.File photoFile = new java.io.File(getExternalCacheDir(), "camera_photo.jpg");
+            photoUri = androidx.core.content.FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+            cameraLauncher.launch(intent);
         } catch (Exception e) {
             UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Không thể mở Camera: " + e.getMessage());
-        }
-    }
-
-    private void openGallery() {
-        try {
-            galleryLauncher.launch("image/*");
-        } catch (Exception e) {
-            UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Không thể mở Thư viện: " + e.getMessage());
         }
     }
 
@@ -230,66 +238,72 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        SharedPreferences prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
-        int threshold = prefs.getInt("confidence_threshold", 50);
-
         layoutLoading.setVisibility(View.VISIBLE);
-        layoutLoading.setAlpha(0f);
-        layoutLoading.animate().alpha(1f).setDuration(200).start();
-
+        layoutLoading.setAlpha(1f);
         scanLine.setVisibility(View.VISIBLE);
         scanLine.setTranslationY(0f);
-        scanLine.animate().translationY(600f).setDuration(1200).withEndAction(() -> scanLine.setVisibility(View.GONE)).start();
+        scanLine.animate().translationY(600f).setDuration(1000).withEndAction(() -> scanLine.setVisibility(View.GONE)).start();
 
         executorService.execute(() -> {
             try {
-                Thread.sleep(1200);
-
+                Thread.sleep(500);
                 DigitClassifier.PredictionResult result = digitClassifier.predict(bitmap);
-                String predictedLabel = result.label;
-                float confidence = result.confidence;
-
-                if (confidence < threshold) {
-                    runOnUiThread(() -> {
-                        layoutLoading.animate().alpha(0f).setDuration(200).withEndAction(() -> layoutLoading.setVisibility(View.GONE)).start();
-                        UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Độ tự tin (" + String.format("%.1f%%", confidence) + ") thấp hơn ngưỡng cài đặt (" + threshold + "%)");
-                    });
-                    return;
-                }
-
-                savePrediction(bitmap, predictedLabel, confidence);
+                Bitmap debugBitmap = ImageProcessor.getLastPreprocessedBitmap();
 
                 runOnUiThread(() -> {
-                    layoutLoading.animate().alpha(0f).setDuration(200).withEndAction(() -> layoutLoading.setVisibility(View.GONE)).start();
-                    layoutHomeOptions.animate().alpha(0f).setDuration(300).withEndAction(() -> layoutHomeOptions.setVisibility(View.GONE)).start();
-                    
-                    cardResult.setAlpha(0f);
-                    cardResult.setVisibility(View.VISIBLE);
-                    cardResult.animate().alpha(1f).setDuration(500).start();
-                    
-                    btnBack.setAlpha(0f);
-                    btnBack.setVisibility(View.VISIBLE);
-                    btnBack.animate().alpha(1f).setDuration(500).start();
-
-                    tvResult.setText(predictedLabel);
-                    tvConfidence.setText(String.format("%.1f%%", confidence));
-
-                    if (confidence >= 90) {
-                        tvConfidence.setTextColor(getColor(R.color.success));
-                    } else if (confidence >= 70) {
-                        tvConfidence.setTextColor(getColor(R.color.warning));
-                    } else {
-                        tvConfidence.setTextColor(getColor(R.color.error));
+                    layoutLoading.setVisibility(View.GONE);
+                    if (result != null) {
+                        displayResult(result);
+                        if (debugBitmap != null) {
+                            layoutDebug.setVisibility(View.VISIBLE);
+                            ivDebug.setImageBitmap(debugBitmap);
+                        }
+                        savePrediction(bitmap, result.label, result.confidence);
                     }
-                    UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Nhận dạng thành công!");
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     layoutLoading.setVisibility(View.GONE);
-                    UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Lỗi xử lý hình ảnh");
+                    UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Lỗi nhận dạng: " + e.getMessage());
                 });
             }
         });
+    }
+
+    private void displayResult(DigitClassifier.PredictionResult result) {
+        tvResult.setText(result.label);
+        tvConfidence.setText(String.format("%.1f%%", result.confidence));
+        cardResult.setVisibility(View.VISIBLE);
+        layoutHomeOptions.setVisibility(View.GONE);
+        btnBack.setVisibility(View.VISIBLE);
+
+        LinearLayout layoutTop = findViewById(R.id.layout_top_predictions);
+        layoutTop.removeAllViews();
+        
+        TextView header = new TextView(this);
+        header.setText("Top 3 Dự Đoán (AI Confidence):");
+        header.setTextColor(getColor(R.color.text_secondary));
+        header.setTextSize(14);
+        header.setTypeface(null, android.graphics.Typeface.BOLD);
+        header.setPadding(0, 0, 0, 16);
+        layoutTop.addView(header);
+
+        for (DigitClassifier.PredictionItem item : result.topK) {
+            View view = getLayoutInflater().inflate(R.layout.item_prediction_bar, layoutTop, false);
+            TextView tvLabel = view.findViewById(R.id.tv_label);
+            TextView tvValue = view.findViewById(R.id.tv_confidence_value);
+            ProgressBar progress = view.findViewById(R.id.progress_confidence);
+
+            tvLabel.setText(item.label);
+            tvValue.setText(String.format("%.1f%%", item.confidence));
+            progress.setProgress((int) item.confidence);
+            layoutTop.addView(view);
+        }
+
+        if (result.confidence < 50) {
+            UIUtils.showWarningSnackbar(findViewById(android.R.id.content),
+                    String.format("Độ tự tin (%.1f%%) thấp hơn ngưỡng cài đặt (50%%)", result.confidence));
+        }
     }
 
     private void savePrediction(Bitmap bitmap, String result, float confidence) {
@@ -299,12 +313,8 @@ public class MainActivity extends AppCompatActivity {
                 Bitmap resized = Bitmap.createScaledBitmap(bitmap, 56, 56, true);
                 resized.compress(Bitmap.CompressFormat.PNG, 100, baos);
                 String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-
-                PredictionEntity entity = new PredictionEntity(
-                        base64, result, confidence, System.currentTimeMillis());
-
+                PredictionEntity entity = new PredictionEntity(base64, result, confidence, System.currentTimeMillis());
                 AppDatabase.getInstance(this).predictionDao().insert(entity);
-                Log.d(TAG, "Prediction saved: " + result + " (" + confidence + "%)");
             } catch (Exception e) {
                 Log.e(TAG, "Error saving prediction: " + e.getMessage());
             }
@@ -331,11 +341,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (digitClassifier != null) {
-            digitClassifier.close();
-        }
-        if (executorService != null) {
-            executorService.shutdown();
-        }
+        if (digitClassifier != null) digitClassifier.close();
+        if (executorService != null) executorService.shutdown();
     }
 }

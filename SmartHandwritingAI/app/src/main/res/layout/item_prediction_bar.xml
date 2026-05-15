@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/tv_label"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:text="3"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <ProgressBar
+        android:id="@+id/progress_confidence"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="0dp"
+        android:layout_height="8dp"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="12dp"
+        android:progress="80"
+        android:progressDrawable="@drawable/progress_prediction" />
+
+    <TextView
+        android:id="@+id/tv_confidence_value"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:text="80%"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:gravity="end" />
+
+</LinearLayout>

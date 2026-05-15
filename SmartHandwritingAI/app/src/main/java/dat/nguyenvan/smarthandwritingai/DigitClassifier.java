@@ -64,17 +64,19 @@ public class DigitClassifier {
     }
 
     private PredictionResult getBestPrediction(float[] probabilities) {
-        int maxIndex = 0;
-        float maxConfidence = 0;
-
+        java.util.List<PredictionItem> allPredictions = new java.util.ArrayList<>();
         for (int i = 0; i < probabilities.length; i++) {
-            if (probabilities[i] > maxConfidence) {
-                maxConfidence = probabilities[i];
-                maxIndex = i;
-            }
+            allPredictions.add(new PredictionItem(LABELS[i], probabilities[i] * 100));
+        }
+        java.util.Collections.sort(allPredictions);
+
+        PredictionItem top1 = allPredictions.get(0);
+        PredictionItem[] topK = new PredictionItem[3];
+        for (int i = 0; i < 3; i++) {
+            topK[i] = allPredictions.get(i);
         }
 
-        return new PredictionResult(LABELS[maxIndex], maxConfidence * 100);
+        return new PredictionResult(top1.label, top1.confidence, topK);
     }
 
     public boolean isInitialized() {
@@ -90,10 +92,27 @@ public class DigitClassifier {
     public static class PredictionResult {
         public final String label;
         public final float confidence;
+        public final PredictionItem[] topK;
 
-        public PredictionResult(String label, float confidence) {
+        public PredictionResult(String label, float confidence, PredictionItem[] topK) {
             this.label = label;
             this.confidence = confidence;
+            this.topK = topK;
+        }
+    }
+
+    public static class PredictionItem implements Comparable<PredictionItem> {
+        public final String label;
+        public final float confidence;
+
+        public PredictionItem(String label, float confidence) {
+            this.label = label;
+            this.confidence = confidence;
+        }
+
+        @Override
+        public int compareTo(PredictionItem o) {
+            return Float.compare(o.confidence, this.confidence);
         }
     }
 }

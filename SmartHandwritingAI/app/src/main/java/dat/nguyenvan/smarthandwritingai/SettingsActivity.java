@@ -19,6 +19,7 @@ public class SettingsActivity extends AppCompatActivity {
     private SeekBar seekbarThreshold;
     private TextView tvThresholdValue;
     private MaterialSwitch switchFirebase;
+    private MaterialSwitch switchLanguage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,7 @@ public class SettingsActivity extends AppCompatActivity {
         seekbarThreshold = findViewById(R.id.seekbar_threshold);
         tvThresholdValue = findViewById(R.id.tv_threshold_value);
         switchFirebase = findViewById(R.id.switch_firebase);
+        switchLanguage = findViewById(R.id.switch_language);
 
         findViewById(R.id.btn_back_settings).setOnClickListener(v -> finish());
 
@@ -58,6 +60,14 @@ public class SettingsActivity extends AppCompatActivity {
             UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), msg);
         });
 
+        
+        switchLanguage.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("isEnglish", isChecked).apply();
+            androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(
+                androidx.core.os.LocaleListCompat.create(java.util.Locale.forLanguageTag(isChecked ? "en" : "vi"))
+            );
+        });
+        
         findViewById(R.id.btn_clear_data).setOnClickListener(v -> {
             ExecutorService executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
@@ -77,5 +87,6 @@ public class SettingsActivity extends AppCompatActivity {
         seekbarThreshold.setProgress(threshold);
         tvThresholdValue.setText(threshold + "%");
         switchFirebase.setChecked(sync);
+        switchLanguage.setChecked(prefs.getBoolean("isEnglish", false));
     }
 }

@@ -1,85 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/surface_dark"
-    android:orientation="vertical"
-    tools:context=".HistoryActivity">
-
-    
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="12dp">
-
-        <ImageButton
-            android:id="@+id/btn_back_history"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Quay lại"
-            android:src="@android:drawable/ic_menu_revert"
-            app:tint="@color/text_primary" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:text="@string/title_history"
-            android:textColor="@color/text_primary"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_clear_all"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_clear_history"
-            android:textColor="@color/error"
-            android:textSize="12sp" />
-
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/surface_dark" android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_vertical" android:orientation="horizontal"
+        android:paddingHorizontal="20dp" android:paddingTop="20dp" android:paddingBottom="12dp">
+        <ImageButton android:id="@+id/btn_back_history" android:layout_width="40dp"
+            android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert" app:tint="@color/text_primary" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/title_history"
+            android:textColor="@color/text_primary" android:textSize="22sp" android:textStyle="bold" />
+        <ImageButton android:id="@+id/btn_sync" android:layout_width="40dp" android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/stat_notify_sync" app:tint="@color/accent" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_clear_all"
+            style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="@string/btn_clear_history" android:textColor="@color/error" />
     </LinearLayout>
-
-    
-    <LinearLayout
-        android:id="@+id/layout_empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="visible">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📭"
-            android:textSize="64sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/no_history"
-            android:textColor="@color/text_hint"
-            android:textSize="16sp" />
-
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingBottom="8dp">
+        <androidx.appcompat.widget.SearchView android:id="@+id/search_view" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:background="@drawable/bg_rounded_pill"
+            android:backgroundTint="@color/surface_elevated" app:queryHint="Tìm kiếm lịch sử" app:iconifiedByDefault="false" />
+        <com.google.android.material.chip.ChipGroup android:id="@+id/chip_group_filter" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="8dp" app:singleSelection="true">
+            <com.google.android.material.chip.Chip android:id="@+id/chip_all" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Tất cả" android:checked="true" style="@style/Widget.Material3.Chip.Filter" />
+            <com.google.android.material.chip.Chip android:id="@+id/chip_favorites" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Yêu thích" style="@style/Widget.Material3.Chip.Filter" />
+        </com.google.android.material.chip.ChipGroup>
     </LinearLayout>
-
-    
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_history"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:padding="16dp"
-        android:visibility="gone" />
-
+    <LinearLayout android:id="@+id/layout_empty" android:layout_width="match_parent"
+        android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📭" android:textSize="64sp" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp"
+            android:text="@string/no_history" android:textColor="@color/text_hint" android:textSize="16sp" />
+    </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rv_history" android:layout_width="match_parent"
+        android:layout_height="match_parent" android:clipToPadding="false" android:padding="16dp" android:visibility="gone" />
 </LinearLayout>

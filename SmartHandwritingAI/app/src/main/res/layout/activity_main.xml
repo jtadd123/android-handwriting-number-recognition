@@ -109,7 +109,38 @@
                 </FrameLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Prediction Result Card (Initially Hidden) -->
+            <!-- Debug View (Always visible for now to debug) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/layout_debug"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#20FFFFFF"
+                app:cardCornerRadius="16dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:gravity="center">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AI Input (Dữ liệu AI thực tế thấy):"
+                        android:textColor="#80FFFFFF"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp" />
+                    <ImageView
+                        android:id="@+id/iv_debug"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:scaleType="fitCenter"
+                        android:background="@color/black" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Prediction Result Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/card_result"
                 android:layout_width="match_parent"
@@ -151,7 +182,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:gravity="center"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:visibility="gone"> <!-- Hide original confidence since we show top 3 -->
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -168,6 +200,25 @@
                             android:textColor="@color/success"
                             android:textSize="14sp"
                             android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_top_predictions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical"
+                        android:visibility="visible">
+                        
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Top 3 Dự Đoán (AI Confidence):"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp" />
+                            
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
