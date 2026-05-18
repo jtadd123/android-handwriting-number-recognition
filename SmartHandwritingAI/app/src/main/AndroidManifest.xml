@@ -5,6 +5,7 @@
     
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     
@@ -41,6 +42,10 @@
             android:exported="true" />
 
         <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".DrawActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
@@ -58,6 +63,18 @@
             android:exported="false" />
 
         <activity android:name=".OnboardingActivity" android:exported="false" />
+
+        <activity
+            android:name=".PracticeModeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- UCrop — bắt buộc khai báo -->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

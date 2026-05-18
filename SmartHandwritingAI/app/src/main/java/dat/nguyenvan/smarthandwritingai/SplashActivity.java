@@ -1,11 +1,14 @@
 package dat.nguyenvan.smarthandwritingai;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -14,14 +17,19 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // Chuyển sang MainActivity sau 2.5 giây
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            android.content.SharedPreferences prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
+            SharedPreferences prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
             boolean isFirstRun = prefs.getBoolean("isFirstRun", true);
+
             if (isFirstRun) {
-                startActivity(new Intent(SplashActivity.this, OnboardingActivity.class));
+                // Lần đầu: Onboarding → Login
+                startActivity(new Intent(this, OnboardingActivity.class));
+            } else if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                // Đã đăng nhập → thẳng vào app
+                startActivity(new Intent(this, MainActivity.class));
             } else {
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                // Chưa đăng nhập → màn hình Login (có nút skip)
+                startActivity(new Intent(this, LoginActivity.class));
             }
             finish();
         }, 2500);

@@ -1,31 +1,23 @@
 package dat.nguyenvan.smarthandwritingai;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.pdf.PdfDocument;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.button.MaterialButton;
+
 import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.firestore.FirebaseFirestore;
-import java.io.File;
-import java.io.FileOutputStream;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +43,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
         try { db = FirebaseFirestore.getInstance(); } catch (Exception e) { db = null; }
         initViews();
         setupListeners();
+        setupSwipeToDelete();
         loadHistory();
     }
 
@@ -81,6 +74,42 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
             showFavoritesOnly = (checkedId == R.id.chip_favorites);
             loadHistory();
         });
+    }
+
+    private void setupSwipeToDelete() {
+        ItemTouchHelper.SimpleCallback swipeCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(RecyclerView rv, RecyclerView.ViewHolder vh, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                PredictionEntity entity = adapter.getItemAt(position);
+                if (entity != null) {
+                    deleteItem(entity, position);
+                }
+            }
+
+            @Override
+            public void onChildDraw(android.graphics.Canvas c, RecyclerView recyclerView,
+                                    RecyclerView.ViewHolder viewHolder, float dX, float dY,
+                                    int actionState, boolean isCurrentlyActive) {
+                // Draw red background when swiping
+                View itemView = viewHolder.itemView;
+                android.graphics.Paint paint = new android.graphics.Paint();
+                paint.setColor(getColor(R.color.error));
+                
+                if (dX < 0) {
+                    c.drawRect(itemView.getRight() + dX, itemView.getTop(),
+                            itemView.getRight(), itemView.getBottom(), paint);
+                }
+                
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+        };
+        new ItemTouchHelper(swipeCallback).attachToRecyclerView(rvHistory);
     }
 
     private void loadHistory() {
@@ -131,9 +160,28 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
         });
     }
 
-    
+    @Override
+    public void onDeleteClick(PredictionEntity entity, int position) {
+        new AlertDialog.Builder(this)
+                .setMessage("Xóa mục này khỏi lịch sử?")
+                .setPositiveButton(R.string.yes, (dialog, which) -> deleteItem(entity, position))
+                .setNegativeButton(R.string.no, null)
+                .show();
+    }
 
-    
+    private void deleteItem(PredictionEntity entity, int position) {
+        executorService.execute(() -> {
+            AppDatabase.getInstance(this).predictionDao().delete(entity);
+            runOnUiThread(() -> {
+                adapter.removeItem(position);
+                if (adapter.getItemCount() == 0) {
+                    rvHistory.setVisibility(View.GONE);
+                    layoutEmpty.setVisibility(View.VISIBLE);
+                }
+                UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã xóa");
+            });
+        });
+    }
 
     private void syncFirebase() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

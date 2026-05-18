@@ -27,4 +27,9 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="history_cleared">History cleared</string>
+    <string name="title_practice">AI Practice</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_analytics">AI Analytics</string>
+    <string name="confirm_delete_item">Delete this item from history?</string>
+    <string name="item_deleted">Deleted</string>
 </resources>

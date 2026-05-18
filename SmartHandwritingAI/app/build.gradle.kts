@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.services)
-    // alias(libs.plugins.google.services) // Uncomment khi cấu hình Firebase
 }
 
 android {
@@ -23,8 +22,12 @@ android {
     }
 
     buildTypes {
-        release {
+        debug {
             isMinifyEnabled = false
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -52,6 +55,8 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
     implementation(libs.material)
     implementation(libs.cardview)
     implementation(libs.recyclerview)
@@ -69,14 +74,12 @@ dependencies {
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
 
-    // Firebase (uncomment khi cấu hình Firebase)
-    // implementation(platform(libs.firebase.bom))
-    // implementation(libs.firebase.storage)
+    // UCrop — crop ảnh trước khi nhận dạng
+    implementation(libs.ucrop)
+    implementation("androidx.exifinterface:exifinterface:1.3.6")
 
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
-    implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0-beta1")
-    implementation("androidx.exifinterface:exifinterface:1.3.6")
 }

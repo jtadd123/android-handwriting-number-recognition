@@ -1,6 +1,5 @@
 package dat.nguyenvan.smarthandwritingai;
 
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -9,8 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -21,7 +22,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     public interface OnItemClickListener {
         void onFavoriteClick(PredictionEntity entity);
-        
+        void onDeleteClick(PredictionEntity entity, int position);
     }
 
     public HistoryAdapter(List<PredictionEntity> predictions, OnItemClickListener listener) {
@@ -57,19 +58,34 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         
         holder.btnFavorite.setImageResource(prediction.isFavorite ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off);
         holder.btnFavorite.setOnClickListener(v -> listener.onFavoriteClick(prediction));
-        
+        holder.btnDelete.setOnClickListener(v -> listener.onDeleteClick(prediction, holder.getAdapterPosition()));
     }
 
     @Override
     public int getItemCount() { return predictions != null ? predictions.size() : 0; }
+
     public void updateData(List<PredictionEntity> newPredictions) {
         this.predictions = newPredictions;
         notifyDataSetChanged();
     }
 
+    public PredictionEntity getItemAt(int position) {
+        if (predictions != null && position >= 0 && position < predictions.size()) {
+            return predictions.get(position);
+        }
+        return null;
+    }
+
+    public void removeItem(int position) {
+        if (predictions != null && position >= 0 && position < predictions.size()) {
+            predictions.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage; TextView tvResult, tvConfidence, tvTimestamp;
-        ImageButton btnFavorite;
+        ImageButton btnFavorite, btnDelete;
         ViewHolder(@NonNull View v) {
             super(v);
             ivImage = v.findViewById(R.id.iv_history_image);
@@ -77,7 +93,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             tvConfidence = v.findViewById(R.id.tv_history_confidence);
             tvTimestamp = v.findViewById(R.id.tv_history_timestamp);
             btnFavorite = v.findViewById(R.id.btn_favorite);
-            
+            btnDelete = v.findViewById(R.id.btn_delete);
         }
     }
 }

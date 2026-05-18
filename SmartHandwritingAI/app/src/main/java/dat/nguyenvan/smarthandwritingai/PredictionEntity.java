@@ -41,5 +41,5 @@ public class PredictionEntity {
 
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) {
-        this.isFavorite = false; this.timestamp = timestamp; }
+        this.timestamp = timestamp; }
 }

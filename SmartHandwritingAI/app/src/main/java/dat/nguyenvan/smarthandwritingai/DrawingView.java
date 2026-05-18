@@ -15,21 +15,34 @@ import java.util.ArrayList;
 public class DrawingView extends View {
 
     private Paint drawPaint;
-    private ArrayList<Path> paths = new ArrayList<>();
-    private ArrayList<Path> undonePaths = new ArrayList<>();
+    private ArrayList<PathData> paths = new ArrayList<>();
+    private ArrayList<PathData> undonePaths = new ArrayList<>();
     private Path currentPath;
     
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
 
-    private static final int PAINT_COLOR = Color.WHITE;
+    private int paintColor = Color.WHITE;
     private static final int BACKGROUND_COLOR = Color.BLACK;
-    private static final float STROKE_WIDTH = 64f;
+    private float strokeWidth = 64f;
 
     private OnDrawListener drawListener;
 
     public interface OnDrawListener {
         void onDrawEnd();
+    }
+
+    // Inner class to store path with its paint properties
+    private static class PathData {
+        Path path;
+        int color;
+        float strokeWidth;
+
+        PathData(Path path, int color, float strokeWidth) {
+            this.path = path;
+            this.color = color;
+            this.strokeWidth = strokeWidth;
+        }
     }
 
     public DrawingView(Context context) {
@@ -48,12 +61,30 @@ public class DrawingView extends View {
 
     private void init() {
         drawPaint = new Paint();
-        drawPaint.setColor(PAINT_COLOR);
+        drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
-        drawPaint.setStrokeWidth(STROKE_WIDTH);
+        drawPaint.setStrokeWidth(strokeWidth);
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
+    }
+
+    public void setBrushSize(float size) {
+        this.strokeWidth = size;
+        drawPaint.setStrokeWidth(size);
+    }
+
+    public float getBrushSize() {
+        return strokeWidth;
+    }
+
+    public void setBrushColor(int color) {
+        this.paintColor = color;
+        drawPaint.setColor(color);
+    }
+
+    public int getBrushColor() {
+        return paintColor;
     }
 
     @Override
@@ -61,9 +92,14 @@ public class DrawingView extends View {
         super.onDraw(canvas);
         canvas.drawColor(BACKGROUND_COLOR);
 
-        for (Path p : paths) {
-            canvas.drawPath(p, drawPaint);
+        // Draw all saved paths with their own paint properties
+        Paint tempPaint = new Paint(drawPaint);
+        for (PathData pd : paths) {
+            tempPaint.setColor(pd.color);
+            tempPaint.setStrokeWidth(pd.strokeWidth);
+            canvas.drawPath(pd.path, tempPaint);
         }
+        // Draw current path with current settings
         if (currentPath != null) {
             canvas.drawPath(currentPath, drawPaint);
         }
@@ -89,7 +125,7 @@ public class DrawingView extends View {
 
     private void touchUp() {
         currentPath.lineTo(mX, mY);
-        paths.add(currentPath);
+        paths.add(new PathData(currentPath, paintColor, strokeWidth));
         currentPath = null;
         if (drawListener != null) {
             drawListener.onDrawEnd();

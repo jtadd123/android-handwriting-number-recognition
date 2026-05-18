@@ -20,10 +20,15 @@
                 android:layout_height="wrap_content" android:textColor="@color/text_hint" android:textSize="11sp" />
         </LinearLayout>
         <TextView android:id="@+id/tv_history_confidence" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:textSize="16sp" android:textStyle="bold" android:layout_marginEnd="8dp"/>
-        <ImageButton android:id="@+id/btn_export" android:layout_width="36dp" android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_share" app:tint="@color/text_secondary" />
+            android:layout_height="wrap_content" android:textSize="16sp" android:textStyle="bold" android:layout_marginEnd="4dp"/>
         <ImageButton android:id="@+id/btn_favorite" android:layout_width="36dp" android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/btn_star_big_off" />
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/btn_star_big_off"
+            android:contentDescription="Đánh dấu yêu thích" />
+        <ImageButton android:id="@+id/btn_delete" android:layout_width="36dp" android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="Xóa mục này"
+            app:tint="@color/error" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

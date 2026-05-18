@@ -32,4 +32,11 @@
     <string name="yes">Đồng ý</string>
     <string name="no">Hủy</string>
     <string name="history_cleared">Đã xóa tất cả lịch sử</string>
+
+    
+    <string name="title_practice">Luyện Viết AI</string>
+    <string name="title_settings">Cài Đặt</string>
+    <string name="title_analytics">Thống Kê AI</string>
+    <string name="confirm_delete_item">Xóa mục này khỏi lịch sử?</string>
+    <string name="item_deleted">Đã xóa</string>
 </resources>

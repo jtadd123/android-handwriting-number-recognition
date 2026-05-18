@@ -36,6 +36,14 @@
             android:textSize="22sp"
             android:textStyle="bold" />
 
+        <ImageButton
+            android:id="@+id/btn_brush_settings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Cài đặt bút vẽ"
+            android:src="@android:drawable/ic_menu_manage"
+            app:tint="@color/accent" />
     </LinearLayout>
 
     <TextView
@@ -115,38 +123,56 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Kết quả: "
-                android:textColor="@color/text_secondary"
-                android:textSize="18sp" />
+                android:gravity="center"
+                android:orientation="horizontal">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kết quả: "
+                    android:textColor="@color/text_secondary"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tv_draw_result"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="?"
+                    android:textColor="@color/accent"
+                    android:textSize="42sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="24dp"
+                    android:layout_height="1dp" />
+
+                <TextView
+                    android:id="@+id/tv_draw_confidence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textColor="@color/success"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- AI Feedback Text -->
             <TextView
-                android:id="@+id/tv_draw_result"
-                android:layout_width="wrap_content"
+                android:id="@+id/tv_ai_feedback"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="?"
-                android:textColor="@color/accent"
-                android:textSize="42sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="24dp"
-                android:layout_height="1dp" />
-
-            <TextView
-                android:id="@+id/tv_draw_confidence"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0%"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="🌟 Chữ viết rất rõ ràng!"
                 android:textColor="@color/success"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-
+                android:textSize="13sp"
+                android:visibility="gone" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -193,7 +219,6 @@
             app:backgroundTint="@color/btn_clear"
             app:cornerRadius="14dp" />
 
-        <!-- Optional Predict Button (Since we have Realtime now) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_predict"
             android:layout_width="0dp"

@@ -67,18 +67,18 @@ public class OnboardingActivity extends AppCompatActivity {
         List<OnboardingAdapter.OnboardingItem> items = new ArrayList<>();
         items.add(new OnboardingAdapter.OnboardingItem(
                 "AI Recognition",
-                "Nhận diện chữ viết tay chính xác bằng mô hình TensorFlow Lite hiện đại.",
-                R.raw.ai_splash // Reusing existing animation
+                "Nhận diện chữ viết tay chính xác bằng mô hình TensorFlow Lite EMNIST — hỗ trợ cả số (0-9) và chữ cái (A-Z).",
+                R.raw.ai_splash // AI brain animation
         ));
         items.add(new OnboardingAdapter.OnboardingItem(
-                "Draw Canvas",
-                "Hỗ trợ vẽ tay trực tiếp trên màn hình cực kỳ mượt mà.",
-                R.raw.ai_splash
+                "Draw & Predict",
+                "Vẽ tay trực tiếp trên màn hình với bút tùy chỉnh màu sắc, cỡ nét. AI nhận dạng realtime ngay khi bạn vẽ xong.",
+                R.raw.onboarding_draw // Drawing pencil animation
         ));
         items.add(new OnboardingAdapter.OnboardingItem(
-                "Smart Camera & Firebase",
-                "Quét ảnh thông minh và đồng bộ dữ liệu đám mây qua Firebase.",
-                R.raw.ai_splash
+                "Smart Camera & Cloud",
+                "Quét ảnh thông minh với tiền xử lý tự động, đồng bộ đám mây qua Firebase, và luyện viết cùng AI Practice Mode.",
+                R.raw.onboarding_camera // Camera scan animation
         ));
         onboardingAdapter = new OnboardingAdapter(items);
     }
@@ -118,7 +118,8 @@ public class OnboardingActivity extends AppCompatActivity {
     private void startMainActivity() {
         SharedPreferences prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
         prefs.edit().putBoolean("isFirstRun", false).apply();
-        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        // Sau onboarding → LoginActivity (LoginActivity tự bypass nếu đã đăng nhập)
+        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         finish();
     }
 }
