@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_dark"
+    android:background="@color/surface_bg"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="20dp"
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Dùng ngón tay vẽ một chữ số hoặc chữ cái (0-9, A-Z)"
-        android:textColor="@color/text_hint"
+        android:textColor="@color/text_secondary"
         android:textSize="13sp" />
 
     <!-- Drawing Area -->
@@ -79,7 +79,7 @@
         android:padding="8dp"
         android:gravity="center"
         android:layout_marginTop="8dp"
-        android:background="#1AFFFFFF">
+        android:background="@color/border_subtle">
         
         <Button
             android:id="@+id/btn_rotate"
@@ -103,7 +103,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Hướng: 0°"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary"
             android:layout_marginStart="12dp"
             android:textSize="11sp"/>
     </LinearLayout>
@@ -147,6 +147,15 @@
                     android:textColor="@color/accent"
                     android:textSize="42sp"
                     android:textStyle="bold" />
+
+                <ImageButton
+                    android:id="@+id/btn_speak_draw_result"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="12dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_lock_silent_mode_off"
+                    app:tint="@color/accent" />
 
                 <View
                     android:layout_width="24dp"
@@ -193,7 +202,7 @@
             android:background="@drawable/bg_rounded_pill"
             android:backgroundTint="@color/surface_elevated"
             android:src="@android:drawable/ic_menu_revert"
-            app:tint="@color/white" />
+            app:tint="@color/icon_tint" />
 
         <!-- Redo Button -->
         <ImageButton
@@ -205,7 +214,7 @@
             android:backgroundTint="@color/surface_elevated"
             android:scaleX="-1"
             android:src="@android:drawable/ic_menu_revert"
-            app:tint="@color/white" />
+            app:tint="@color/icon_tint" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_clear"

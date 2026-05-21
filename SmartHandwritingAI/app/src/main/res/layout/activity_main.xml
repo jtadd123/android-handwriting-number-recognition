@@ -5,12 +5,13 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_dark"
+    android:background="@color/surface_bg"
     tools:context=".MainActivity">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="80dp"
         android:clipToPadding="false"
         android:padding="16dp"
         android:scrollbars="none">
@@ -24,8 +25,8 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="24dp"
-                android:paddingBottom="24dp">
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -38,9 +39,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="AI Handwriting"
-                        android:textColor="@color/white"
-                        android:textSize="32sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_primary"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.02" />
 
                     <TextView
                         android:id="@+id/tv_model_status"
@@ -52,29 +54,20 @@
                         android:paddingVertical="4dp"
                         android:text="Đang tải model AI..."
                         android:textColor="@color/warning"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
 
-                <ImageButton
-                    android:id="@+id/btn_settings"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_manage"
-                    app:tint="@color/text_secondary" />
             </RelativeLayout>
 
             <!-- Image Preview Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/card_preview"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:layout_marginBottom="24dp"
+                android:layout_height="240dp"
+                android:layout_marginBottom="20dp"
                 app:cardBackgroundColor="@color/surface_card"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="8dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -85,11 +78,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:drawablePadding="16dp"
+                        android:drawablePadding="12dp"
                         android:gravity="center"
                         android:text="Chọn ảnh hoặc vẽ tay\nđể nhận dạng"
                         android:textColor="@color/text_hint"
-                        android:textSize="16sp"
+                        android:textSize="15sp"
                         app:drawableTopCompat="@android:drawable/ic_menu_crop" />
 
                     <ImageView
@@ -98,12 +91,12 @@
                         android:layout_height="match_parent"
                         android:scaleType="fitCenter"
                         android:contentDescription="Ảnh đang được nhận dạng" />
-                        
+
                     <!-- AI Scan Effect Line -->
                     <View
                         android:id="@+id/scan_line"
                         android:layout_width="match_parent"
-                        android:layout_height="4dp"
+                        android:layout_height="3dp"
                         android:background="@color/accent"
                         android:visibility="gone"
                         android:layout_gravity="top" />
@@ -121,7 +114,7 @@
                             android:layout_height="wrap_content"
                             android:text="📸 Đặt ký tự vào giữa khung"
                             android:textColor="@color/accent"
-                            android:textSize="14sp"
+                            android:textSize="13sp"
                             android:background="#80000000"
                             android:padding="8dp" />
                     </LinearLayout>
@@ -135,8 +128,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
-                app:cardBackgroundColor="#20FFFFFF"
-                app:cardCornerRadius="16dp">
+                app:cardBackgroundColor="@color/surface_elevated"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -147,13 +141,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="AI Input (Dữ liệu AI thực tế thấy):"
-                        android:textColor="#80FFFFFF"
-                        android:textSize="12sp"
+                        android:textColor="@color/text_hint"
+                        android:textSize="11sp"
                         android:layout_marginBottom="8dp" />
                     <ImageView
                         android:id="@+id/iv_debug"
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
                         android:scaleType="fitCenter"
                         android:contentDescription="Dữ liệu đầu vào AI sau xử lý"
                         android:background="@color/black" />
@@ -165,11 +159,11 @@
                 android:id="@+id/card_result"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="20dp"
                 android:visibility="gone"
                 app:cardBackgroundColor="@color/surface_elevated"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
+                app:cardElevation="2dp"
                 tools:visibility="visible">
 
                 <LinearLayout
@@ -184,19 +178,36 @@
                         android:layout_height="wrap_content"
                         android:text="KẾT QUẢ"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1" />
 
-                    <TextView
-                        android:id="@+id/tv_result"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="?"
-                        android:textColor="@color/accent"
-                        android:textSize="64sp"
-                        android:textStyle="bold" />
+                        android:gravity="center"
+                        android:orientation="horizontal">
 
+                        <TextView
+                            android:id="@+id/tv_result"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="?"
+                            android:textColor="@color/accent"
+                            android:textSize="56sp"
+                            android:textStyle="bold" />
+
+                        <ImageButton
+                            android:id="@+id/btn_speak_result"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="16dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@android:drawable/ic_lock_silent_mode_off"
+                            app:tint="@color/accent"
+                            android:visibility="visible" />
+                    </LinearLayout>
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -210,7 +221,7 @@
                             android:layout_height="wrap_content"
                             android:text="Độ tự tin: "
                             android:textColor="@color/text_secondary"
-                            android:textSize="14sp" />
+                            android:textSize="13sp" />
 
                         <TextView
                             android:id="@+id/tv_confidence"
@@ -218,7 +229,7 @@
                             android:layout_height="wrap_content"
                             android:text="0%"
                             android:textColor="@color/success"
-                            android:textSize="14sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -229,7 +240,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:gravity="center"
-                        android:textSize="13sp"
+                        android:textSize="12sp"
                         android:visibility="gone" />
 
                     <LinearLayout
@@ -239,129 +250,62 @@
                         android:layout_marginTop="16dp"
                         android:orientation="vertical"
                         android:visibility="visible">
-                        
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Top 3 Dự Đoán (AI Confidence):"
                             android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             android:layout_marginBottom="8dp" />
-                            
+
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Grid -->
-            <GridLayout
+            <!-- Action Buttons (Camera & Gallery — shown on Home tab) -->
+            <LinearLayout
                 android:id="@+id/layout_home_options"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:columnCount="2"
-                android:useDefaultMargins="true">
+                android:orientation="vertical"
+                android:gravity="center">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_camera"
                     style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
                     android:backgroundTint="@color/btn_camera"
                     android:text="Chụp Ảnh"
+                    android:textSize="15sp"
                     android:contentDescription="Mở camera để chụp ảnh và nhận dạng"
-                    app:cornerRadius="16dp"
+                    app:cornerRadius="12dp"
                     app:icon="@android:drawable/ic_menu_camera"
-                    app:iconGravity="textTop"
-                    app:iconPadding="8dp"
-                    app:iconSize="32dp" />
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconSize="24dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_gallery"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    android:backgroundTint="@color/btn_gallery"
-                    android:text="Thư Viện"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:text="Chọn Từ Thư Viện"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_primary"
                     android:contentDescription="Chọn ảnh từ thư viện để nhận dạng"
-                    app:cornerRadius="16dp"
+                    app:cornerRadius="12dp"
                     app:icon="@android:drawable/ic_menu_gallery"
-                    app:iconGravity="textTop"
-                    app:iconPadding="8dp"
-                    app:iconSize="32dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_draw"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    android:backgroundTint="@color/btn_draw"
-                    android:text="Vẽ Tay"
-                    android:textColor="@color/black"
-                    android:contentDescription="Mở màn hình vẽ tay để nhận dạng"
-                    app:cornerRadius="16dp"
-                    app:icon="@android:drawable/ic_menu_edit"
-                    app:iconGravity="textTop"
-                    app:iconPadding="8dp"
-                    app:iconSize="32dp"
-                    app:iconTint="@color/black" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_history"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    android:backgroundTint="@color/btn_history"
-                    android:text="Lịch Sử"
-                    android:contentDescription="Xem lịch sử nhận dạng"
-                    app:cornerRadius="16dp"
-                    app:icon="@android:drawable/ic_menu_recent_history"
-                    app:iconGravity="textTop"
-                    app:iconPadding="8dp"
-                    app:iconSize="32dp" />
-
-                <!-- Practice Mode Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_practice"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    android:backgroundTint="#FF00BFA5"
-                    android:text="Luyện Viết"
-                    android:contentDescription="Chế độ luyện viết chữ cùng AI"
-                    app:cornerRadius="16dp"
-                    app:icon="@android:drawable/ic_menu_myplaces"
-                    app:iconGravity="textTop"
-                    app:iconPadding="8dp"
-                    app:iconSize="32dp" />
-
-                <!-- Analytics Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_analytics"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    android:backgroundTint="@color/gradient_center"
-                    android:text="Thống Kê AI"
-                    android:contentDescription="Xem thống kê và biểu đồ AI"
-                    app:cornerRadius="16dp"
-                    app:icon="@android:drawable/ic_menu_sort_by_size"
-                    app:iconGravity="textTop"
-                    app:iconPadding="8dp"
-                    app:iconSize="32dp" />
-
-            </GridLayout>
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconSize="24dp"
+                    app:iconTint="@color/text_secondary"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp" />
+            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_back_main"
@@ -370,27 +314,42 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Xóa &amp; Làm Lại"
-                android:textColor="@color/white"
+                android:textColor="@color/text_primary"
                 android:visibility="gone"
-                app:cornerRadius="16dp"
-                app:strokeColor="@color/white" />
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp" />
 
         </LinearLayout>
     </ScrollView>
+
+    <!-- Bottom Navigation Bar -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_bottom_nav"
+        app:itemIconTint="@color/bottom_nav_color"
+        app:itemTextColor="@color/bottom_nav_color"
+        app:itemRippleColor="@color/nav_indicator"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu"
+        app:elevation="0dp" />
 
     <!-- Loading Overlay -->
     <FrameLayout
         android:id="@+id/layout_loading"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#80000000"
+        android:background="#CC0D1117"
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone">
 
         <com.airbnb.lottie.LottieAnimationView
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
             android:layout_gravity="center"
             app:lottie_rawRes="@raw/ai_splash"
             app:lottie_autoPlay="true"

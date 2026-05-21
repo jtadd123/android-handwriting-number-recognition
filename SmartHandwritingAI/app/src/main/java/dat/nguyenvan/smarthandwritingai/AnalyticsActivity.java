@@ -1,8 +1,8 @@
 package dat.nguyenvan.smarthandwritingai;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +18,7 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ public class AnalyticsActivity extends AppCompatActivity {
     private PieChart pieChart;
     private BarChart barChart;
     private ExecutorService executorService;
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,7 @@ public class AnalyticsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_analytics);
 
         initViews();
+        setupBottomNavigation();
         loadAnalyticsData();
     }
 
@@ -48,6 +51,7 @@ public class AnalyticsActivity extends AppCompatActivity {
         tvTopCharacter = findViewById(R.id.tv_top_character);
         pieChart = findViewById(R.id.pie_chart);
         barChart = findViewById(R.id.bar_chart);
+        bottomNavigation = findViewById(R.id.bottom_navigation);
         
         findViewById(R.id.btn_back_analytics).setOnClickListener(v -> finish());
         
@@ -55,6 +59,28 @@ public class AnalyticsActivity extends AppCompatActivity {
         
         setupPieChart();
         setupBarChart();
+    }
+
+    private void setupBottomNavigation() {
+        bottomNavigation.setSelectedItemId(R.id.nav_settings);
+        bottomNavigation.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_settings) {
+                return true; // Already here
+            } else if (id == R.id.nav_home) {
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+                return true;
+            } else if (id == R.id.nav_draw) {
+                startActivity(new Intent(this, DrawActivity.class));
+                return true;
+            } else if (id == R.id.nav_history) {
+                startActivity(new Intent(this, HistoryActivity.class));
+                finish();
+                return true;
+            }
+            return false;
+        });
     }
 
     private void setupPieChart() {
@@ -131,11 +157,11 @@ public class AnalyticsActivity extends AppCompatActivity {
         ArrayList<String> xLabels = new ArrayList<>();
 
         int[] colors = new int[] {
-            Color.parseColor("#FF00E5FF"), // accent
-            Color.parseColor("#FF00E676"), // success
-            Color.parseColor("#FFFFAB40"), // warning
-            Color.parseColor("#FF2979FF"), // btn_camera
-            Color.parseColor("#FF7C4DFF")  // btn_history
+            Color.parseColor("#FF58A6FF"), // accent
+            Color.parseColor("#FF3FB950"), // success
+            Color.parseColor("#FFD29922"), // warning
+            Color.parseColor("#FF6C8EEF"), // primary
+            Color.parseColor("#FFBC8CFF")  // purple
         };
         ArrayList<Integer> chartColors = new ArrayList<>();
 

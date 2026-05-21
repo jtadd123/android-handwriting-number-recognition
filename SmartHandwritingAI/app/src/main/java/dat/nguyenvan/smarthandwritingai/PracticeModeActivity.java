@@ -93,7 +93,7 @@ public class PracticeModeActivity extends AppCompatActivity {
             return;
         }
 
-        Bitmap bitmap = drawingView.getBitmap();
+        Bitmap bitmap = drawingView.getBitmapForModel();
         executorService.execute(() -> {
             DigitClassifier.PredictionResult result = digitClassifier.predict(bitmap);
             if (result == null) return;

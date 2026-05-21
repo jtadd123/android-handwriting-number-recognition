@@ -183,6 +183,32 @@ public class DrawingView extends View {
         return bitmap;
     }
 
+    /**
+     * Get bitmap specifically for model prediction.
+     * Always returns black background with white strokes,
+     * regardless of user's brush color settings.
+     * This ensures the ML model always receives consistent input.
+     */
+    public Bitmap getBitmapForModel() {
+        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.BLACK);
+
+        // Draw all paths in WHITE regardless of their original color
+        Paint modelPaint = new Paint();
+        modelPaint.setAntiAlias(true);
+        modelPaint.setStyle(Paint.Style.STROKE);
+        modelPaint.setStrokeJoin(Paint.Join.ROUND);
+        modelPaint.setStrokeCap(Paint.Cap.ROUND);
+        modelPaint.setColor(Color.WHITE);
+
+        for (PathData pd : paths) {
+            modelPaint.setStrokeWidth(pd.strokeWidth);
+            canvas.drawPath(pd.path, modelPaint);
+        }
+        return bitmap;
+    }
+
     public boolean isEmpty() {
         return paths.isEmpty() && currentPath == null;
     }

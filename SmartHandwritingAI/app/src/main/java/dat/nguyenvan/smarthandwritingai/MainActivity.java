@@ -15,6 +15,7 @@ import android.speech.tts.TextToSpeech;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -31,6 +32,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.yalantis.ucrop.UCrop;
 
@@ -49,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private View layoutDebug;
     private TextView tvResult, tvConfidence, tvModelStatus, tvHint, tvAiFeedbackMain;
     private View cardResult, layoutHomeOptions, layoutLoading, scanLine;
-    private MaterialButton btnCamera, btnGallery, btnDraw, btnHistory, btnAnalytics, btnBack;
+    private MaterialButton btnCamera, btnGallery, btnBack;
+    private BottomNavigationView bottomNavigation;
 
     private DigitClassifier digitClassifier;
     private Bitmap currentBitmap;
@@ -98,13 +101,18 @@ public class MainActivity extends AppCompatActivity {
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        boolean isDarkMode = getSharedPreferences("AI_CONFIG", MODE_PRIVATE).getBoolean("isDarkMode", true);
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
+                isDarkMode ? androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES : androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+        );
+
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
 
@@ -112,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         initModel();
         initTTS();
         setupListeners();
+        setupBottomNavigation();
     }
 
     private void initViews() {
@@ -126,13 +135,11 @@ public class MainActivity extends AppCompatActivity {
         cardResult     = findViewById(R.id.card_result);
         btnCamera      = findViewById(R.id.btn_camera);
         btnGallery     = findViewById(R.id.btn_gallery);
-        btnDraw        = findViewById(R.id.btn_draw);
-        btnHistory     = findViewById(R.id.btn_history);
-        btnAnalytics   = findViewById(R.id.btn_analytics);
         btnBack        = findViewById(R.id.btn_back_main);
         layoutHomeOptions = findViewById(R.id.layout_home_options);
         layoutLoading  = findViewById(R.id.layout_loading);
         scanLine       = findViewById(R.id.scan_line);
+        bottomNavigation = findViewById(R.id.bottom_navigation);
         executorService = Executors.newSingleThreadExecutor();
     }
 
@@ -166,12 +173,60 @@ public class MainActivity extends AppCompatActivity {
             else permissionLauncher.launch(Manifest.permission.CAMERA);
         });
         btnGallery.setOnClickListener(v -> galleryLauncher.launch("image/*"));
-        btnDraw.setOnClickListener(v -> startActivity(new Intent(this, DrawActivity.class)));
-        btnHistory.setOnClickListener(v -> startActivity(new Intent(this, HistoryActivity.class)));
-        btnAnalytics.setOnClickListener(v -> startActivity(new Intent(this, AnalyticsActivity.class)));
-        findViewById(R.id.btn_settings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
-        findViewById(R.id.btn_practice).setOnClickListener(v -> startActivity(new Intent(this, PracticeModeActivity.class)));
         btnBack.setOnClickListener(v -> resetState());
+
+        ImageButton btnSpeakResult = findViewById(R.id.btn_speak_result);
+        if (btnSpeakResult != null) {
+            btnSpeakResult.setOnClickListener(v -> {
+                String text = tvResult.getText().toString();
+                if (!text.equals("?") && tts != null) {
+                    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "btn_speak");
+                }
+            });
+        }
+    }
+
+    private void setupBottomNavigation() {
+        bottomNavigation.setSelectedItemId(R.id.nav_home);
+        bottomNavigation.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                // Already on home — do nothing
+                return true;
+            } else if (id == R.id.nav_draw) {
+                startActivity(new Intent(this, DrawActivity.class));
+                return true;
+            } else if (id == R.id.nav_history) {
+                startActivity(new Intent(this, HistoryActivity.class));
+                return true;
+            } else if (id == R.id.nav_settings) {
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            }
+            return false;
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reset bottom nav to Home when returning from other activities
+        if (bottomNavigation != null) {
+            bottomNavigation.setSelectedItemId(R.id.nav_home);
+        }
+
+        if (getIntent().hasExtra("draw_result")) {
+            String drawResult = getIntent().getStringExtra("draw_result");
+            float drawConfidence = getIntent().getFloatExtra("draw_confidence", 0);
+            if (drawResult != null) {
+                layoutHomeOptions.setVisibility(View.GONE);
+                cardResult.setVisibility(View.VISIBLE);
+                btnBack.setVisibility(View.VISIBLE);
+                tvResult.setText(drawResult);
+                tvConfidence.setText(String.format("%.1f%%", drawConfidence));
+                tvHint.setVisibility(View.GONE);
+            }
+        }
     }
 
     // ── UCrop ─────────────────────────────────────────────────────────────────
@@ -374,23 +429,6 @@ public class MainActivity extends AppCompatActivity {
         layoutHomeOptions.setVisibility(View.VISIBLE);
         layoutDebug.setVisibility(View.GONE);
         if (tvAiFeedbackMain != null) tvAiFeedbackMain.setVisibility(View.GONE);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (getIntent().hasExtra("draw_result")) {
-            String drawResult = getIntent().getStringExtra("draw_result");
-            float drawConfidence = getIntent().getFloatExtra("draw_confidence", 0);
-            if (drawResult != null) {
-                layoutHomeOptions.setVisibility(View.GONE);
-                cardResult.setVisibility(View.VISIBLE);
-                btnBack.setVisibility(View.VISIBLE);
-                tvResult.setText(drawResult);
-                tvConfidence.setText(String.format("%.1f%%", drawConfidence));
-                tvHint.setVisibility(View.GONE);
-            }
-        }
     }
 
     @Override

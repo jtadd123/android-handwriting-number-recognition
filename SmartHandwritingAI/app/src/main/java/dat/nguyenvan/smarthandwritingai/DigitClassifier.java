@@ -31,7 +31,7 @@ public class DigitClassifier {
         try {
             initializeInterpreter(context);
             isInitialized = true;
-        } catch (IOException e) {
+        } catch (Throwable e) {
             Log.e(TAG, "Lỗi khi load mô hình: " + e.getMessage());
         }
     }
@@ -59,6 +59,20 @@ public class DigitClassifier {
         float[][] output = new float[1][NUM_CLASSES];
 
         interpreter.run(inputBuffer, output);
+
+        // Debug: Log tensor info and top predictions
+        Log.d(TAG, "[DEBUG] Input buffer size: " + inputBuffer.capacity() + " bytes");
+        float maxConf = 0;
+        int maxIdx = 0;
+        for (int i = 0; i < output[0].length; i++) {
+            if (output[0][i] > maxConf) {
+                maxConf = output[0][i];
+                maxIdx = i;
+            }
+        }
+        Log.d(TAG, "[DEBUG] Top prediction: index=" + maxIdx 
+            + " label=" + (maxIdx < LABELS.length ? LABELS[maxIdx] : "?") 
+            + " confidence=" + String.format("%.2f%%", maxConf * 100));
 
         return getBestPrediction(output[0]);
     }

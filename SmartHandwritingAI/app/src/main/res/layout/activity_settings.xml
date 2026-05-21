@@ -3,9 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_dark"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/surface_bg"
+    android:orientation="vertical">
 
     <!-- Header -->
     <LinearLayout
@@ -13,7 +12,9 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingBottom="16dp">
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="12dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_back_settings"
@@ -21,21 +22,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:icon="@android:drawable/ic_menu_revert"
-            app:iconTint="@color/white" />
+            app:iconTint="@color/text_primary" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Cài đặt AI"
-            android:textColor="@color/white"
-            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
             android:textStyle="bold" />
     </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -48,8 +52,10 @@
                 android:layout_height="wrap_content"
                 android:text="Cấu hình mô hình AI"
                 android:textColor="@color/accent"
+                android:textSize="13sp"
                 android:textStyle="bold"
-                android:layout_marginTop="8dp"
+                android:letterSpacing="0.05"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
             <androidx.cardview.widget.CardView
@@ -57,6 +63,7 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/surface_card"
                 app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -65,12 +72,14 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- Confidence Threshold -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Ngưỡng độ tin cậy (Confidence Threshold)"
-                        android:textColor="@color/white" />
-                        
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -96,7 +105,7 @@
 
                         <TextView
                             android:id="@+id/tv_threshold_value"
-                            android:layout_width="40dp"
+                            android:layout_width="44dp"
                             android:layout_height="wrap_content"
                             android:text="70%"
                             android:textColor="@color/accent"
@@ -104,22 +113,62 @@
                             android:gravity="end"/>
                     </LinearLayout>
 
-                    <!-- TTS Toggle -->
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switch_tts"
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_marginVertical="16dp" />
+
+                    <!-- TTS Toggle with Speaker Icon -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="🔊 Đọc kết quả bằng giọng nói (TTS)"
-                        android:textColor="@color/white" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Đọc kết quả bằng giọng nói (TTS)"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/tv_tts_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Đang bật"
+                                android:textColor="@color/accent"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp"/>
+                        </LinearLayout>
+
+                        <!-- Speaker Icon Button -->
+                        <ImageButton
+                            android:id="@+id/btn_tts_toggle"
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:background="@drawable/bg_action_button"
+                            android:contentDescription="Bật/tắt đọc giọng nói"
+                            android:src="@android:drawable/ic_lock_silent_mode_off"
+                            android:scaleType="centerInside"
+                            android:padding="12dp" />
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="AI sẽ đọc kết quả nhận dạng bằng giọng nói."
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:layout_marginTop="4dp"/>
+                        android:textSize="11sp"
+                        android:layout_marginTop="6dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -129,8 +178,10 @@
                 android:layout_height="wrap_content"
                 android:text="Giao diện"
                 android:textColor="@color/accent"
+                android:textSize="13sp"
                 android:textStyle="bold"
-                android:layout_marginTop="8dp"
+                android:letterSpacing="0.05"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
             <androidx.cardview.widget.CardView
@@ -138,6 +189,7 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/surface_card"
                 app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -152,14 +204,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="🌙 Chế độ tối (Dark Mode)"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/text_primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Chuyển đổi giữa giao diện sáng và tối."
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="16dp"/>
 
@@ -169,14 +221,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="🌐 Tiếng Anh (English)"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/text_primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Chuyển ngôn ngữ hiển thị trong ứng dụng."
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:layout_marginTop="4dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -187,8 +239,10 @@
                 android:layout_height="wrap_content"
                 android:text="Quản lý dữ liệu"
                 android:textColor="@color/accent"
+                android:textSize="13sp"
                 android:textStyle="bold"
-                android:layout_marginTop="8dp"
+                android:letterSpacing="0.05"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
             <androidx.cardview.widget.CardView
@@ -196,6 +250,7 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/surface_card"
                 app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -209,14 +264,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="☁️ Đồng bộ Firebase"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/text_primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tự động sao lưu lịch sử lên Cloud."
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:layout_marginBottom="16dp"
                         android:layout_marginTop="4dp"/>
 
@@ -227,6 +282,7 @@
                         android:layout_height="wrap_content"
                         android:text="🗑️ Xóa toàn bộ dữ liệu lịch sử"
                         android:textColor="@color/error"
+                        app:cornerRadius="12dp"
                         app:strokeColor="@color/error" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -237,8 +293,10 @@
                 android:layout_height="wrap_content"
                 android:text="Tài khoản"
                 android:textColor="@color/accent"
+                android:textSize="13sp"
                 android:textStyle="bold"
-                android:layout_marginTop="8dp"
+                android:letterSpacing="0.05"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
             <androidx.cardview.widget.CardView
@@ -246,6 +304,7 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/surface_card"
                 app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -260,7 +319,7 @@
                         android:layout_height="wrap_content"
                         android:text="⬜ Chưa đăng nhập (Offline)"
                         android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:layout_marginBottom="12dp" />
 
                     <com.google.android.material.button.MaterialButton
@@ -272,7 +331,7 @@
                         android:text="🚪 Đăng xuất"
                         android:textColor="@color/error"
                         android:contentDescription="Đăng xuất khỏi tài khoản"
-                        app:cornerRadius="14dp"
+                        app:cornerRadius="12dp"
                         app:strokeColor="@color/error" />
 
                     <com.google.android.material.button.MaterialButton
@@ -280,10 +339,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="🔑 Đăng nhập / Đăng ký"
-                        android:textColor="@color/primary_dark"
+                        android:textColor="@color/white"
                         android:contentDescription="Đăng nhập vào tài khoản Firebase"
-                        app:backgroundTint="@color/accent"
-                        app:cornerRadius="14dp" />
+                        app:backgroundTint="@color/primary"
+                        app:cornerRadius="12dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -293,15 +352,19 @@
                 android:layout_height="wrap_content"
                 android:text="Thông tin ứng dụng"
                 android:textColor="@color/accent"
+                android:textSize="13sp"
                 android:textStyle="bold"
-                android:layout_marginTop="8dp"
+                android:letterSpacing="0.05"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/surface_card"
-                app:cardCornerRadius="16dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="24dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -312,21 +375,23 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Phiên bản: 2.0.0"
-                        android:textColor="@color/white" />
+                        android:text="Phiên bản: 2.1.0"
+                        android:textColor="@color/text_primary" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="AI Model: EMNIST TFLite (36 classes)"
                         android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
                         android:layout_marginTop="4dp"/>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Features: TTS, Haptic, Practice Mode, AI Feedback"
+                        android:text="Features: TTS, Haptic, AI Feedback, Bottom Nav"
                         android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
                         android:layout_marginTop="4dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

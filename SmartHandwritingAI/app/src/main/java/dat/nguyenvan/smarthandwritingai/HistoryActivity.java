@@ -1,6 +1,7 @@
 package dat.nguyenvan.smarthandwritingai;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -35,6 +37,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
     private String currentQuery = "";
     private boolean showFavoritesOnly = false;
     private FirebaseFirestore db;
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
         initViews();
         setupListeners();
         setupSwipeToDelete();
+        setupBottomNavigation();
         loadHistory();
     }
 
@@ -52,6 +56,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
         layoutEmpty = findViewById(R.id.layout_empty);
         searchView = findViewById(R.id.search_view);
         chipGroupFilter = findViewById(R.id.chip_group_filter);
+        bottomNavigation = findViewById(R.id.bottom_navigation);
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
         adapter = new HistoryAdapter(new ArrayList<>(), this);
         rvHistory.setAdapter(adapter);
@@ -73,6 +78,27 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
         chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> {
             showFavoritesOnly = (checkedId == R.id.chip_favorites);
             loadHistory();
+        });
+    }
+
+    private void setupBottomNavigation() {
+        bottomNavigation.setSelectedItemId(R.id.nav_history);
+        bottomNavigation.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_history) {
+                return true; // Already here
+            } else if (id == R.id.nav_home) {
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+                return true;
+            } else if (id == R.id.nav_draw) {
+                startActivity(new Intent(this, DrawActivity.class));
+                return true;
+            } else if (id == R.id.nav_settings) {
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            }
+            return false;
         });
     }
 

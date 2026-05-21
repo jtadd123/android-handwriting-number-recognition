@@ -39,4 +39,10 @@
     <string name="title_analytics">Thống Kê AI</string>
     <string name="confirm_delete_item">Xóa mục này khỏi lịch sử?</string>
     <string name="item_deleted">Đã xóa</string>
+
+    <!-- Bottom Navigation Labels -->
+    <string name="nav_home">Nhận dạng</string>
+    <string name="nav_draw">Vẽ Tay</string>
+    <string name="nav_history">Lịch sử</string>
+    <string name="nav_analytics">Thống kê</string>
 </resources>

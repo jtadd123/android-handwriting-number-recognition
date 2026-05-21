@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Common -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Primary palette — Soft Indigo / Slate Blue -->
+    <color name="primary">#FF6C8EEF</color>
+    <color name="primary_dark">#FF0D1117</color>
+    <color name="primary_light">#FF8DA4F2</color>
+    <color name="accent">#FF58A6FF</color>
+
+    <!-- Surfaces — Deep Slate (GitHub-inspired dark) -->
+    <color name="surface_bg">#FF0D1117</color>
+    <color name="surface_card">#FF161B22</color>
+    <color name="surface_elevated">#FF1C2333</color>
+
+    <!-- Text -->
+    <color name="text_primary">#FFF0F6FC</color>
+    <color name="text_secondary">#FF8B949E</color>
+    <color name="text_hint">#FF484F58</color>
+
+    <!-- Status -->
+    <color name="success">#FF3FB950</color>
+    <color name="warning">#FFD29922</color>
+    <color name="error">#FFFF7B72</color>
+
+    <!-- Gradient — Subtle, muted -->
+    <color name="gradient_start">#FF6C8EEF</color>
+    <color name="gradient_center">#FF8B5CF6</color>
+    <color name="gradient_end">#FF58A6FF</color>
+
+    <!-- Buttons — Muted, harmonious -->
+    <color name="btn_camera">#FF6C8EEF</color>
+    <color name="btn_gallery">#FFDB8B45</color>
+    <color name="btn_draw">#FF3FB950</color>
+    <color name="btn_history">#FF8B5CF6</color>
+    <color name="btn_clear">#FFFF7B72</color>
+    <color name="btn_predict">#FF3FB950</color>
+
+    <!-- Bottom Nav -->
+    <color name="nav_active">#FF58A6FF</color>
+    <color name="nav_inactive">#FF8B949E</color>
+    <color name="nav_background">#FF010409</color>
+    <color name="nav_indicator">#1A58A6FF</color>
+
+    <!-- Divider / Border -->
+    <color name="divider">#1AFFFFFF</color>
+    <color name="border_subtle">#0DFFFFFF</color>
+
+    <!-- Dynamic icon/toolbar tint (adapts to theme) -->
+    <color name="icon_tint">#FFFFFFFF</color>
+    <color name="toolbar_text">#FFFFFFFF</color>
+</resources>

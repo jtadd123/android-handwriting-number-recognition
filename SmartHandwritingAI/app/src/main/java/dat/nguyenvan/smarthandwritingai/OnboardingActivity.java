@@ -1,7 +1,6 @@
 package dat.nguyenvan.smarthandwritingai;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,11 +55,13 @@ public class OnboardingActivity extends AppCompatActivity {
             if (viewPager.getCurrentItem() + 1 < onboardingAdapter.getItemCount()) {
                 viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
             } else {
-                startMainActivity();
+                // Xem hết onboarding → đánh dấu đã xem, lần sau không hiện nữa
+                finishOnboarding(true);
             }
         });
 
-        findViewById(R.id.btn_skip).setOnClickListener(v -> startMainActivity());
+        // BỎ QUA: KHÔNG đánh dấu isFirstRun=false → lần sau vẫn hiện onboarding
+        findViewById(R.id.btn_skip).setOnClickListener(v -> finishOnboarding(false));
     }
 
     private void setupOnboardingItems() {
@@ -115,11 +116,9 @@ public class OnboardingActivity extends AppCompatActivity {
         }
     }
 
-    private void startMainActivity() {
-        SharedPreferences prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
-        prefs.edit().putBoolean("isFirstRun", false).apply();
-        // Sau onboarding → LoginActivity (LoginActivity tự bypass nếu đã đăng nhập)
-        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+    private void finishOnboarding(boolean markComplete) {
+        // Onboarding always shows → go to MainActivity
+        startActivity(new Intent(getApplicationContext(), MainActivity.class));
         finish();
     }
 }

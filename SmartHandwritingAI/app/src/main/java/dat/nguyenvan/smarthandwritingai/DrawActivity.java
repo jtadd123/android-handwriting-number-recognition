@@ -71,6 +71,16 @@ public class DrawActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
+        View btnSpeakResult = findViewById(R.id.btn_speak_draw_result);
+        if (btnSpeakResult != null) {
+            btnSpeakResult.setOnClickListener(v -> {
+                String text = tvDrawResult.getText().toString();
+                if (!text.equals("?") && tts != null) {
+                    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "btn_speak");
+                }
+            });
+        }
+
         findViewById(R.id.btn_clear).setOnClickListener(v -> {
             drawingView.clearCanvas();
             cardDrawResult.setVisibility(View.GONE);
@@ -204,10 +214,26 @@ public class DrawActivity extends AppCompatActivity {
     }
 
     private void predictDrawing(boolean saveToHistory) {
-        Bitmap bitmap = drawingView.getBitmap();
+        // Use getBitmapForModel() for AI: always black bg + white strokes
+        Bitmap modelBitmap = drawingView.getBitmapForModel();
+        // Use getBitmap() for history: preserves user's actual drawing
+        Bitmap displayBitmap = saveToHistory ? drawingView.getBitmap() : null;
+        
+        Log.d("DrawActivity", "[DEBUG] Model bitmap: " + modelBitmap.getWidth() + "x" + modelBitmap.getHeight());
+        
         executorService.execute(() -> {
             try {
-                DigitClassifier.PredictionResult result = digitClassifier.predict(bitmap);
+                DigitClassifier.PredictionResult result = digitClassifier.predict(modelBitmap);
+                
+                if (result == null) {
+                    Log.e("DrawActivity", "[DEBUG] Prediction returned null - model not initialized?");
+                    runOnUiThread(() -> UIUtils.showErrorSnackbar(
+                        findViewById(android.R.id.content), "Model chưa sẵn sàng"));
+                    return;
+                }
+                
+                Log.d("DrawActivity", "[DEBUG] Prediction: label=" + result.label 
+                    + " confidence=" + String.format("%.1f%%", result.confidence));
                 
                 SharedPreferences prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
                 int threshold = prefs.getInt("confidence_threshold", 50);
@@ -220,10 +246,10 @@ public class DrawActivity extends AppCompatActivity {
                     return; // Không đủ tự tin thì không hiện kết quả
                 }
                 
-                if (saveToHistory) {
-                    // Chuyển bitmap sang Base64 để lưu
+                if (saveToHistory && displayBitmap != null) {
+                    // Chuyển bitmap sang Base64 để lưu (display bitmap, not model bitmap)
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                    displayBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
                     String base64Image = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
 
                     // Lưu vào database

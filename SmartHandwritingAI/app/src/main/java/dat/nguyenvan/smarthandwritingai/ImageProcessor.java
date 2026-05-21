@@ -7,7 +7,6 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -28,113 +27,153 @@ public class ImageProcessor {
     }
 
     public static ByteBuffer preprocessImage(Bitmap bitmap) {
-        // 1. To Grayscale
-        Bitmap grayscale = toGrayscale(bitmap);
-        int width = grayscale.getWidth();
-        int height = grayscale.getHeight();
+        // 1. Iterative Downscale to preserve strokes before binarization
+        // We downscale until max dimension is <= 150
+        Bitmap workingBitmap = bitmap;
+        while (workingBitmap.getWidth() > 150 || workingBitmap.getHeight() > 150) {
+            int nw = workingBitmap.getWidth() / 2;
+            int nh = workingBitmap.getHeight() / 2;
+            workingBitmap = Bitmap.createScaledBitmap(workingBitmap, nw, nh, true);
+        }
+
+        // 2. To Grayscale
+        workingBitmap = toGrayscale(workingBitmap);
+        int width = workingBitmap.getWidth();
+        int height = workingBitmap.getHeight();
         int[] pixels = new int[width * height];
-        grayscale.getPixels(pixels, 0, width, 0, 0, width, height);
+        workingBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
 
-        // 2. Otsu Binarization
         int[] intensities = new int[width * height];
-        int[] histogram = new int[256];
-        long sum = 0;
         for (int i = 0; i < pixels.length; i++) {
-            int r = pixels[i] & 0xFF;
-            intensities[i] = r;
-            histogram[r]++;
-            sum += r;
+            intensities[i] = pixels[i] & 0xFF;
         }
 
-        float sumB = 0;
-        int wB = 0;
-        int wF = 0;
-        float varMax = 0;
-        int threshold = 0;
+        // 3. Robust Thresholding instead of Otsu and Stretching
+        int[] histogram = new int[256];
+        for (int v : intensities) histogram[v]++;
 
-        for (int t = 0; t < 256; t++) {
-            wB += histogram[t];
-            if (wB == 0) continue;
-            wF = pixels.length - wB;
-            if (wF == 0) break;
-            sumB += (float) (t * histogram[t]);
-            float mB = sumB / wB;
-            float mF = (sum - sumB) / wF;
-            float varBetween = (float) wB * (float) wF * (mB - mF) * (mB - mF);
-            if (varBetween > varMax) {
-                varMax = varBetween;
-                threshold = t;
-            }
+        int totalPixels = width * height;
+        int minVal = 0, maxVal = 255;
+        int cumSum = 0;
+        for (int i = 0; i < 256; i++) {
+            cumSum += histogram[i];
+            if (cumSum >= totalPixels * 0.02) { minVal = i; break; }
+        }
+        cumSum = 0;
+        for (int i = 255; i >= 0; i--) {
+            cumSum += histogram[i];
+            if (cumSum >= totalPixels * 0.05) { maxVal = i; break; }
         }
 
-        int corners = (intensities[0] + intensities[width - 1] + intensities[(height - 1) * width] + intensities[width * height - 1]) / 4;
-        boolean invert = corners > threshold;
+        // Determine inversion based on border mean
+        long borderSum = 0;
+        int borderCount = 0;
+        for (int x = 0; x < width; x++) {
+            borderSum += intensities[x];
+            borderSum += intensities[(height - 1) * width + x];
+            borderCount += 2;
+        }
+        for (int y = 1; y < height - 1; y++) {
+            borderSum += intensities[y * width];
+            borderSum += intensities[y * width + (width - 1)];
+            borderCount += 2;
+        }
+        float borderMean = (float) borderSum / borderCount;
+        boolean invert = borderMean > (minVal + maxVal) / 2.0f;
+
+        int threshold;
+        if (invert) {
+            // White background, black pen. Keep only the darkest 40% of the range as ink.
+            threshold = minVal + (int)((maxVal - minVal) * 0.40);
+        } else {
+            // Black background, white pen. Keep only the brightest 40% of the range as ink.
+            threshold = maxVal - (int)((maxVal - minVal) * 0.40);
+        }
 
         int[] inkPixels = new int[width * height];
-        for (int i = 0; i < pixels.length; i++) {
-            int val = intensities[i];
-            if (invert) val = 255 - val;
-            // Dùng ngưỡng khắt khe hơn một chút để loại bỏ bớt nhiễu ô ly
-            inkPixels[i] = val > (invert ? (255 - threshold + 5) : threshold + 5) ? 255 : 0;
-        }
-
-        // 3. Grid Line Removal (Cải tiến: chỉ xóa nếu là đường kẻ rất đậm và dài)
-        removeLines(inkPixels, width, height);
-
-        // 4. Centering and Scaling
-        int minX = width, minY = height, maxX = 0, maxY = 0;
-        boolean hasInk = false;
-        for (int i = 0; i < inkPixels.length; i++) {
-            if (inkPixels[i] == 255) {
-                hasInk = true;
-                int x = i % width;
-                int y = i / width;
-                if (x < minX) minX = x;
-                if (y < minY) minY = y;
-                if (x > maxX) maxX = x;
-                if (y > maxY) maxY = y;
+        for (int i = 0; i < intensities.length; i++) {
+            if (invert) {
+                inkPixels[i] = intensities[i] < threshold ? 255 : 0;
+            } else {
+                inkPixels[i] = intensities[i] > threshold ? 255 : 0;
             }
         }
 
+        // 7. Morphological noise removal
+        removeSmallNoise(inkPixels, width, height);
+
+        // 8. Find Bounding Box
+        int minX = width, minY = height, maxX = -1, maxY = -1;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (inkPixels[y * width + x] == 255) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+
+        // 9. Crop and Scale to 20x20
         Bitmap finalBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(finalBitmap);
         canvas.drawColor(Color.BLACK);
 
-        if (hasInk) {
+        if (maxX >= minX && maxY >= minY) {
             int cropW = maxX - minX + 1;
             int cropH = maxY - minY + 1;
-            Bitmap inkOnly = Bitmap.createBitmap(cropW, cropH, Bitmap.Config.ARGB_8888);
+            Bitmap cropBitmap = Bitmap.createBitmap(cropW, cropH, Bitmap.Config.ARGB_8888);
             int[] cropPixels = new int[cropW * cropH];
             for (int y = 0; y < cropH; y++) {
                 for (int x = 0; x < cropW; x++) {
                     cropPixels[y * cropW + x] = inkPixels[(minY + y) * width + (minX + x)] == 255 ? Color.WHITE : Color.BLACK;
                 }
             }
-            inkOnly.setPixels(cropPixels, 0, cropW, 0, 0, cropW, cropH);
+            cropBitmap.setPixels(cropPixels, 0, cropW, 0, 0, cropW, cropH);
 
-            float scale = 18.0f / Math.max(cropW, cropH);
+            float scale = 20.0f / Math.max(cropW, cropH);
             int sw = Math.max(1, Math.round(cropW * scale));
             int sh = Math.max(1, Math.round(cropH * scale));
-            Bitmap scaledInk = Bitmap.createScaledBitmap(inkOnly, sw, sh, true);
-            canvas.drawBitmap(scaledInk, (INPUT_SIZE - sw) / 2f, (INPUT_SIZE - sh) / 2f, null);
+            Bitmap scaledInk = Bitmap.createScaledBitmap(cropBitmap, sw, sh, true);
+
+            float offsetX = (INPUT_SIZE - sw) / 2f;
+            float offsetY = (INPUT_SIZE - sh) / 2f;
+            canvas.drawBitmap(scaledInk, offsetX, offsetY, null);
         }
 
-        // 5. Dilation
+        // 10. Dilation to thicken strokes
         finalBitmap = dilate(finalBitmap);
-        
-        // 6. EMNIST TRANSPOSE (Chỉ Rotate 90 CW, không lật)
-        // Dựa trên việc "3" đã xuất hiện trong Top 3, ta cần chỉnh lại góc quay đứng
+
+        // 11. Transformation
         Matrix matrix = new Matrix();
-        matrix.postRotate(90);
-        // Bỏ Flip Horizontal để xem số 3 có đứng thẳng không
-        
         if (rotationDegrees != 0) matrix.postRotate(rotationDegrees);
         if (isFlipped) matrix.postScale(-1, 1, INPUT_SIZE / 2f, INPUT_SIZE / 2f);
 
         finalBitmap = Bitmap.createBitmap(finalBitmap, 0, 0, INPUT_SIZE, INPUT_SIZE, matrix, true);
         lastPreprocessedBitmap = finalBitmap;
 
-        // 7. Convert to ByteBuffer
+        // Debug logging: bitmap stats for diagnosis
+        int[] debugPixels = new int[INPUT_SIZE * INPUT_SIZE];
+        finalBitmap.getPixels(debugPixels, 0, INPUT_SIZE, 0, 0, INPUT_SIZE, INPUT_SIZE);
+        int debugMin = 255, debugMax = 0;
+        float debugSum = 0;
+        int whiteCount = 0;
+        for (int dp : debugPixels) {
+            int dv = (dp >> 16) & 0xFF;
+            if (dv < debugMin) debugMin = dv;
+            if (dv > debugMax) debugMax = dv;
+            debugSum += dv;
+            if (dv > 128) whiteCount++;
+        }
+        android.util.Log.d(TAG, "[DEBUG] Final bitmap stats - Min: " + debugMin 
+            + ", Max: " + debugMax 
+            + ", Avg: " + String.format("%.1f", debugSum / debugPixels.length)
+            + ", WhitePixels: " + whiteCount + "/" + debugPixels.length
+            + ", Inverted: " + invert
+            + ", BorderMean: " + String.format("%.1f", borderMean));
+
+        // 12. Convert to ByteBuffer
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(INPUT_SIZE * INPUT_SIZE * FLOAT_SIZE);
         byteBuffer.order(ByteOrder.nativeOrder());
         byteBuffer.rewind();
@@ -149,26 +188,27 @@ public class ImageProcessor {
         return byteBuffer;
     }
 
-    private static void removeLines(int[] pixels, int w, int h) {
-        // Tăng ngưỡng lên 85% để tránh xóa nhầm nét của số
-        for (int y = 0; y < h; y++) {
-            int count = 0;
-            for (int x = 0; x < w; x++) {
-                if (pixels[y * w + x] == 255) count++;
-            }
-            if (count > w * 0.85) { 
-                for (int x = 0; x < w; x++) pixels[y * w + x] = 0;
+
+
+    private static void removeSmallNoise(int[] pixels, int w, int h) {
+        int[] cleaned = pixels.clone();
+        for (int y = 1; y < h - 1; y++) {
+            for (int x = 1; x < w - 1; x++) {
+                if (pixels[y * w + x] == 255) {
+                    int neighbors = 0;
+                    for (int dy = -1; dy <= 1; dy++) {
+                        for (int dx = -1; dx <= 1; dx++) {
+                            if (dy == 0 && dx == 0) continue;
+                            if (pixels[(y + dy) * w + (x + dx)] == 255) neighbors++;
+                        }
+                    }
+                    if (neighbors <= 1) {
+                        cleaned[y * w + x] = 0;
+                    }
+                }
             }
         }
-        for (int x = 0; x < w; x++) {
-            int count = 0;
-            for (int y = 0; y < h; y++) {
-                if (pixels[y * w + x] == 255) count++;
-            }
-            if (count > h * 0.85) { 
-                for (int y = 0; y < h; y++) pixels[y * w + x] = 0;
-            }
-        }
+        System.arraycopy(cleaned, 0, pixels, 0, pixels.length);
     }
 
     private static Bitmap dilate(Bitmap src) {
