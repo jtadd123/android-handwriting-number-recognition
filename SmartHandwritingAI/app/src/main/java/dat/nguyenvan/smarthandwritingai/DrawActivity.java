@@ -65,7 +65,8 @@ public class DrawActivity extends AppCompatActivity {
         // Init TTS
         tts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
-                tts.setLanguage(new Locale("vi", "VN"));
+                boolean isEnglish = prefs.getBoolean("isEnglish", false);
+                tts.setLanguage(isEnglish ? Locale.US : new Locale("vi", "VN"));
             }
         });
 
@@ -103,11 +104,11 @@ public class DrawActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_predict).setOnClickListener(v -> {
             if (drawingView.isEmpty()) {
-                UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Hãy vẽ gì đó trước!");
+                UIUtils.showErrorSnackbar(findViewById(android.R.id.content), getString(R.string.draw_empty));
                 return;
             }
             predictDrawing(true); // Lưu vào DB
-            UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã lưu vào lịch sử");
+            UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), getString(R.string.msg_saved_history));
         });
 
         btnRotate.setOnClickListener(v -> {
@@ -207,7 +208,8 @@ public class DrawActivity extends AppCompatActivity {
     }
 
     private void updateDirectionUI() {
-        String info = "Hướng: " + ImageProcessor.rotationDegrees + "°" + (ImageProcessor.isFlipped ? " (Lật)" : "");
+        String flippedSuffix = ImageProcessor.isFlipped ? getString(R.string.draw_flipped_suffix) : "";
+        String info = getString(R.string.draw_direction_format, ImageProcessor.rotationDegrees, flippedSuffix);
         if (tvCurrentSetting != null) {
             tvCurrentSetting.setText(info);
         }
@@ -228,7 +230,7 @@ public class DrawActivity extends AppCompatActivity {
                 if (result == null) {
                     Log.e("DrawActivity", "[DEBUG] Prediction returned null - model not initialized?");
                     runOnUiThread(() -> UIUtils.showErrorSnackbar(
-                        findViewById(android.R.id.content), "Model chưa sẵn sàng"));
+                        findViewById(android.R.id.content), getString(R.string.msg_model_not_ready)));
                     return;
                 }
                 
@@ -271,13 +273,13 @@ public class DrawActivity extends AppCompatActivity {
 
                     // TTS đọc kết quả
                     if (saveToHistory && tts != null) {
-                        String speak = "Kết quả là " + result.label + ", độ tự tin " + String.format("%.0f", result.confidence) + " phần trăm";
+                        String speak = getString(R.string.draw_tts_speak_format, result.label, result.confidence);
                         tts.speak(speak, TextToSpeech.QUEUE_FLUSH, null, "draw_result");
                     }
                 });
             } catch (Exception e) {
                 Log.e("DrawActivity", "Error during prediction", e);
-                runOnUiThread(() -> UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Lỗi nhận dạng: " + e.getMessage()));
+                runOnUiThread(() -> UIUtils.showErrorSnackbar(findViewById(android.R.id.content), getString(R.string.err_classification, e.getMessage())));
             }
         });
     }
@@ -287,19 +289,19 @@ public class DrawActivity extends AppCompatActivity {
         tvAiFeedback.setVisibility(View.VISIBLE);
 
         if (!recognized) {
-            tvAiFeedback.setText("🤔 Chữ khó đọc. Hãy viết rõ hơn!");
+            tvAiFeedback.setText(getString(R.string.draw_feedback_hard_to_read));
             tvAiFeedback.setTextColor(getColor(R.color.warning));
         } else if (confidence >= 90) {
-            tvAiFeedback.setText("🌟 Chữ viết rất rõ ràng và đẹp!");
+            tvAiFeedback.setText(getString(R.string.draw_feedback_excellent));
             tvAiFeedback.setTextColor(getColor(R.color.success));
         } else if (confidence >= 70) {
-            tvAiFeedback.setText("👍 Chữ viết tốt, có thể viết đậm hơn.");
+            tvAiFeedback.setText(getString(R.string.draw_feedback_good));
             tvAiFeedback.setTextColor(getColor(R.color.accent));
         } else if (confidence >= 50) {
-            tvAiFeedback.setText("✏️ Hãy viết nét đậm và rõ ràng hơn.");
+            tvAiFeedback.setText(getString(R.string.draw_feedback_average));
             tvAiFeedback.setTextColor(getColor(R.color.warning));
         } else {
-            tvAiFeedback.setText("🔄 Chữ khó phân biệt. Hãy viết lại.");
+            tvAiFeedback.setText(getString(R.string.draw_feedback_poor));
             tvAiFeedback.setTextColor(getColor(R.color.error));
         }
     }

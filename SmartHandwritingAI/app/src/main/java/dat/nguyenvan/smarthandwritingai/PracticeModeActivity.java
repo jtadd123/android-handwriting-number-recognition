@@ -43,6 +43,10 @@ public class PracticeModeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practice);
 
+        // Reset rotation and flip to prevent canvas state leaks
+        ImageProcessor.rotationDegrees = 0;
+        ImageProcessor.isFlipped = false;
+
         initViews();
         initTTS();
         digitClassifier = new DigitClassifier(this);
@@ -75,7 +79,8 @@ public class PracticeModeActivity extends AppCompatActivity {
     private void initTTS() {
         tts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
-                tts.setLanguage(new Locale("vi", "VN"));
+                boolean isEnglish = getSharedPreferences("AI_CONFIG", MODE_PRIVATE).getBoolean("isEnglish", false);
+                tts.setLanguage(isEnglish ? Locale.US : new Locale("vi", "VN"));
             }
         });
     }
@@ -84,12 +89,12 @@ public class PracticeModeActivity extends AppCompatActivity {
         currentTarget = ALL_CHARS[random.nextInt(ALL_CHARS.length)];
         tvTargetChar.setText(currentTarget);
         // Đọc ký tự mục tiêu
-        speakText("Hãy viết ký tự " + currentTarget);
+        speakText(getString(R.string.practice_speak_prompt, currentTarget));
     }
 
     private void submitAnswer() {
         if (drawingView.isEmpty()) {
-            UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Hãy vẽ gì đó trước!");
+            UIUtils.showErrorSnackbar(findViewById(android.R.id.content), getString(R.string.draw_empty));
             return;
         }
 
@@ -99,13 +104,13 @@ public class PracticeModeActivity extends AppCompatActivity {
             if (result == null) return;
 
             totalAttempts++;
-            boolean isCorrect = result.label.equalsIgnoreCase(currentTarget);
+            boolean isCorrect = isVisualEquivalent(result.label, currentTarget);
             if (isCorrect) correctAttempts++;
 
             // Tìm vị trí ký tự mục tiêu trong top predictions
             float targetConfidence = 0;
             for (DigitClassifier.PredictionItem item : result.topK) {
-                if (item.label.equalsIgnoreCase(currentTarget)) {
+                if (isVisualEquivalent(item.label, currentTarget)) {
                     targetConfidence = item.confidence;
                     break;
                 }
@@ -124,32 +129,53 @@ public class PracticeModeActivity extends AppCompatActivity {
         });
     }
 
+    private boolean isVisualEquivalent(String val1, String val2) {
+        if (val1.equalsIgnoreCase(val2)) return true;
+        String[][] groups = {
+                {"0", "O"},
+                {"1", "I", "L"},
+                {"2", "Z"},
+                {"5", "S"},
+                {"8", "B"}
+        };
+        for (String[] group : groups) {
+            boolean hasVal1 = false;
+            boolean hasVal2 = false;
+            for (String s : group) {
+                if (s.equalsIgnoreCase(val1)) hasVal1 = true;
+                if (s.equalsIgnoreCase(val2)) hasVal2 = true;
+            }
+            if (hasVal1 && hasVal2) return true;
+        }
+        return false;
+    }
+
     private void showFeedback(boolean correct, String predicted, float confidence, float targetConf) {
         cardFeedback.setVisibility(View.VISIBLE);
 
         if (correct && confidence >= 80) {
             tvFeedbackEmoji.setText("🌟");
-            tvFeedbackText.setText("Xuất sắc!");
-            tvFeedbackDetail.setText(String.format("AI nhận đúng \"%s\" với %.1f%% tự tin", currentTarget, confidence));
+            tvFeedbackText.setText(getString(R.string.practice_feedback_excellent));
+            tvFeedbackDetail.setText(getString(R.string.practice_feedback_excellent_detail, currentTarget, confidence));
             tvFeedbackText.setTextColor(getColor(R.color.success));
-            speakText("Xuất sắc! Bạn viết rất đẹp");
+            speakText(getString(R.string.practice_speak_excellent));
         } else if (correct) {
             tvFeedbackEmoji.setText("✅");
-            tvFeedbackText.setText("Đúng rồi!");
-            tvFeedbackDetail.setText(String.format("AI nhận đúng \"%s\" (%.1f%%). Hãy viết rõ hơn.", currentTarget, confidence));
+            tvFeedbackText.setText(getString(R.string.practice_feedback_correct));
+            tvFeedbackDetail.setText(getString(R.string.practice_feedback_correct_detail, currentTarget, confidence));
             tvFeedbackText.setTextColor(getColor(R.color.success));
-            speakText("Đúng rồi, nhưng hãy viết rõ hơn");
+            speakText(getString(R.string.practice_speak_correct_clearer));
         } else {
             tvFeedbackEmoji.setText("❌");
-            tvFeedbackText.setText("Chưa đúng!");
-            String detail = String.format("AI nhận thành \"%s\" (%.1f%%).", predicted, confidence);
+            tvFeedbackText.setText(getString(R.string.practice_feedback_incorrect));
+            StringBuilder detail = new StringBuilder(getString(R.string.practice_feedback_incorrect_pred_format, predicted, confidence));
             if (targetConf > 0) {
-                detail += String.format(" Ký tự \"%s\" chỉ %.1f%%.", currentTarget, targetConf);
+                detail.append(getString(R.string.practice_feedback_incorrect_target_format, currentTarget, targetConf));
             }
-            detail += " Hãy viết lại rõ hơn!";
-            tvFeedbackDetail.setText(detail);
+            detail.append(getString(R.string.practice_feedback_incorrect_rewrite));
+            tvFeedbackDetail.setText(detail.toString());
             tvFeedbackText.setTextColor(getColor(R.color.error));
-            speakText("Chưa đúng. AI nhận thành " + predicted + ". Hãy thử lại.");
+            speakText(getString(R.string.practice_speak_incorrect_format, predicted));
         }
     }
 

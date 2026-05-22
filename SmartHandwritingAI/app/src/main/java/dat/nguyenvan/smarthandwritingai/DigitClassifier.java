@@ -24,6 +24,14 @@ public class DigitClassifier {
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
     };
 
+    private static final String[][] EQUIVALENCE_GROUPS = {
+            {"0", "O"},
+            {"1", "I", "L"},
+            {"2", "Z"},
+            {"5", "S"},
+            {"8", "B"}
+    };
+
     private Interpreter interpreter;
     private boolean isInitialized = false;
 
@@ -78,9 +86,14 @@ public class DigitClassifier {
     }
 
     private PredictionResult getBestPrediction(float[] probabilities) {
+        float[] mergedProbabilities = probabilities.clone();
+        for (String[] group : EQUIVALENCE_GROUPS) {
+            mergeGroup(mergedProbabilities, group);
+        }
+
         java.util.List<PredictionItem> allPredictions = new java.util.ArrayList<>();
-        for (int i = 0; i < probabilities.length; i++) {
-            allPredictions.add(new PredictionItem(LABELS[i], probabilities[i] * 100));
+        for (int i = 0; i < mergedProbabilities.length; i++) {
+            allPredictions.add(new PredictionItem(LABELS[i], mergedProbabilities[i] * 100));
         }
         java.util.Collections.sort(allPredictions);
 
@@ -91,6 +104,55 @@ public class DigitClassifier {
         }
 
         return new PredictionResult(top1.label, top1.confidence, topK);
+    }
+
+    private void mergeGroup(float[] mergedProbabilities, String[] group) {
+        float sum = 0f;
+        int digitIdx = -1;
+        float maxLetterProb = -1f;
+        int maxLetterIdx = -1;
+
+        for (String s : group) {
+            int idx = -1;
+            for (int i = 0; i < LABELS.length; i++) {
+                if (LABELS[i].equals(s)) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx != -1) {
+                float prob = mergedProbabilities[idx];
+                sum += prob;
+                if (Character.isDigit(s.charAt(0))) {
+                    digitIdx = idx;
+                } else {
+                    if (prob > maxLetterProb) {
+                        maxLetterProb = prob;
+                        maxLetterIdx = idx;
+                    }
+                }
+            }
+        }
+
+        int representativeIdx = -1;
+        if (digitIdx != -1) {
+            representativeIdx = digitIdx;
+        } else {
+            representativeIdx = maxLetterIdx;
+        }
+
+        // Set all to 0, then assign sum to representative
+        for (String s : group) {
+            for (int i = 0; i < LABELS.length; i++) {
+                if (LABELS[i].equals(s)) {
+                    mergedProbabilities[i] = 0f;
+                    break;
+                }
+            }
+        }
+        if (representativeIdx != -1) {
+            mergedProbabilities[representativeIdx] = sum;
+        }
     }
 
     public boolean isInitialized() {

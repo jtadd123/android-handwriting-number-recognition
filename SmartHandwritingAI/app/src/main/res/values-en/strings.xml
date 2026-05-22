@@ -32,4 +32,181 @@
     <string name="title_analytics">AI Analytics</string>
     <string name="confirm_delete_item">Delete this item from history?</string>
     <string name="item_deleted">Deleted</string>
+
+    <!-- Bottom Navigation Labels -->
+    <string name="nav_home">Home</string>
+    <string name="nav_draw">Draw</string>
+    <string name="nav_history">History</string>
+    <string name="nav_analytics">Analytics</string>
+
+    <!-- Settings Screen -->
+    <string name="setting_title">AI Settings</string>
+    <string name="setting_header_ai">AI Model Configuration</string>
+    <string name="setting_threshold_title">Confidence Threshold</string>
+    <string name="setting_threshold_desc">AI only shows results if confidence is above this threshold.</string>
+    <string name="setting_tts_title">Read results with voice (TTS)</string>
+    <string name="setting_tts_on">Enabled</string>
+    <string name="setting_tts_off">Disabled</string>
+    <string name="setting_tts_desc">AI will read prediction results aloud.</string>
+    <string name="setting_header_appearance">Appearance</string>
+    <string name="setting_dark_mode">🌙 Dark Mode</string>
+    <string name="setting_dark_mode_desc">Switch between light and dark theme.</string>
+    <string name="setting_language">🌐 English (Tiếng Anh)</string>
+    <string name="setting_language_desc">Switch app display language.</string>
+    <string name="setting_header_data">Data Management</string>
+    <string name="setting_firebase_sync">☁️ Firebase Sync</string>
+    <string name="setting_firebase_desc">Automatically back up history to Cloud.</string>
+    <string name="setting_clear_data">🗑️ Clear All History Data</string>
+    <string name="setting_header_account">Account</string>
+    <string name="setting_account_offline">⬜ Logged out (Offline)</string>
+    <string name="setting_logged_in">✅ Logged in: %1$s</string>
+    <string name="setting_logout">🚪 Log out</string>
+    <string name="setting_login_register">🔑 Log in / Register</string>
+    <string name="setting_header_about">About</string>
+    <string name="setting_version">Version: 2.1.0</string>
+    <string name="setting_model_info">AI Model: EMNIST TFLite (36 classes)</string>
+    <string name="setting_features_info">Features: TTS, Haptic, AI Feedback, Bottom Nav</string>
+    
+    <!-- Settings Toast & Messages -->
+    <string name="msg_firebase_sync_on">Firebase sync enabled</string>
+    <string name="msg_firebase_sync_off">Firebase sync disabled</string>
+    <string name="msg_history_cleared">All history cleared!</string>
+    <string name="msg_logged_out">Logged out</string>
+    <string name="msg_tts_init_failed">Cannot initialize TTS. Check voice engine on your device.</string>
+    <string name="msg_tts_disabled">AI voice disabled</string>
+    <string name="msg_tts_enabled_speak">AI voice enabled</string>
+
+    <!-- Analytics -->
+    <string name="analytics_overview">Overview</string>
+    <string name="analytics_total">Total Predictions</string>
+    <string name="analytics_avg_confidence">Avg Confidence</string>
+    <string name="analytics_top_char">Top Character</string>
+    <string name="analytics_recognition_rate">Recognition Rate</string>
+    <string name="analytics_distribution">Result Distribution</string>
+    <string name="chart_label_character">Character</string>
+    <string name="chart_label_recognition_count">Predictions</string>
+
+    <!-- Draw -->
+    <string name="draw_guide_hint">Draw a digit or letter with your finger (0-9, A-Z)</string>
+    <string name="btn_rotate">Rotate 90°</string>
+    <string name="btn_flip">Mirror Flip</string>
+    <string name="draw_direction_format">Direction: %1$d°%2$s</string>
+    <string name="draw_flipped_suffix"> (Flipped)</string>
+    <string name="draw_result_prefix">Result: </string>
+    <string name="btn_save_result">Save Result</string>
+    <string name="msg_saved_history">Saved to history</string>
+    <string name="msg_model_not_ready">Model not ready</string>
+    <string name="draw_tts_speak_format">The result is %1$s, with %2$.0f percent confidence</string>
+    <string name="draw_feedback_hard_to_read">🤔 Hard to read. Please write clearer!</string>
+    <string name="draw_feedback_excellent">🌟 Very clear and beautiful writing!</string>
+    <string name="draw_feedback_good">👍 Good writing, you can write thicker.</string>
+    <string name="draw_feedback_average">✏️ Please write thicker and clearer.</string>
+    <string name="draw_feedback_poor">🔄 Hard to distinguish. Rewrite please.</string>
+
+    <!-- History -->
+    <string name="history_tab_all">All</string>
+    <string name="history_tab_favorites">Favorites</string>
+    <string name="history_search_hint">Search history</string>
+    <string name="msg_offline_mode">Offline Mode: No internet connection</string>
+    <string name="msg_firebase_not_configured">Firebase is not configured</string>
+    <string name="msg_syncing_firebase">Syncing to Firebase...</string>
+    <string name="msg_sync_success">Sync successful!</string>
+
+    <!-- Login -->
+    <string name="login_subtitle">Log in to sync your history</string>
+    <string name="login_hint_username">Username</string>
+    <string name="login_hint_password">Password</string>
+    <string name="login_hint_confirm_password">Confirm Password</string>
+    <string name="login_btn_forgot_password">Forgot password?</string>
+    <string name="login_btn_login">Log In</string>
+    <string name="login_toggle_hint">No account yet?</string>
+    <string name="login_btn_toggle_register">Register</string>
+    <string name="login_btn_skip">Skip, use offline</string>
+    
+    <string name="login_subtitle_register">Create new account to sync data</string>
+    <string name="login_btn_register">Create Account</string>
+    <string name="login_toggle_hint_register">Already have an account?</string>
+    <string name="login_btn_toggle_login">Log In</string>
+
+    <string name="err_account_data">Account data error</string>
+    <string name="err_username_not_exist">Username does not exist</string>
+    <string name="msg_login_success">Logged in successfully!</string>
+    <string name="err_username_taken">Username is already taken</string>
+    <string name="err_check_account_failed">Failed to check account: %1$s</string>
+    <string name="msg_register_success">Account created successfully!</string>
+    <string name="err_enter_username_first">Please enter username first</string>
+    <string name="err_reset_password_unsupported">Reset password via username is not supported yet. Please contact admin.</string>
+    <string name="err_send_reset_failed">Failed to send reset email: %1$s</string>
+    <string name="err_connection_failed">Connection error: %1$s</string>
+    <string name="err_enter_username">Please enter username</string>
+    <string name="err_username_too_short">Username must be at least 3 characters</string>
+    <string name="err_username_invalid_chars">Username can only contain letters, numbers and _</string>
+    <string name="err_enter_password">Please enter password</string>
+    <string name="err_password_too_short">Password must be at least 6 characters</string>
+    <string name="err_password_mismatch">Passwords do not match</string>
+    <string name="err_unknown">An error occurred</string>
+    <string name="err_wrong_password">Incorrect password</string>
+    <string name="err_too_many_attempts">Too many attempts. Please try again later.</string>
+
+    <!-- Main / Home -->
+    <string name="main_camera_guide">📸 Place character inside the frame</string>
+    <string name="main_ai_input_title">AI Input (Actual preprocessed image):</string>
+    <string name="main_result_title">RESULT</string>
+    <string name="main_confidence_title">Confidence: </string>
+    <string name="main_top_predictions_title">Top 3 Predictions (AI Confidence):</string>
+    <string name="main_btn_camera">Camera</string>
+    <string name="main_btn_gallery">Gallery</string>
+    <string name="main_btn_reset">Clear &amp; Reset</string>
+    <string name="main_hint_text">Select photo or draw\nto recognize</string>
+    
+    <string name="err_crop_image">Crop error: %1$s</string>
+    <string name="err_camera_permission">Camera permission required to take photo</string>
+    <string name="crop_toolbar_title">Crop &amp; Rotate Photo</string>
+    <string name="err_read_image">Error reading photo: %1$s</string>
+    <string name="err_open_camera">Cannot open Camera: %1$s</string>
+    <string name="tts_speak_format">The recognition result is %1$s, with %2$.0f percent confidence</string>
+    <string name="err_classification">Recognition error: %1$s</string>
+    <string name="warning_low_confidence">Confidence (%1$.1f%%) is below configured threshold (50%%)</string>
+    <string name="feedback_excellent">🌟 Very clear image! AI recognition confidence is high.</string>
+    <string name="feedback_good">👍 Good image quality. Reliable result.</string>
+    <string name="feedback_average">✏️ Average quality. Try cropping closer to the character.</string>
+    <string name="feedback_poor">🔄 Hard to read image. Crop again or take a clearer photo.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_btn_skip">SKIP</string>
+    <string name="onboarding_btn_next">CONTINUE</string>
+    <string name="onboarding_start">START</string>
+    <string name="onboarding_item1_title">AI Recognition</string>
+    <string name="onboarding_item2_title">Draw &amp; Predict</string>
+    <string name="onboarding_item3_title">Smart Camera &amp; Cloud</string>
+    <string name="onboarding_item1_desc">Accurate handwriting recognition using TensorFlow Lite EMNIST model — supports digits (0-9) and letters (A-Z).</string>
+    <string name="onboarding_item2_desc">Draw directly on canvas with customizable color and stroke size. Real-time AI prediction as you draw.</string>
+    <string name="onboarding_item3_desc">Smart scanner with auto preprocessing, Firebase cloud synchronization, and handwriting AI Practice Mode.</string>
+
+    <!-- Practice -->
+    <string name="practice_prompt">Please write character:</string>
+    <string name="practice_feedback_excellent">Excellent!</string>
+    <string name="practice_feedback_correct_desc">AI recognized correctly</string>
+    <string name="practice_btn_clear">Clear</string>
+    <string name="practice_btn_submit">Submit</string>
+    <string name="practice_btn_next">Next ▶</string>
+    
+    <string name="practice_speak_prompt">Please write character %1$s</string>
+    <string name="practice_feedback_excellent_detail">AI recognized \"%1$s\" correctly with %2$.1f%% confidence</string>
+    <string name="practice_speak_excellent">Excellent! Your writing is very neat</string>
+    <string name="practice_feedback_correct">Correct!</string>
+    <string name="practice_feedback_correct_detail">AI recognized \"%1$s\" (%2$.1f%%). Write a bit clearer.</string>
+    <string name="practice_speak_correct_clearer">Correct, but write more clearly</string>
+    <string name="practice_feedback_incorrect">Incorrect!</string>
+    <string name="practice_feedback_incorrect_pred_format">AI recognized it as \"%1$s\" (%2$.1f%%).</string>
+    <string name="practice_feedback_incorrect_target_format"> Character \"%1$s\" only %2$.1f%%.</string>
+    <string name="practice_feedback_incorrect_rewrite"> Rewrite it clearer!</string>
+    <string name="practice_speak_incorrect_format">Incorrect. AI recognized it as %1$s. Try again.</string>
+
+    <!-- Brush Settings Dialog -->
+    <string name="brush_settings_title">Brush Settings</string>
+    <string name="brush_size_label">Brush Size</string>
+    <string name="brush_color_label">Brush Color</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_apply">Apply</string>
 </resources>

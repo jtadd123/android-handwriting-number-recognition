@@ -44,9 +44,9 @@ public class OnboardingActivity extends AppCompatActivity {
                 super.onPageSelected(position);
                 setCurrentIndicator(position);
                 if (position == onboardingAdapter.getItemCount() - 1) {
-                    btnNext.setText("BẮT ĐẦU");
+                    btnNext.setText(getString(R.string.onboarding_start));
                 } else {
-                    btnNext.setText("TIẾP TỤC");
+                    btnNext.setText(getString(R.string.onboarding_btn_next));
                 }
             }
         });
@@ -67,18 +67,18 @@ public class OnboardingActivity extends AppCompatActivity {
     private void setupOnboardingItems() {
         List<OnboardingAdapter.OnboardingItem> items = new ArrayList<>();
         items.add(new OnboardingAdapter.OnboardingItem(
-                "AI Recognition",
-                "Nhận diện chữ viết tay chính xác bằng mô hình TensorFlow Lite EMNIST — hỗ trợ cả số (0-9) và chữ cái (A-Z).",
+                getString(R.string.onboarding_item1_title),
+                getString(R.string.onboarding_item1_desc),
                 R.raw.ai_splash // AI brain animation
         ));
         items.add(new OnboardingAdapter.OnboardingItem(
-                "Draw & Predict",
-                "Vẽ tay trực tiếp trên màn hình với bút tùy chỉnh màu sắc, cỡ nét. AI nhận dạng realtime ngay khi bạn vẽ xong.",
+                getString(R.string.onboarding_item2_title),
+                getString(R.string.onboarding_item2_desc),
                 R.raw.onboarding_draw // Drawing pencil animation
         ));
         items.add(new OnboardingAdapter.OnboardingItem(
-                "Smart Camera & Cloud",
-                "Quét ảnh thông minh với tiền xử lý tự động, đồng bộ đám mây qua Firebase, và luyện viết cùng AI Practice Mode.",
+                getString(R.string.onboarding_item3_title),
+                getString(R.string.onboarding_item3_desc),
                 R.raw.onboarding_camera // Camera scan animation
         ));
         onboardingAdapter = new OnboardingAdapter(items);

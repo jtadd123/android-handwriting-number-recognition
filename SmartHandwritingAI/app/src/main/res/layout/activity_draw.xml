@@ -22,7 +22,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Quay lại"
+            android:contentDescription="@string/btn_back"
             android:src="@android:drawable/ic_menu_revert"
             app:tint="@color/text_primary" />
 
@@ -41,7 +41,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Cài đặt bút vẽ"
+            android:contentDescription="@string/brush_settings_title"
             android:src="@android:drawable/ic_menu_manage"
             app:tint="@color/accent" />
     </LinearLayout>
@@ -50,7 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Dùng ngón tay vẽ một chữ số hoặc chữ cái (0-9, A-Z)"
+        android:text="@string/draw_guide_hint"
         android:textColor="@color/text_secondary"
         android:textSize="13sp" />
 
@@ -85,7 +85,7 @@
             android:id="@+id/btn_rotate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Xoay 90°"
+            android:text="@string/btn_rotate"
             android:textSize="11sp"
             android:backgroundTint="#4CAF50"
             android:layout_marginEnd="8dp"/>
@@ -94,7 +94,7 @@
             android:id="@+id/btn_flip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lật Gương"
+            android:text="@string/btn_flip"
             android:textSize="11sp"
             android:backgroundTint="#FF9800"/>
 
@@ -135,7 +135,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Kết quả: "
+                    android:text="@string/draw_result_prefix"
                     android:textColor="@color/text_secondary"
                     android:textSize="18sp" />
 
@@ -233,7 +233,7 @@
             android:layout_width="0dp"
             android:layout_height="52dp"
             android:layout_weight="1"
-            android:text="Lưu KQ"
+            android:text="@string/btn_save_result"
             android:textColor="@color/primary_dark"
             android:textSize="15sp"
             android:textStyle="bold"

@@ -74,24 +74,6 @@ public class SettingsActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        // ── Firebase Sync ──────────────────────────────────────────────────
-        switchFirebase.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean("firebase_sync", isChecked).apply();
-            String msg = isChecked ? "Đã bật đồng bộ Firebase" : "Đã tắt đồng bộ";
-            UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), msg);
-        });
-
-        // ── Language ────────────────────────────────────────────────────────
-        switchLanguage.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean("isEnglish", isChecked).apply();
-            AppCompatDelegate.setApplicationLocales(
-                androidx.core.os.LocaleListCompat.create(java.util.Locale.forLanguageTag(isChecked ? "en" : "vi"))
-            );
-        });
-
-        // ── Dark/Light Theme Toggle ─────────────────────────────────────────
-        // We set the initial state and listener in loadSettings to avoid early trigger
-
         // ── TTS Toggle Button (Speaker Icon) ─────────────────────────────────
         btnTtsToggle.setOnClickListener(v -> {
             boolean currentState = prefs.getBoolean("tts_enabled", true);
@@ -99,7 +81,7 @@ public class SettingsActivity extends AppCompatActivity {
             prefs.edit().putBoolean("tts_enabled", newState).apply();
 
             if (newState) {
-                enableTts();
+                enableTts(true);
             } else {
                 disableTts();
             }
@@ -112,7 +94,7 @@ public class SettingsActivity extends AppCompatActivity {
             executor.execute(() -> {
                 AppDatabase.getInstance(this).predictionDao().deleteAll();
                 runOnUiThread(() -> {
-                    UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã xóa toàn bộ lịch sử!");
+                    UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), getString(R.string.msg_history_cleared));
                 });
             });
             executor.shutdown();
@@ -122,7 +104,7 @@ public class SettingsActivity extends AppCompatActivity {
         tvAccountEmail = findViewById(R.id.tv_account_email);
         findViewById(R.id.btn_logout).setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
-            UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã đăng xuất");
+            UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), getString(R.string.msg_logged_out));
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         });
@@ -134,7 +116,7 @@ public class SettingsActivity extends AppCompatActivity {
     // TTS Engine Management
     // ══════════════════════════════════════════════════════════════════════════
 
-    private void enableTts() {
+    private void enableTts(boolean speakConfirmation) {
         if (tts != null) return; // Already initialized
 
         tts = new TextToSpeech(this, status -> {
@@ -146,13 +128,15 @@ public class SettingsActivity extends AppCompatActivity {
                 }
                 isTtsReady = true;
                 // Speak confirmation
-                tts.speak("Đã bật giọng nói", TextToSpeech.QUEUE_FLUSH, null, "tts_test");
+                if (speakConfirmation) {
+                    tts.speak(getString(R.string.msg_tts_enabled_speak), TextToSpeech.QUEUE_FLUSH, null, "tts_test");
+                }
                 Log.d(TAG, "TTS initialized successfully");
             } else {
                 Log.e(TAG, "TTS initialization failed with status: " + status);
                 runOnUiThread(() -> UIUtils.showErrorSnackbar(
                         findViewById(android.R.id.content),
-                        "Không thể khởi tạo TTS. Kiểm tra engine giọng nói trên thiết bị."));
+                        getString(R.string.msg_tts_init_failed)));
             }
         });
     }
@@ -164,7 +148,7 @@ public class SettingsActivity extends AppCompatActivity {
             tts = null;
             isTtsReady = false;
         }
-        UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã tắt giọng nói AI");
+        UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), getString(R.string.msg_tts_disabled));
     }
 
     private void updateTtsUI(boolean isEnabled) {
@@ -174,14 +158,14 @@ public class SettingsActivity extends AppCompatActivity {
             btnTtsToggle.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
             btnTtsToggle.setColorFilter(getColor(R.color.accent));
             if (tvTtsStatus != null) {
-                tvTtsStatus.setText("Đang bật");
+                tvTtsStatus.setText(getString(R.string.setting_tts_on));
                 tvTtsStatus.setTextColor(getColor(R.color.accent));
             }
         } else {
             btnTtsToggle.setImageResource(android.R.drawable.ic_lock_silent_mode);
             btnTtsToggle.setColorFilter(getColor(R.color.text_hint));
             if (tvTtsStatus != null) {
-                tvTtsStatus.setText("Đã tắt");
+                tvTtsStatus.setText(getString(R.string.setting_tts_off));
                 tvTtsStatus.setTextColor(getColor(R.color.text_hint));
             }
         }
@@ -199,11 +183,40 @@ public class SettingsActivity extends AppCompatActivity {
 
         seekbarThreshold.setProgress(threshold);
         tvThresholdValue.setText(threshold + "%");
-        switchFirebase.setChecked(sync);
-        switchLanguage.setChecked(prefs.getBoolean("isEnglish", false));
-        
+
+        // Clear listeners first to avoid loop on setChecked
+        switchFirebase.setOnCheckedChangeListener(null);
+        switchLanguage.setOnCheckedChangeListener(null);
         switchDarkMode.setOnCheckedChangeListener(null);
+
+        switchFirebase.setChecked(sync);
+        
+        // Sync language state from App Locales if possible
+        androidx.core.os.LocaleListCompat currentLocales = AppCompatDelegate.getApplicationLocales();
+        boolean isEnglishSelected = false;
+        if (!currentLocales.isEmpty()) {
+            isEnglishSelected = "en".equals(currentLocales.get(0).getLanguage());
+        } else {
+            isEnglishSelected = prefs.getBoolean("isEnglish", false);
+        }
+        switchLanguage.setChecked(isEnglishSelected);
+        
         switchDarkMode.setChecked(isDarkMode);
+
+        // Re-set listeners
+        switchFirebase.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("firebase_sync", isChecked).apply();
+            String msg = isChecked ? getString(R.string.msg_firebase_sync_on) : getString(R.string.msg_firebase_sync_off);
+            UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), msg);
+        });
+
+        switchLanguage.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("isEnglish", isChecked).apply();
+            AppCompatDelegate.setApplicationLocales(
+                androidx.core.os.LocaleListCompat.create(java.util.Locale.forLanguageTag(isChecked ? "en" : "vi"))
+            );
+        });
+
         switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("isDarkMode", isChecked).apply();
             AppCompatDelegate.setDefaultNightMode(
@@ -214,16 +227,16 @@ public class SettingsActivity extends AppCompatActivity {
         // Initialize TTS UI state
         updateTtsUI(ttsEnabled);
         if (ttsEnabled) {
-            enableTts();
+            enableTts(false);
         }
 
         // Show current user info
         if (tvAccountEmail != null) {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
-                tvAccountEmail.setText("✅ Đã đăng nhập: " + user.getEmail());
+                tvAccountEmail.setText(getString(R.string.setting_logged_in, user.getEmail()));
             } else {
-                tvAccountEmail.setText("⬜ Chưa đăng nhập (Offline)");
+                tvAccountEmail.setText(getString(R.string.setting_account_offline));
             }
         }
     }

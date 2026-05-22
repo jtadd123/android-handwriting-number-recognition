@@ -28,7 +28,7 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="BỎ QUA"
+            android:text="@string/onboarding_btn_skip"
             android:textColor="@color/text_secondary" />
 
         <Space
@@ -52,7 +52,7 @@
             style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TIẾP TỤC"
+            android:text="@string/onboarding_btn_next"
             app:cornerRadius="20dp" />
     </LinearLayout>
 

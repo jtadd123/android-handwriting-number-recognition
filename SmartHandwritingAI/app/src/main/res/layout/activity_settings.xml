@@ -28,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Cài đặt AI"
+            android:text="@string/setting_title"
             android:textColor="@color/text_primary"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -50,7 +50,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cấu hình mô hình AI"
+                android:text="@string/setting_header_ai"
                 android:textColor="@color/accent"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -76,14 +76,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ngưỡng độ tin cậy (Confidence Threshold)"
+                        android:text="@string/setting_threshold_title"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="AI chỉ trả kết quả nếu độ tự tin cao hơn ngưỡng này."
+                        android:text="@string/setting_threshold_desc"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:layout_marginTop="4dp"/>
@@ -136,7 +136,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Đọc kết quả bằng giọng nói (TTS)"
+                                android:text="@string/setting_tts_title"
                                 android:textColor="@color/text_primary"
                                 android:textSize="14sp" />
 
@@ -144,7 +144,7 @@
                                 android:id="@+id/tv_tts_status"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Đang bật"
+                                android:text="@string/setting_tts_on"
                                 android:textColor="@color/accent"
                                 android:textSize="12sp"
                                 android:layout_marginTop="2dp"/>
@@ -165,7 +165,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="AI sẽ đọc kết quả nhận dạng bằng giọng nói."
+                        android:text="@string/setting_tts_desc"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp"
                         android:layout_marginTop="6dp"/>
@@ -176,7 +176,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Giao diện"
+                android:text="@string/setting_header_appearance"
                 android:textColor="@color/accent"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -203,13 +203,13 @@
                         android:id="@+id/switch_dark_mode"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="🌙 Chế độ tối (Dark Mode)"
+                        android:text="@string/setting_dark_mode"
                         android:textColor="@color/text_primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Chuyển đổi giữa giao diện sáng và tối."
+                        android:text="@string/setting_dark_mode_desc"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp"
                         android:layout_marginTop="4dp"
@@ -220,13 +220,13 @@
                         android:id="@+id/switch_language"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="🌐 Tiếng Anh (English)"
+                        android:text="@string/setting_language"
                         android:textColor="@color/text_primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Chuyển ngôn ngữ hiển thị trong ứng dụng."
+                        android:text="@string/setting_language_desc"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp"
                         android:layout_marginTop="4dp"/>
@@ -237,7 +237,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Quản lý dữ liệu"
+                android:text="@string/setting_header_data"
                 android:textColor="@color/accent"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -263,13 +263,13 @@
                         android:id="@+id/switch_firebase"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="☁️ Đồng bộ Firebase"
+                        android:text="@string/setting_firebase_sync"
                         android:textColor="@color/text_primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tự động sao lưu lịch sử lên Cloud."
+                        android:text="@string/setting_firebase_desc"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp"
                         android:layout_marginBottom="16dp"
@@ -280,7 +280,7 @@
                         style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="🗑️ Xóa toàn bộ dữ liệu lịch sử"
+                        android:text="@string/setting_clear_data"
                         android:textColor="@color/error"
                         app:cornerRadius="12dp"
                         app:strokeColor="@color/error" />
@@ -291,7 +291,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tài khoản"
+                android:text="@string/setting_header_account"
                 android:textColor="@color/accent"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -317,7 +317,7 @@
                         android:id="@+id/tv_account_email"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="⬜ Chưa đăng nhập (Offline)"
+                        android:text="@string/setting_account_offline"
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp"
                         android:layout_marginBottom="12dp" />
@@ -328,7 +328,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="🚪 Đăng xuất"
+                        android:text="@string/setting_logout"
                         android:textColor="@color/error"
                         android:contentDescription="Đăng xuất khỏi tài khoản"
                         app:cornerRadius="12dp"
@@ -338,7 +338,7 @@
                         android:id="@+id/btn_go_login"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="🔑 Đăng nhập / Đăng ký"
+                        android:text="@string/setting_login_register"
                         android:textColor="@color/white"
                         android:contentDescription="Đăng nhập vào tài khoản Firebase"
                         app:backgroundTint="@color/primary"
@@ -350,7 +350,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Thông tin ứng dụng"
+                android:text="@string/setting_header_about"
                 android:textColor="@color/accent"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -375,13 +375,13 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Phiên bản: 2.1.0"
+                        android:text="@string/setting_version"
                         android:textColor="@color/text_primary" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="AI Model: EMNIST TFLite (36 classes)"
+                        android:text="@string/setting_model_info"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:layout_marginTop="4dp"/>
@@ -389,7 +389,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Features: TTS, Haptic, AI Feedback, Bottom Nav"
+                        android:text="@string/setting_features_info"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:layout_marginTop="4dp"/>

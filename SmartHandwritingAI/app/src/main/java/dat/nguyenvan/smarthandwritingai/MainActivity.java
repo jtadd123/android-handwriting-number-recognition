@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else if (result.getResultCode() == UCrop.RESULT_ERROR && result.getData() != null) {
                     Throwable error = UCrop.getError(result.getData());
-                    Toast.makeText(this, "Lỗi crop ảnh: " + (error != null ? error.getMessage() : "?"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.err_crop_image, (error != null ? error.getMessage() : "?")), Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
                 if (granted) openCamera();
-                else Toast.makeText(this, "Cần quyền Camera để chụp ảnh", Toast.LENGTH_SHORT).show();
+                else Toast.makeText(this, getString(R.string.err_camera_permission), Toast.LENGTH_SHORT).show();
             });
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -162,7 +162,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void initTTS() {
         tts = new TextToSpeech(this, status -> {
-            if (status == TextToSpeech.SUCCESS) tts.setLanguage(new Locale("vi", "VN"));
+            if (status == TextToSpeech.SUCCESS) {
+                boolean isEnglish = getSharedPreferences("AI_CONFIG", MODE_PRIVATE).getBoolean("isEnglish", false);
+                tts.setLanguage(isEnglish ? Locale.US : new Locale("vi", "VN"));
+            }
         });
     }
 
@@ -210,6 +213,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Reset rotation and flip to prevent canvas state leaks
+        ImageProcessor.rotationDegrees = 0;
+        ImageProcessor.isFlipped = false;
+
         // Reset bottom nav to Home when returning from other activities
         if (bottomNavigation != null) {
             bottomNavigation.setSelectedItemId(R.id.nav_home);
@@ -243,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
         options.setFreeStyleCropEnabled(true);           // Crop tự do
         options.setShowCropGrid(true);
         options.setShowCropFrame(true);
-        options.setToolbarTitle("Cắt & Xoay Ảnh");
+        options.setToolbarTitle(getString(R.string.crop_toolbar_title));
         options.setToolbarColor(getColor(R.color.primary_dark));
         options.setStatusBarColor(getColor(R.color.primary_dark));
         options.setActiveControlsWidgetColor(getColor(R.color.accent));
@@ -274,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
                 classifyImage(currentBitmap);
             }
         } catch (Exception e) {
-            Toast.makeText(this, "Lỗi đọc ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.err_read_image, e.getMessage()), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -288,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
             cameraLauncher.launch(intent);
         } catch (Exception e) {
-            UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Không thể mở Camera: " + e.getMessage());
+            UIUtils.showErrorSnackbar(findViewById(android.R.id.content), getString(R.string.err_open_camera, e.getMessage()));
         }
     }
 
@@ -296,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void classifyImage(Bitmap bitmap) {
         if (digitClassifier == null || !digitClassifier.isInitialized()) {
-            UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Model chưa sẵn sàng");
+            UIUtils.showErrorSnackbar(findViewById(android.R.id.content), getString(R.string.msg_model_not_ready));
             return;
         }
 
@@ -328,8 +335,7 @@ public class MainActivity extends AppCompatActivity {
                         boolean ttsOn = getSharedPreferences("AI_CONFIG", MODE_PRIVATE)
                                 .getBoolean("tts_enabled", true);
                         if (ttsOn && tts != null) {
-                            String speak = "Kết quả nhận dạng là " + result.label
-                                    + ", độ tự tin " + String.format("%.0f", result.confidence) + " phần trăm";
+                            String speak = getString(R.string.tts_speak_format, result.label, result.confidence);
                             tts.speak(speak, TextToSpeech.QUEUE_FLUSH, null, "main_result");
                         }
                     }
@@ -337,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     layoutLoading.setVisibility(View.GONE);
-                    UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Lỗi nhận dạng: " + e.getMessage());
+                    UIUtils.showErrorSnackbar(findViewById(android.R.id.content), getString(R.string.err_classification, e.getMessage()));
                 });
             }
         });
@@ -356,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
         layoutTop.removeAllViews();
 
         TextView header = new TextView(this);
-        header.setText("Top 3 Dự Đoán (AI Confidence):");
+        header.setText(getString(R.string.main_top_predictions_title));
         header.setTextColor(getColor(R.color.text_secondary));
         header.setTextSize(14);
         header.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -373,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (result.confidence < 50) {
             UIUtils.showWarningSnackbar(findViewById(android.R.id.content),
-                    String.format("Độ tự tin (%.1f%%) thấp hơn ngưỡng cài đặt (50%%)", result.confidence));
+                    getString(R.string.warning_low_confidence, result.confidence));
         }
     }
 
@@ -381,16 +387,16 @@ public class MainActivity extends AppCompatActivity {
         if (tvAiFeedbackMain == null) return;
         tvAiFeedbackMain.setVisibility(View.VISIBLE);
         if (confidence >= 90) {
-            tvAiFeedbackMain.setText("🌟 Ảnh rất rõ ràng! AI nhận dạng chính xác cao.");
+            tvAiFeedbackMain.setText(getString(R.string.feedback_excellent));
             tvAiFeedbackMain.setTextColor(getColor(R.color.success));
         } else if (confidence >= 70) {
-            tvAiFeedbackMain.setText("👍 Chất lượng ảnh tốt. Kết quả đáng tin cậy.");
+            tvAiFeedbackMain.setText(getString(R.string.feedback_good));
             tvAiFeedbackMain.setTextColor(getColor(R.color.accent));
         } else if (confidence >= 50) {
-            tvAiFeedbackMain.setText("✏️ Chất lượng trung bình. Thử crop gần ký tự hơn.");
+            tvAiFeedbackMain.setText(getString(R.string.feedback_average));
             tvAiFeedbackMain.setTextColor(getColor(R.color.warning));
         } else {
-            tvAiFeedbackMain.setText("🔄 Ảnh khó đọc. Hãy crop lại hoặc chụp rõ hơn.");
+            tvAiFeedbackMain.setText(getString(R.string.feedback_poor));
             tvAiFeedbackMain.setTextColor(getColor(R.color.error));
         }
     }

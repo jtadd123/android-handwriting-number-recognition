@@ -175,7 +175,7 @@ public class AnalyticsActivity extends AppCompatActivity {
         }
 
         // --- Pie Chart ---
-        PieDataSet pieDataSet = new PieDataSet(pieEntries, "Ký tự");
+        PieDataSet pieDataSet = new PieDataSet(pieEntries, getString(R.string.chart_label_character));
         pieDataSet.setColors(chartColors);
         pieDataSet.setSliceSpace(3f);
         pieDataSet.setSelectionShift(5f);
@@ -189,7 +189,7 @@ public class AnalyticsActivity extends AppCompatActivity {
         pieChart.invalidate();
 
         // --- Bar Chart ---
-        BarDataSet barDataSet = new BarDataSet(barEntries, "Số lần nhận dạng");
+        BarDataSet barDataSet = new BarDataSet(barEntries, getString(R.string.chart_label_recognition_count));
         barDataSet.setColors(chartColors);
         barDataSet.setValueTextColor(Color.WHITE);
         barDataSet.setValueTextSize(10f);

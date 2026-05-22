@@ -27,7 +27,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Quay lại"
+                android:contentDescription="@string/btn_back"
                 android:src="@android:drawable/ic_menu_revert"
                 app:tint="@color/text_primary" />
 
@@ -46,7 +46,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Đồng bộ Firebase"
+                android:contentDescription="@string/setting_firebase_sync"
                 android:src="@android:drawable/stat_notify_sync"
                 app:tint="@color/accent" />
 
@@ -73,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_rounded_pill"
                 android:backgroundTint="@color/surface_elevated"
-                app:queryHint="Tìm kiếm lịch sử"
+                app:queryHint="@string/history_search_hint"
                 app:iconifiedByDefault="false" />
 
             <com.google.android.material.chip.ChipGroup
@@ -88,7 +88,7 @@
                     style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tất cả"
+                    android:text="@string/history_tab_all"
                     android:checked="true" />
 
                 <com.google.android.material.chip.Chip
@@ -96,7 +96,7 @@
                     style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yêu thích" />
+                    android:text="@string/history_tab_favorites" />
             </com.google.android.material.chip.ChipGroup>
         </LinearLayout>
 

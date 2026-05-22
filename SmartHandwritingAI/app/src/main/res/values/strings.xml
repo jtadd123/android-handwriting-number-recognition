@@ -45,4 +45,175 @@
     <string name="nav_draw">Vẽ Tay</string>
     <string name="nav_history">Lịch sử</string>
     <string name="nav_analytics">Thống kê</string>
+
+    <!-- Settings Screen -->
+    <string name="setting_title">Cài đặt AI</string>
+    <string name="setting_header_ai">Cấu hình mô hình AI</string>
+    <string name="setting_threshold_title">Ngưỡng độ tin cậy (Confidence Threshold)</string>
+    <string name="setting_threshold_desc">AI chỉ trả kết quả nếu độ tự tin cao hơn ngưỡng này.</string>
+    <string name="setting_tts_title">Đọc kết quả bằng giọng nói (TTS)</string>
+    <string name="setting_tts_on">Đang bật</string>
+    <string name="setting_tts_off">Đã tắt</string>
+    <string name="setting_tts_desc">AI sẽ đọc kết quả nhận dạng bằng giọng nói.</string>
+    <string name="setting_header_appearance">Giao diện</string>
+    <string name="setting_dark_mode">🌙 Chế độ tối (Dark Mode)</string>
+    <string name="setting_dark_mode_desc">Chuyển đổi giữa giao diện sáng và tối.</string>
+    <string name="setting_language">🌐 Tiếng Anh (English)</string>
+    <string name="setting_language_desc">Chuyển ngôn ngữ hiển thị trong ứng dụng.</string>
+    <string name="setting_header_data">Quản lý dữ liệu</string>
+    <string name="setting_firebase_sync">☁️ Đồng bộ Firebase</string>
+    <string name="setting_firebase_desc">Tự động sao lưu lịch sử lên Cloud.</string>
+    <string name="setting_clear_data">🗑️ Xóa toàn bộ dữ liệu lịch sử</string>
+    <string name="setting_header_account">Tài khoản</string>
+    <string name="setting_account_offline">⬜ Chưa đăng nhập (Offline)</string>
+    <string name="setting_logged_in">✅ Đã đăng nhập: %1$s</string>
+    <string name="setting_logout">🚪 Đăng xuất</string>
+    <string name="setting_login_register">🔑 Đăng nhập / Đăng ký</string>
+    <string name="setting_header_about">Thông tin ứng dụng</string>
+    <string name="setting_version">Phiên bản: 2.1.0</string>
+    <string name="setting_model_info">AI Model: EMNIST TFLite (36 classes)</string>
+    <string name="setting_features_info">Features: TTS, Haptic, AI Feedback, Bottom Nav</string>
+    
+    <!-- Settings Toast & Messages -->
+    <string name="msg_firebase_sync_on">Đã bật đồng bộ Firebase</string>
+    <string name="msg_firebase_sync_off">Đã tắt đồng bộ</string>
+    <string name="msg_history_cleared">Đã xóa toàn bộ lịch sử!</string>
+    <string name="msg_logged_out">Đã đăng xuất</string>
+    <string name="msg_tts_init_failed">Không thể khởi tạo TTS. Kiểm tra engine giọng nói trên thiết bị.</string>
+    <string name="msg_tts_disabled">Đã tắt giọng nói AI</string>
+    <string name="msg_tts_enabled_speak">Đã bật giọng nói</string>
+
+    <!-- Analytics -->
+    <string name="analytics_overview">Tổng quan</string>
+    <string name="analytics_total">Tổng số</string>
+    <string name="analytics_avg_confidence">Độ tự tin TB</string>
+    <string name="analytics_top_char">Top Ký Tự</string>
+    <string name="analytics_recognition_rate">Tỷ lệ nhận dạng</string>
+    <string name="analytics_distribution">Phân bố kết quả</string>
+    <string name="chart_label_character">Ký tự</string>
+    <string name="chart_label_recognition_count">Số lần nhận dạng</string>
+
+    <!-- Draw -->
+    <string name="draw_guide_hint">Dùng ngón tay vẽ một chữ số hoặc chữ cái (0-9, A-Z)</string>
+    <string name="btn_rotate">Xoay 90°</string>
+    <string name="btn_flip">Lật Gương</string>
+    <string name="draw_direction_format">Hướng: %1$d°%2$s</string>
+    <string name="draw_flipped_suffix"> (Lật)</string>
+    <string name="draw_result_prefix">Kết quả: </string>
+    <string name="btn_save_result">Lưu KQ</string>
+    <string name="msg_saved_history">Đã lưu vào lịch sử</string>
+    <string name="msg_model_not_ready">Model chưa sẵn sàng</string>
+    <string name="draw_tts_speak_format">Kết quả là %1$s, độ tự tin %2$.0f phần trăm</string>
+    <string name="draw_feedback_hard_to_read">🤔 Chữ khó đọc. Hãy viết rõ hơn!</string>
+    <string name="draw_feedback_excellent">🌟 Chữ viết rất rõ ràng và đẹp!</string>
+    <string name="draw_feedback_good">👍 Chữ viết tốt, có thể viết đậm hơn.</string>
+    <string name="draw_feedback_average">✏️ Hãy viết nét đậm và rõ ràng hơn.</string>
+    <string name="draw_feedback_poor">🔄 Chữ khó phân biệt. Hãy viết lại.</string>
+
+    <!-- History -->
+    <string name="history_tab_all">Tất cả</string>
+    <string name="history_tab_favorites">Yêu thích</string>
+    <string name="history_search_hint">Tìm kiếm lịch sử</string>
+    <string name="msg_offline_mode">Offline Mode: Không có kết nối mạng</string>
+    <string name="msg_firebase_not_configured">Firebase chưa được cấu hình</string>
+    <string name="msg_syncing_firebase">Đang đồng bộ lên Firebase...</string>
+    <string name="msg_sync_success">Đồng bộ thành công!</string>
+
+    <!-- Login -->
+    <string name="login_subtitle">Đăng nhập để đồng bộ lịch sử của bạn</string>
+    <string name="login_hint_username">Tên đăng nhập</string>
+    <string name="login_hint_password">Mật khẩu</string>
+    <string name="login_hint_confirm_password">Nhập lại mật khẩu</string>
+    <string name="login_btn_forgot_password">Quên mật khẩu?</string>
+    <string name="login_btn_login">Đăng Nhập</string>
+    <string name="login_toggle_hint">Chưa có tài khoản?</string>
+    <string name="login_btn_toggle_register">Đăng ký</string>
+    <string name="login_btn_skip">Bỏ qua, dùng offline</string>
+    
+    <string name="login_subtitle_register">Tạo tài khoản mới để đồng bộ dữ liệu</string>
+    <string name="login_btn_register">Tạo Tài Khoản</string>
+    <string name="login_toggle_hint_register">Đã có tài khoản?</string>
+    <string name="login_btn_toggle_login">Đăng nhập</string>
+
+    <string name="err_account_data">Lỗi dữ liệu tài khoản</string>
+    <string name="err_username_not_exist">Tên đăng nhập không tồn tại</string>
+    <string name="msg_login_success">Đăng nhập thành công!</string>
+    <string name="err_username_taken">Tên đăng nhập đã được sử dụng</string>
+    <string name="err_check_account_failed">Không thể kiểm tra tài khoản: %1$s</string>
+    <string name="msg_register_success">Tạo tài khoản thành công!</string>
+    <string name="err_enter_username_first">Hãy nhập tên đăng nhập trước</string>
+    <string name="err_reset_password_unsupported">Tính năng đặt lại mật khẩu chưa hỗ trợ với username. Vui lòng liên hệ admin.</string>
+    <string name="err_send_reset_failed">Không thể gửi email reset: %1$s</string>
+    <string name="err_connection_failed">Lỗi kết nối: %1$s</string>
+    <string name="err_enter_username">Vui lòng nhập tên đăng nhập</string>
+    <string name="err_username_too_short">Tên đăng nhập phải có ít nhất 3 ký tự</string>
+    <string name="err_username_invalid_chars">Tên đăng nhập chỉ được chứa chữ, số và dấu _</string>
+    <string name="err_enter_password">Vui lòng nhập mật khẩu</string>
+    <string name="err_password_too_short">Mật khẩu phải có ít nhất 6 ký tự</string>
+    <string name="err_password_mismatch">Mật khẩu nhập lại không khớp</string>
+    <string name="err_unknown">Đã xảy ra lỗi</string>
+    <string name="err_wrong_password">Sai mật khẩu</string>
+    <string name="err_too_many_attempts">Quá nhiều lần thử. Hãy thử lại sau.</string>
+
+    <!-- Main / Home -->
+    <string name="main_camera_guide">📸 Đặt ký tự vào giữa khung</string>
+    <string name="main_ai_input_title">AI Input (Dữ liệu AI thực tế thấy):</string>
+    <string name="main_result_title">KẾT QUẢ</string>
+    <string name="main_confidence_title">Độ tự tin: </string>
+    <string name="main_top_predictions_title">Top 3 Dự Đoán (AI Confidence):</string>
+    <string name="main_btn_camera">Chụp Ảnh</string>
+    <string name="main_btn_gallery">Chọn Từ Thư Viện</string>
+    <string name="main_btn_reset">Xóa &amp; Làm Lại</string>
+    <string name="main_hint_text">Chọn ảnh hoặc vẽ tay\nđể nhận dạng</string>
+    
+    <string name="err_crop_image">Lỗi crop ảnh: %1$s</string>
+    <string name="err_camera_permission">Cần quyền Camera để chụp ảnh</string>
+    <string name="crop_toolbar_title">Cắt &amp; Xoay Ảnh</string>
+    <string name="err_read_image">Lỗi đọc ảnh: %1$s</string>
+    <string name="err_open_camera">Không thể mở Camera: %1$s</string>
+    <string name="tts_speak_format">Kết quả nhận dạng là %1$s, độ tự tin %2$.0f phần trăm</string>
+    <string name="err_classification">Lỗi nhận dạng: %1$s</string>
+    <string name="warning_low_confidence">Độ tự tin (%1$.1f%%) thấp hơn ngưỡng cài đặt (50%%)</string>
+    <string name="feedback_excellent">🌟 Ảnh rất rõ ràng! AI nhận dạng chính xác cao.</string>
+    <string name="feedback_good">👍 Chất lượng ảnh tốt. Kết quả đáng tin cậy.</string>
+    <string name="feedback_average">✏️ Chất lượng trung bình. Thử crop gần ký tự hơn.</string>
+    <string name="feedback_poor">🔄 Ảnh khó đọc. Hãy crop lại hoặc chụp rõ hơn.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_btn_skip">BỎ QUA</string>
+    <string name="onboarding_btn_next">TIẾP TỤC</string>
+    <string name="onboarding_start">BẮT ĐẦU</string>
+    <string name="onboarding_item1_title">Nhận Diện AI</string>
+    <string name="onboarding_item2_title">Vẽ &amp; Nhận Dạng</string>
+    <string name="onboarding_item3_title">Camera Thông Minh &amp; Cloud</string>
+    <string name="onboarding_item1_desc">Nhận diện chữ viết tay chính xác bằng mô hình TensorFlow Lite EMNIST — hỗ trợ cả số (0-9) và chữ cái (A-Z).</string>
+    <string name="onboarding_item2_desc">Vẽ tay trực tiếp trên màn hình với bút tùy chỉnh màu sắc, cỡ nét. AI nhận dạng realtime ngay khi bạn vẽ xong.</string>
+    <string name="onboarding_item3_desc">Quét ảnh thông minh với tiền xử lý tự động, đồng bộ đám mây qua Firebase, và luyện viết cùng AI Practice Mode.</string>
+
+    <!-- Practice -->
+    <string name="practice_prompt">Hãy viết ký tự:</string>
+    <string name="practice_feedback_excellent">Tuyệt vời!</string>
+    <string name="practice_feedback_correct_desc">AI nhận đúng ký tự</string>
+    <string name="practice_btn_clear">Xóa</string>
+    <string name="practice_btn_submit">Nộp Bài</string>
+    <string name="practice_btn_next">Tiếp ▶</string>
+    
+    <string name="practice_speak_prompt">Hãy viết ký tự %1$s</string>
+    <string name="practice_feedback_excellent_detail">AI nhận đúng \"%1$s\" với %2$.1f%% tự tin</string>
+    <string name="practice_speak_excellent">Xuất sắc! Bạn viết rất đẹp</string>
+    <string name="practice_feedback_correct">Đúng rồi!</string>
+    <string name="practice_feedback_correct_detail">AI nhận đúng \"%1$s\" (%2$.1f%%). Hãy viết rõ hơn.</string>
+    <string name="practice_speak_correct_clearer">Đúng rồi, nhưng hãy viết rõ hơn</string>
+    <string name="practice_feedback_incorrect">Chưa đúng!</string>
+    <string name="practice_feedback_incorrect_pred_format">AI nhận thành \"%1$s\" (%2$.1f%%).</string>
+    <string name="practice_feedback_incorrect_target_format"> Ký tự \"%1$s\" chỉ %2$.1f%%.</string>
+    <string name="practice_feedback_incorrect_rewrite"> Hãy viết lại rõ hơn!</string>
+    <string name="practice_speak_incorrect_format">Chưa đúng. AI nhận thành %1$s. Hãy thử lại.</string>
+
+    <!-- Brush Settings Dialog -->
+    <string name="brush_settings_title">Cài đặt Bút vẽ</string>
+    <string name="brush_size_label">Cỡ bút</string>
+    <string name="brush_color_label">Màu bút</string>
+    <string name="btn_cancel">Hủy</string>
+    <string name="btn_apply">Áp dụng</string>
 </resources>

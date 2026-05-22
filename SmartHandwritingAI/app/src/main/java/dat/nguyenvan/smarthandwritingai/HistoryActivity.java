@@ -189,7 +189,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
     @Override
     public void onDeleteClick(PredictionEntity entity, int position) {
         new AlertDialog.Builder(this)
-                .setMessage("Xóa mục này khỏi lịch sử?")
+                .setMessage(R.string.confirm_delete_item)
                 .setPositiveButton(R.string.yes, (dialog, which) -> deleteItem(entity, position))
                 .setNegativeButton(R.string.no, null)
                 .show();
@@ -204,7 +204,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
                     rvHistory.setVisibility(View.GONE);
                     layoutEmpty.setVisibility(View.VISIBLE);
                 }
-                UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã xóa");
+                UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), getString(R.string.item_deleted));
             });
         });
     }
@@ -213,12 +213,12 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         if (activeNetwork == null || !activeNetwork.isConnectedOrConnecting()) {
-            Toast.makeText(this, "Offline Mode: Không có kết nối mạng", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.msg_offline_mode, Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (db == null) { Toast.makeText(this, "Firebase chưa được cấu hình", Toast.LENGTH_SHORT).show(); return; }
-        Toast.makeText(this, "Đang đồng bộ lên Firebase...", Toast.LENGTH_SHORT).show();
+        if (db == null) { Toast.makeText(this, R.string.msg_firebase_not_configured, Toast.LENGTH_SHORT).show(); return; }
+        Toast.makeText(this, R.string.msg_syncing_firebase, Toast.LENGTH_SHORT).show();
         executorService.execute(() -> {
             List<PredictionEntity> all = AppDatabase.getInstance(this).predictionDao().getAllPredictions();
             for (PredictionEntity p : all) {
@@ -229,7 +229,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
                 data.put("isFavorite", p.isFavorite);
                 db.collection("history").document(String.valueOf(p.getTimestamp())).set(data);
             }
-            runOnUiThread(() -> Toast.makeText(this, "Đồng bộ thành công!", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> Toast.makeText(this, R.string.msg_sync_success, Toast.LENGTH_SHORT).show());
         });
     }
 

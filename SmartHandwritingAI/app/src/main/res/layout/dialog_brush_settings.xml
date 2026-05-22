@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cài đặt Bút vẽ"
+        android:text="@string/brush_settings_title"
         android:textColor="@color/text_primary"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -19,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Cỡ bút"
+        android:text="@string/brush_size_label"
         android:textColor="@color/text_secondary"
         android:textSize="14sp" />
 
@@ -64,7 +64,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Màu bút"
+        android:text="@string/brush_color_label"
         android:textColor="@color/text_secondary"
         android:textSize="14sp" />
 
@@ -144,7 +144,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:text="Hủy"
+            android:text="@string/btn_cancel"
             android:textColor="@color/text_primary"
             app:cornerRadius="14dp"
             app:strokeColor="@color/text_secondary" />
@@ -154,7 +154,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Áp dụng"
+            android:text="@string/btn_apply"
             app:backgroundTint="@color/accent"
             app:cornerRadius="14dp" />
     </LinearLayout>

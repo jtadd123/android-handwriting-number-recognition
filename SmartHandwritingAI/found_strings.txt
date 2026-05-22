@@ -1,0 +1,98 @@
+AnalyticsActivity.java:178: PieDataSet pieDataSet = new PieDataSet(pieEntries, "Ký tự");
+AnalyticsActivity.java:192: BarDataSet barDataSet = new BarDataSet(barEntries, "Số lần nhận dạng");
+DigitClassifier.java:35: Log.e(TAG, "Lỗi khi load mô hình: " + e.getMessage());
+DrawActivity.java:106: UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Hãy vẽ gì đó trước!");
+DrawActivity.java:110: UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã lưu vào lịch sử");
+DrawActivity.java:210: String info = "Hướng: " + ImageProcessor.rotationDegrees + "°" + (ImageProcessor.isFlipped ? " (Lật)" : "");
+DrawActivity.java:231: findViewById(android.R.id.content), "Model chưa sẵn sàng"));
+DrawActivity.java:274: String speak = "Kết quả là " + result.label + ", độ tự tin " + String.format("%.0f", result.confidence) + " phần trăm";
+DrawActivity.java:274: String speak = "Kết quả là " + result.label + ", độ tự tin " + String.format("%.0f", result.confidence) + " phần trăm";
+DrawActivity.java:274: String speak = "Kết quả là " + result.label + ", độ tự tin " + String.format("%.0f", result.confidence) + " phần trăm";
+DrawActivity.java:280: runOnUiThread(() -> UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Lỗi nhận dạng: " + e.getMessage()));
+DrawActivity.java:290: tvAiFeedback.setText("🤔 Chữ khó đọc. Hãy viết rõ hơn!");
+DrawActivity.java:293: tvAiFeedback.setText("🌟 Chữ viết rất rõ ràng và đẹp!");
+DrawActivity.java:296: tvAiFeedback.setText("👍 Chữ viết tốt, có thể viết đậm hơn.");
+DrawActivity.java:299: tvAiFeedback.setText("✏️ Hãy viết nét đậm và rõ ràng hơn.");
+DrawActivity.java:302: tvAiFeedback.setText("🔄 Chữ khó phân biệt. Hãy viết lại.");
+HistoryActivity.java:192: .setMessage("Xóa mục này khỏi lịch sử?")
+HistoryActivity.java:207: UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã xóa");
+HistoryActivity.java:216: Toast.makeText(this, "Offline Mode: Không có kết nối mạng", Toast.LENGTH_SHORT).show();
+HistoryActivity.java:220: if (db == null) { Toast.makeText(this, "Firebase chưa được cấu hình", Toast.LENGTH_SHORT).show(); return; }
+HistoryActivity.java:221: Toast.makeText(this, "Đang đồng bộ lên Firebase...", Toast.LENGTH_SHORT).show();
+HistoryActivity.java:232: runOnUiThread(() -> Toast.makeText(this, "Đồng bộ thành công!", Toast.LENGTH_SHORT).show());
+LoginActivity.java:94: btnLogin.setText("Tạo Tài Khoản");
+LoginActivity.java:95: tvToggleHint.setText("Đã có tài khoản?");
+LoginActivity.java:96: btnToggleMode.setText("Đăng nhập");
+LoginActivity.java:97: tvSubtitle.setText("Tạo tài khoản mới để đồng bộ dữ liệu");
+LoginActivity.java:101: btnLogin.setText("Đăng Nhập");
+LoginActivity.java:102: tvToggleHint.setText("Chưa có tài khoản?");
+LoginActivity.java:103: btnToggleMode.setText("Đăng ký");
+LoginActivity.java:104: tvSubtitle.setText("Đăng nhập để đồng bộ lịch sử của bạn");
+LoginActivity.java:125: showError("Lỗi dữ liệu tài khoản");
+LoginActivity.java:132: showError("Tên đăng nhập không tồn tại");
+LoginActivity.java:149: "Đăng nhập thành công!"
+LoginActivity.java:175: showError("Tên đăng nhập đã được sử dụng");
+LoginActivity.java:184: showError("Không thể kiểm tra tài khoản: " + e.getMessage());
+LoginActivity.java:203: "Tạo tài khoản thành công!"
+LoginActivity.java:213: "Tạo tài khoản thành công!"
+LoginActivity.java:228: showError("Hãy nhập tên đăng nhập trước");
+LoginActivity.java:243: "Tính năng đặt lại mật khẩu chưa hỗ trợ với username. Vui lòng liên hệ admin."
+LoginActivity.java:248: showError("Không thể gửi email reset: " + e.getMessage());
+LoginActivity.java:253: showError("Tên đăng nhập không tồn tại");
+LoginActivity.java:286: showError("Vui lòng nhập tên đăng nhập");
+LoginActivity.java:290: showError("Tên đăng nhập phải có ít nhất 3 ký tự");
+LoginActivity.java:294: showError("Tên đăng nhập chỉ được chứa chữ, số và dấu _");
+LoginActivity.java:298: showError("Vui lòng nhập mật khẩu");
+LoginActivity.java:309: showError("Mật khẩu phải có ít nhất 6 ký tự");
+LoginActivity.java:313: showError("Mật khẩu nhập lại không khớp");
+LoginActivity.java:340: if (raw == null) return "Đã xảy ra lỗi";
+LoginActivity.java:342: return "Tên đăng nhập không tồn tại";
+LoginActivity.java:347: return "Tên đăng nhập đã được sử dụng";
+LoginActivity.java:349: return "Không có kết nối mạng";
+LoginActivity.java:351: return "Quá nhiều lần thử. Hãy thử lại sau.";
+LoginActivity.java:353: return "Mật khẩu quá yếu, cần ít nhất 6 ký tự";
+MainActivity.java:90: Toast.makeText(this, "Lỗi crop ảnh: " + (error != null ? error.getMessage() : "?"), Toast.LENGTH_SHORT).show();
+MainActivity.java:98: else Toast.makeText(this, "Cần quyền Camera để chụp ảnh", Toast.LENGTH_SHORT).show();
+MainActivity.java:246: options.setToolbarTitle("Cắt & Xoay Ảnh");
+MainActivity.java:277: Toast.makeText(this, "Lỗi đọc ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+MainActivity.java:291: UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Không thể mở Camera: " + e.getMessage());
+MainActivity.java:299: UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Model chưa sẵn sàng");
+MainActivity.java:331: String speak = "Kết quả nhận dạng là " + result.label
+MainActivity.java:332: + ", độ tự tin " + String.format("%.0f", result.confidence) + " phần trăm";
+MainActivity.java:332: + ", độ tự tin " + String.format("%.0f", result.confidence) + " phần trăm";
+MainActivity.java:340: UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Lỗi nhận dạng: " + e.getMessage());
+MainActivity.java:359: header.setText("Top 3 Dự Đoán (AI Confidence):");
+MainActivity.java:376: String.format("Độ tự tin (%.1f%%) thấp hơn ngưỡng cài đặt (50%%)", result.confidence));
+MainActivity.java:384: tvAiFeedbackMain.setText("🌟 Ảnh rất rõ ràng! AI nhận dạng chính xác cao.");
+MainActivity.java:387: tvAiFeedbackMain.setText("👍 Chất lượng ảnh tốt. Kết quả đáng tin cậy.");
+MainActivity.java:390: tvAiFeedbackMain.setText("✏️ Chất lượng trung bình. Thử crop gần ký tự hơn.");
+MainActivity.java:393: tvAiFeedbackMain.setText("🔄 Ảnh khó đọc. Hãy crop lại hoặc chụp rõ hơn.");
+OnboardingActivity.java:47: btnNext.setText("BẮT ĐẦU");
+OnboardingActivity.java:49: btnNext.setText("TIẾP TỤC");
+OnboardingActivity.java:71: "Nhận diện chữ viết tay chính xác bằng mô hình TensorFlow Lite EMNIST — hỗ trợ cả số (0-9) và chữ cái (A-Z).",
+OnboardingActivity.java:76: "Vẽ tay trực tiếp trên màn hình với bút tùy chỉnh màu sắc, cỡ nét. AI nhận dạng realtime ngay khi bạn vẽ xong.",
+OnboardingActivity.java:81: "Quét ảnh thông minh với tiền xử lý tự động, đồng bộ đám mây qua Firebase, và luyện viết cùng AI Practice Mode.",
+PracticeModeActivity.java:87: speakText("Hãy viết ký tự " + currentTarget);
+PracticeModeActivity.java:92: UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Hãy vẽ gì đó trước!");
+PracticeModeActivity.java:133: tvFeedbackDetail.setText(String.format("AI nhận đúng \"%s\" với %.1f%% tự tin", currentTarget, confidence));
+PracticeModeActivity.java:135: speakText("Xuất sắc! Bạn viết rất đẹp");
+PracticeModeActivity.java:138: tvFeedbackText.setText("Đúng rồi!");
+PracticeModeActivity.java:139: tvFeedbackDetail.setText(String.format("AI nhận đúng \"%s\" (%.1f%%). Hãy viết rõ hơn.", currentTarget, confidence));
+PracticeModeActivity.java:141: speakText("Đúng rồi, nhưng hãy viết rõ hơn");
+PracticeModeActivity.java:144: tvFeedbackText.setText("Chưa đúng!");
+PracticeModeActivity.java:145: String detail = String.format("AI nhận thành \"%s\" (%.1f%%).", predicted, confidence);
+PracticeModeActivity.java:147: detail += String.format(" Ký tự \"%s\" chỉ %.1f%%.", currentTarget, targetConf);
+PracticeModeActivity.java:149: detail += " Hãy viết lại rõ hơn!";
+PracticeModeActivity.java:152: speakText("Chưa đúng. AI nhận thành " + predicted + ". Hãy thử lại.");
+PracticeModeActivity.java:152: speakText("Chưa đúng. AI nhận thành " + predicted + ". Hãy thử lại.");
+SettingsActivity.java:80: String msg = isChecked ? "Đã bật đồng bộ Firebase" : "Đã tắt đồng bộ";
+SettingsActivity.java:80: String msg = isChecked ? "Đã bật đồng bộ Firebase" : "Đã tắt đồng bộ";
+SettingsActivity.java:115: UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã xóa toàn bộ lịch sử!");
+SettingsActivity.java:125: UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã đăng xuất");
+SettingsActivity.java:150: tts.speak("Đã bật giọng nói", TextToSpeech.QUEUE_FLUSH, null, "tts_test");
+SettingsActivity.java:157: "Không thể khởi tạo TTS. Kiểm tra engine giọng nói trên thiết bị."));
+SettingsActivity.java:169: UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), "Đã tắt giọng nói AI");
+SettingsActivity.java:179: tvTtsStatus.setText("Đang bật");
+SettingsActivity.java:186: tvTtsStatus.setText("Đã tắt");
+SettingsActivity.java:226: tvAccountEmail.setText("✅ Đã đăng nhập: " + user.getEmail());
+SettingsActivity.java:228: tvAccountEmail.setText("⬜ Chưa đăng nhập (Offline)");

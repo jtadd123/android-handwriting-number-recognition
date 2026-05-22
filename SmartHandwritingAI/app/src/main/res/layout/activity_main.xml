@@ -52,7 +52,7 @@
                         android:background="@drawable/bg_rounded_pill"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="4dp"
-                        android:text="Đang tải model AI..."
+                        android:text="@string/model_loading"
                         android:textColor="@color/warning"
                         android:textSize="11sp" />
                 </LinearLayout>
@@ -80,7 +80,7 @@
                         android:layout_gravity="center"
                         android:drawablePadding="12dp"
                         android:gravity="center"
-                        android:text="Chọn ảnh hoặc vẽ tay\nđể nhận dạng"
+                        android:text="@string/main_hint_text"
                         android:textColor="@color/text_hint"
                         android:textSize="15sp"
                         app:drawableTopCompat="@android:drawable/ic_menu_crop" />
@@ -112,7 +112,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="📸 Đặt ký tự vào giữa khung"
+                            android:text="@string/main_camera_guide"
                             android:textColor="@color/accent"
                             android:textSize="13sp"
                             android:background="#80000000"
@@ -140,7 +140,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="AI Input (Dữ liệu AI thực tế thấy):"
+                        android:text="@string/main_ai_input_title"
                         android:textColor="@color/text_hint"
                         android:textSize="11sp"
                         android:layout_marginBottom="8dp" />
@@ -176,7 +176,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="KẾT QUẢ"
+                        android:text="@string/main_result_title"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp"
                         android:textStyle="bold"
@@ -219,7 +219,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Độ tự tin: "
+                            android:text="@string/main_confidence_title"
                             android:textColor="@color/text_secondary"
                             android:textSize="13sp" />
 
@@ -254,7 +254,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Top 3 Dự Đoán (AI Confidence):"
+                            android:text="@string/main_top_predictions_title"
                             android:textColor="@color/text_secondary"
                             android:textSize="13sp"
                             android:textStyle="bold"
@@ -279,9 +279,9 @@
                     android:layout_height="64dp"
                     android:layout_marginBottom="12dp"
                     android:backgroundTint="@color/btn_camera"
-                    android:text="Chụp Ảnh"
+                    android:text="@string/main_btn_camera"
                     android:textSize="15sp"
-                    android:contentDescription="Mở camera để chụp ảnh và nhận dạng"
+                    android:contentDescription="@string/main_btn_camera"
                     app:cornerRadius="12dp"
                     app:icon="@android:drawable/ic_menu_camera"
                     app:iconGravity="textStart"
@@ -293,10 +293,10 @@
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
-                    android:text="Chọn Từ Thư Viện"
+                    android:text="@string/main_btn_gallery"
                     android:textSize="15sp"
                     android:textColor="@color/text_primary"
-                    android:contentDescription="Chọn ảnh từ thư viện để nhận dạng"
+                    android:contentDescription="@string/main_btn_gallery"
                     app:cornerRadius="12dp"
                     app:icon="@android:drawable/ic_menu_gallery"
                     app:iconGravity="textStart"
@@ -313,7 +313,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Xóa &amp; Làm Lại"
+                android:text="@string/main_btn_reset"
                 android:textColor="@color/text_primary"
                 android:visibility="gone"
                 app:cornerRadius="12dp"

@@ -91,17 +91,17 @@ public class LoginActivity extends AppCompatActivity {
     /** Cập nhật giao diện khi chuyển đổi Login ↔ Register */
     private void updateUI() {
         if (isRegisterMode) {
-            btnLogin.setText("Tạo Tài Khoản");
-            tvToggleHint.setText("Đã có tài khoản?");
-            btnToggleMode.setText("Đăng nhập");
-            tvSubtitle.setText("Tạo tài khoản mới để đồng bộ dữ liệu");
+            btnLogin.setText(getString(R.string.login_btn_register));
+            tvToggleHint.setText(getString(R.string.login_toggle_hint_register));
+            btnToggleMode.setText(getString(R.string.login_btn_toggle_login));
+            tvSubtitle.setText(getString(R.string.login_subtitle_register));
             layoutConfirmPassword.setVisibility(View.VISIBLE);
             btnForgotPassword.setVisibility(View.GONE);
         } else {
-            btnLogin.setText("Đăng Nhập");
-            tvToggleHint.setText("Chưa có tài khoản?");
-            btnToggleMode.setText("Đăng ký");
-            tvSubtitle.setText("Đăng nhập để đồng bộ lịch sử của bạn");
+            btnLogin.setText(getString(R.string.login_btn_login));
+            tvToggleHint.setText(getString(R.string.login_toggle_hint));
+            btnToggleMode.setText(getString(R.string.login_btn_toggle_register));
+            tvSubtitle.setText(getString(R.string.login_subtitle));
             layoutConfirmPassword.setVisibility(View.GONE);
             btnForgotPassword.setVisibility(View.VISIBLE);
         }
@@ -122,14 +122,14 @@ public class LoginActivity extends AppCompatActivity {
                         String email = doc.getString("email");
                         if (email == null) {
                             setLoading(false);
-                            showError("Lỗi dữ liệu tài khoản");
+                            showError(getString(R.string.err_account_data));
                             return;
                         }
                         // Bước 2: Đăng nhập Firebase Auth bằng email ẩn
                         signInWithEmail(email, password);
                     } else {
                         setLoading(false);
-                        showError("Tên đăng nhập không tồn tại");
+                        showError(getString(R.string.err_username_not_exist));
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -146,7 +146,7 @@ public class LoginActivity extends AppCompatActivity {
                     setLoading(false);
                     UIUtils.showSuccessSnackbar(
                             findViewById(android.R.id.content),
-                            "Đăng nhập thành công!"
+                            getString(R.string.msg_login_success)
                     );
                     goToMain();
                 })
@@ -172,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         setLoading(false);
-                        showError("Tên đăng nhập đã được sử dụng");
+                        showError(getString(R.string.err_username_taken));
                     } else {
                         // Bước 2: Tạo account Firebase Auth bằng email ẩn
                         String fakeEmail = usernameLower + FAKE_EMAIL_DOMAIN;
@@ -181,7 +181,7 @@ public class LoginActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     setLoading(false);
-                    showError("Không thể kiểm tra tài khoản: " + e.getMessage());
+                    showError(getString(R.string.err_check_account_failed, e.getMessage()));
                 });
     }
 
@@ -200,7 +200,7 @@ public class LoginActivity extends AppCompatActivity {
                                 setLoading(false);
                                 UIUtils.showSuccessSnackbar(
                                         findViewById(android.R.id.content),
-                                        "Tạo tài khoản thành công!"
+                                        getString(R.string.msg_register_success)
                                 );
                                 goToMain();
                             })
@@ -210,7 +210,7 @@ public class LoginActivity extends AppCompatActivity {
                                 // Vẫn cho vào app, lần sau sẽ retry
                                 UIUtils.showSuccessSnackbar(
                                         findViewById(android.R.id.content),
-                                        "Tạo tài khoản thành công!"
+                                        getString(R.string.msg_register_success)
                                 );
                                 goToMain();
                             });
@@ -225,7 +225,7 @@ public class LoginActivity extends AppCompatActivity {
     private void sendPasswordReset() {
         String username = getUsername();
         if (TextUtils.isEmpty(username)) {
-            showError("Hãy nhập tên đăng nhập trước");
+            showError(getString(R.string.err_enter_username_first));
             return;
         }
 
@@ -236,26 +236,26 @@ public class LoginActivity extends AppCompatActivity {
                         String email = doc.getString("email");
                         if (email != null) {
                             mAuth.sendPasswordResetEmail(email)
-                                    .addOnSuccessListener(unused -> {
-                                        setLoading(false);
-                                        UIUtils.showSuccessSnackbar(
-                                                findViewById(android.R.id.content),
-                                                "Tính năng đặt lại mật khẩu chưa hỗ trợ với username. Vui lòng liên hệ admin."
-                                        );
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        setLoading(false);
-                                        showError("Không thể gửi email reset: " + e.getMessage());
-                                    });
+                                     .addOnSuccessListener(unused -> {
+                                         setLoading(false);
+                                         UIUtils.showSuccessSnackbar(
+                                                 findViewById(android.R.id.content),
+                                                 getString(R.string.err_reset_password_unsupported)
+                                         );
+                                     })
+                                     .addOnFailureListener(e -> {
+                                         setLoading(false);
+                                         showError(getString(R.string.err_send_reset_failed, e.getMessage()));
+                                     });
                         }
                     } else {
                         setLoading(false);
-                        showError("Tên đăng nhập không tồn tại");
+                        showError(getString(R.string.err_username_not_exist));
                     }
                 })
                 .addOnFailureListener(e -> {
                     setLoading(false);
-                    showError("Lỗi kết nối: " + e.getMessage());
+                    showError(getString(R.string.err_connection_failed, e.getMessage()));
                 });
     }
 
@@ -283,19 +283,19 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean validateLogin(String username, String password) {
         if (TextUtils.isEmpty(username)) {
-            showError("Vui lòng nhập tên đăng nhập");
+            showError(getString(R.string.err_enter_username));
             return false;
         }
         if (username.length() < 3) {
-            showError("Tên đăng nhập phải có ít nhất 3 ký tự");
+            showError(getString(R.string.err_username_too_short));
             return false;
         }
         if (!username.matches("^[a-zA-Z0-9_]+$")) {
-            showError("Tên đăng nhập chỉ được chứa chữ, số và dấu _");
+            showError(getString(R.string.err_username_invalid_chars));
             return false;
         }
         if (TextUtils.isEmpty(password)) {
-            showError("Vui lòng nhập mật khẩu");
+            showError(getString(R.string.err_enter_password));
             return false;
         }
         hideError();
@@ -306,11 +306,11 @@ public class LoginActivity extends AppCompatActivity {
         if (!validateLogin(username, password)) return false;
 
         if (password.length() < 6) {
-            showError("Mật khẩu phải có ít nhất 6 ký tự");
+            showError(getString(R.string.err_password_too_short));
             return false;
         }
         if (!password.equals(confirmPassword)) {
-            showError("Mật khẩu nhập lại không khớp");
+            showError(getString(R.string.err_password_mismatch));
             return false;
         }
         hideError();
@@ -337,20 +337,20 @@ public class LoginActivity extends AppCompatActivity {
      * Chuyển lỗi Firebase (tiếng Anh) thành thông báo thân thiện tiếng Việt.
      */
     private String friendlyError(String raw) {
-        if (raw == null) return "Đã xảy ra lỗi";
+        if (raw == null) return getString(R.string.err_unknown);
         if (raw.contains("no user record") || raw.contains("user-not-found"))
-            return "Tên đăng nhập không tồn tại";
+            return getString(R.string.err_username_not_exist);
         if (raw.contains("password is invalid") || raw.contains("wrong-password")
                 || raw.contains("INVALID_LOGIN_CREDENTIALS"))
-            return "Sai mật khẩu";
+            return getString(R.string.err_wrong_password);
         if (raw.contains("email address is already in use") || raw.contains("email-already-in-use"))
-            return "Tên đăng nhập đã được sử dụng";
+            return getString(R.string.err_username_taken);
         if (raw.contains("network"))
-            return "Không có kết nối mạng";
+            return getString(R.string.err_connection_failed, raw);
         if (raw.contains("too-many-requests"))
-            return "Quá nhiều lần thử. Hãy thử lại sau.";
+            return getString(R.string.err_too_many_attempts);
         if (raw.contains("WEAK_PASSWORD") || raw.contains("weak-password"))
-            return "Mật khẩu quá yếu, cần ít nhất 6 ký tự";
+            return getString(R.string.err_password_too_short);
         return raw;
     }
 }

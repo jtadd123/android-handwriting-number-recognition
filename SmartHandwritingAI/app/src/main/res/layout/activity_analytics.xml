@@ -34,7 +34,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Thống kê AI"
+                android:text="@string/title_analytics"
                 android:textColor="@color/text_primary"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -70,7 +70,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Tổng quan"
+                            android:text="@string/analytics_overview"
                             android:textColor="@color/accent"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -92,7 +92,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Tổng số"
+                                    android:text="@string/analytics_total"
                                     android:textColor="@color/text_secondary"
                                     android:textSize="12sp" />
                                 <TextView
@@ -115,7 +115,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Độ tự tin TB"
+                                    android:text="@string/analytics_avg_confidence"
                                     android:textColor="@color/text_secondary"
                                     android:textSize="12sp" />
                                 <TextView
@@ -138,7 +138,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Top Ký Tự"
+                                    android:text="@string/analytics_top_char"
                                     android:textColor="@color/text_secondary"
                                     android:textSize="12sp" />
                                 <TextView
@@ -170,12 +170,12 @@
                         android:padding="16dp">
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Tỷ lệ nhận dạng"
-                            android:textColor="@color/accent"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/analytics_recognition_rate"
+                                    android:textColor="@color/accent"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
 
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/pie_chart"
@@ -203,7 +203,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Phân bố kết quả"
+                            android:text="@string/analytics_distribution"
                             android:textColor="@color/accent"
                             android:textSize="16sp"
                             android:textStyle="bold" />
