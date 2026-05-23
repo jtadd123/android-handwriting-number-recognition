@@ -60,14 +60,16 @@
             </RelativeLayout>
 
             <!-- Image Preview Card -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_preview"
                 android:layout_width="match_parent"
                 android:layout_height="240dp"
                 android:layout_marginBottom="20dp"
                 app:cardBackgroundColor="@color/surface_card"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border_subtle"
+                app:strokeWidth="1dp">
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -83,7 +85,8 @@
                         android:text="@string/main_hint_text"
                         android:textColor="@color/text_hint"
                         android:textSize="15sp"
-                        app:drawableTopCompat="@android:drawable/ic_menu_crop" />
+                        app:drawableTopCompat="@drawable/ic_crop"
+                        app:drawableTint="@color/text_hint" />
 
                     <ImageView
                         android:id="@+id/iv_preview"
@@ -119,18 +122,20 @@
                             android:padding="8dp" />
                     </LinearLayout>
                 </FrameLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Debug View -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/layout_debug"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 app:cardBackgroundColor="@color/surface_elevated"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border_subtle"
+                app:strokeWidth="1dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -152,18 +157,20 @@
                         android:contentDescription="Dữ liệu đầu vào AI sau xử lý"
                         android:background="@color/black" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Prediction Result Card -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_result"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:visibility="gone"
                 app:cardBackgroundColor="@color/surface_elevated"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border_subtle"
+                app:strokeWidth="1dp"
                 tools:visibility="visible">
 
                 <LinearLayout
@@ -204,7 +211,7 @@
                             android:layout_height="48dp"
                             android:layout_marginStart="16dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
-                            android:src="@android:drawable/ic_lock_silent_mode_off"
+                            android:src="@drawable/ic_volume_up"
                             app:tint="@color/accent"
                             android:visibility="visible" />
                     </LinearLayout>
@@ -262,7 +269,7 @@
 
                     </LinearLayout>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Action Buttons (Camera & Gallery — shown on Home tab) -->
             <LinearLayout
@@ -276,34 +283,39 @@
                     android:id="@+id/btn_camera"
                     style="@style/Widget.Material3.Button"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="56dp"
                     android:layout_marginBottom="12dp"
-                    android:backgroundTint="@color/btn_camera"
+                    android:backgroundTint="@color/primary"
                     android:text="@string/main_btn_camera"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
                     android:contentDescription="@string/main_btn_camera"
-                    app:cornerRadius="12dp"
-                    app:icon="@android:drawable/ic_menu_camera"
+                    app:cornerRadius="16dp"
+                    app:icon="@drawable/ic_camera"
                     app:iconGravity="textStart"
-                    app:iconPadding="12dp"
-                    app:iconSize="24dp" />
+                    app:iconPadding="10dp"
+                    app:iconSize="22dp"
+                    app:iconTint="@color/white" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_gallery"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.Material3.Button.ElevatedButton"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="56dp"
                     android:text="@string/main_btn_gallery"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
                     android:textColor="@color/text_primary"
                     android:contentDescription="@string/main_btn_gallery"
-                    app:cornerRadius="12dp"
-                    app:icon="@android:drawable/ic_menu_gallery"
+                    app:backgroundTint="@color/surface_card"
+                    app:cornerRadius="16dp"
+                    app:icon="@drawable/ic_gallery"
                     app:iconGravity="textStart"
-                    app:iconPadding="12dp"
-                    app:iconSize="24dp"
+                    app:iconPadding="10dp"
+                    app:iconSize="22dp"
                     app:iconTint="@color/text_secondary"
-                    app:strokeColor="@color/divider"
+                    app:strokeColor="@color/border_subtle"
                     app:strokeWidth="1dp" />
             </LinearLayout>
 
@@ -311,13 +323,13 @@
                 android:id="@+id/btn_back_main"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_marginTop="16dp"
                 android:text="@string/main_btn_reset"
                 android:textColor="@color/text_primary"
                 android:visibility="gone"
-                app:cornerRadius="12dp"
-                app:strokeColor="@color/divider"
+                app:cornerRadius="16dp"
+                app:strokeColor="@color/border_subtle"
                 app:strokeWidth="1dp" />
 
         </LinearLayout>
@@ -342,7 +354,7 @@
         android:id="@+id/layout_loading"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#CC0D1117"
+        android:background="#CC0F172A"
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone">

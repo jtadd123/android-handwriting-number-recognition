@@ -33,10 +33,7 @@
     <string name="no">Hủy</string>
     <string name="history_cleared">Đã xóa tất cả lịch sử</string>
 
-    
-    <string name="title_practice">Luyện Viết AI</string>
     <string name="title_settings">Cài Đặt</string>
-    <string name="title_analytics">Thống Kê AI</string>
     <string name="confirm_delete_item">Xóa mục này khỏi lịch sử?</string>
     <string name="item_deleted">Đã xóa</string>
 
@@ -44,7 +41,6 @@
     <string name="nav_home">Nhận dạng</string>
     <string name="nav_draw">Vẽ Tay</string>
     <string name="nav_history">Lịch sử</string>
-    <string name="nav_analytics">Thống kê</string>
 
     <!-- Settings Screen -->
     <string name="setting_title">Cài đặt AI</string>
@@ -83,18 +79,9 @@
     <string name="msg_tts_disabled">Đã tắt giọng nói AI</string>
     <string name="msg_tts_enabled_speak">Đã bật giọng nói</string>
 
-    <!-- Analytics -->
-    <string name="analytics_overview">Tổng quan</string>
-    <string name="analytics_total">Tổng số</string>
-    <string name="analytics_avg_confidence">Độ tự tin TB</string>
-    <string name="analytics_top_char">Top Ký Tự</string>
-    <string name="analytics_recognition_rate">Tỷ lệ nhận dạng</string>
-    <string name="analytics_distribution">Phân bố kết quả</string>
-    <string name="chart_label_character">Ký tự</string>
-    <string name="chart_label_recognition_count">Số lần nhận dạng</string>
 
     <!-- Draw -->
-    <string name="draw_guide_hint">Dùng ngón tay vẽ một chữ số hoặc chữ cái (0-9, A-Z)</string>
+    <string name="draw_guide_hint">Dùng ngón tay vẽ các chữ số hoặc chữ cái (0-9, A-Z)</string>
     <string name="btn_rotate">Xoay 90°</string>
     <string name="btn_flip">Lật Gương</string>
     <string name="draw_direction_format">Hướng: %1$d°%2$s</string>
@@ -190,25 +177,6 @@
     <string name="onboarding_item2_desc">Vẽ tay trực tiếp trên màn hình với bút tùy chỉnh màu sắc, cỡ nét. AI nhận dạng realtime ngay khi bạn vẽ xong.</string>
     <string name="onboarding_item3_desc">Quét ảnh thông minh với tiền xử lý tự động, đồng bộ đám mây qua Firebase, và luyện viết cùng AI Practice Mode.</string>
 
-    <!-- Practice -->
-    <string name="practice_prompt">Hãy viết ký tự:</string>
-    <string name="practice_feedback_excellent">Tuyệt vời!</string>
-    <string name="practice_feedback_correct_desc">AI nhận đúng ký tự</string>
-    <string name="practice_btn_clear">Xóa</string>
-    <string name="practice_btn_submit">Nộp Bài</string>
-    <string name="practice_btn_next">Tiếp ▶</string>
-    
-    <string name="practice_speak_prompt">Hãy viết ký tự %1$s</string>
-    <string name="practice_feedback_excellent_detail">AI nhận đúng \"%1$s\" với %2$.1f%% tự tin</string>
-    <string name="practice_speak_excellent">Xuất sắc! Bạn viết rất đẹp</string>
-    <string name="practice_feedback_correct">Đúng rồi!</string>
-    <string name="practice_feedback_correct_detail">AI nhận đúng \"%1$s\" (%2$.1f%%). Hãy viết rõ hơn.</string>
-    <string name="practice_speak_correct_clearer">Đúng rồi, nhưng hãy viết rõ hơn</string>
-    <string name="practice_feedback_incorrect">Chưa đúng!</string>
-    <string name="practice_feedback_incorrect_pred_format">AI nhận thành \"%1$s\" (%2$.1f%%).</string>
-    <string name="practice_feedback_incorrect_target_format"> Ký tự \"%1$s\" chỉ %2$.1f%%.</string>
-    <string name="practice_feedback_incorrect_rewrite"> Hãy viết lại rõ hơn!</string>
-    <string name="practice_speak_incorrect_format">Chưa đúng. AI nhận thành %1$s. Hãy thử lại.</string>
 
     <!-- Brush Settings Dialog -->
     <string name="brush_settings_title">Cài đặt Bút vẽ</string>

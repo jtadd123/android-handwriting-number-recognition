@@ -56,19 +56,10 @@
             android:exported="false" />
 
         <activity
-            android:name=".AnalyticsActivity"
-            android:exported="false" />
-            
-        <activity
             android:name=".SettingsActivity"
             android:exported="false" />
 
         <activity android:name=".OnboardingActivity" android:exported="false" />
-
-        <activity
-            android:name=".PracticeModeActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
 
         <!-- UCrop — bắt buộc khai báo -->
         <activity

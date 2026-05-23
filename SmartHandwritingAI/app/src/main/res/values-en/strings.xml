@@ -27,9 +27,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="history_cleared">History cleared</string>
-    <string name="title_practice">AI Practice</string>
     <string name="title_settings">Settings</string>
-    <string name="title_analytics">AI Analytics</string>
     <string name="confirm_delete_item">Delete this item from history?</string>
     <string name="item_deleted">Deleted</string>
 
@@ -37,7 +35,6 @@
     <string name="nav_home">Home</string>
     <string name="nav_draw">Draw</string>
     <string name="nav_history">History</string>
-    <string name="nav_analytics">Analytics</string>
 
     <!-- Settings Screen -->
     <string name="setting_title">AI Settings</string>
@@ -76,18 +73,9 @@
     <string name="msg_tts_disabled">AI voice disabled</string>
     <string name="msg_tts_enabled_speak">AI voice enabled</string>
 
-    <!-- Analytics -->
-    <string name="analytics_overview">Overview</string>
-    <string name="analytics_total">Total Predictions</string>
-    <string name="analytics_avg_confidence">Avg Confidence</string>
-    <string name="analytics_top_char">Top Character</string>
-    <string name="analytics_recognition_rate">Recognition Rate</string>
-    <string name="analytics_distribution">Result Distribution</string>
-    <string name="chart_label_character">Character</string>
-    <string name="chart_label_recognition_count">Predictions</string>
 
     <!-- Draw -->
-    <string name="draw_guide_hint">Draw a digit or letter with your finger (0-9, A-Z)</string>
+    <string name="draw_guide_hint">Draw digits or letters with your finger (0-9, A-Z)</string>
     <string name="btn_rotate">Rotate 90°</string>
     <string name="btn_flip">Mirror Flip</string>
     <string name="draw_direction_format">Direction: %1$d°%2$s</string>
@@ -183,25 +171,6 @@
     <string name="onboarding_item2_desc">Draw directly on canvas with customizable color and stroke size. Real-time AI prediction as you draw.</string>
     <string name="onboarding_item3_desc">Smart scanner with auto preprocessing, Firebase cloud synchronization, and handwriting AI Practice Mode.</string>
 
-    <!-- Practice -->
-    <string name="practice_prompt">Please write character:</string>
-    <string name="practice_feedback_excellent">Excellent!</string>
-    <string name="practice_feedback_correct_desc">AI recognized correctly</string>
-    <string name="practice_btn_clear">Clear</string>
-    <string name="practice_btn_submit">Submit</string>
-    <string name="practice_btn_next">Next ▶</string>
-    
-    <string name="practice_speak_prompt">Please write character %1$s</string>
-    <string name="practice_feedback_excellent_detail">AI recognized \"%1$s\" correctly with %2$.1f%% confidence</string>
-    <string name="practice_speak_excellent">Excellent! Your writing is very neat</string>
-    <string name="practice_feedback_correct">Correct!</string>
-    <string name="practice_feedback_correct_detail">AI recognized \"%1$s\" (%2$.1f%%). Write a bit clearer.</string>
-    <string name="practice_speak_correct_clearer">Correct, but write more clearly</string>
-    <string name="practice_feedback_incorrect">Incorrect!</string>
-    <string name="practice_feedback_incorrect_pred_format">AI recognized it as \"%1$s\" (%2$.1f%%).</string>
-    <string name="practice_feedback_incorrect_target_format"> Character \"%1$s\" only %2$.1f%%.</string>
-    <string name="practice_feedback_incorrect_rewrite"> Rewrite it clearer!</string>
-    <string name="practice_speak_incorrect_format">Incorrect. AI recognized it as %1$s. Try again.</string>
 
     <!-- Brush Settings Dialog -->
     <string name="brush_settings_title">Brush Settings</string>

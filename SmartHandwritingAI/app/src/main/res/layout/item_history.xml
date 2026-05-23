@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp" app:cardBackgroundColor="@color/surface_card"
-    app:cardCornerRadius="16dp" app:cardElevation="4dp">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="@color/surface_card"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/border_subtle"
+    app:strokeWidth="1dp">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:gravity="center_vertical" android:orientation="horizontal" android:padding="16dp">
-        <androidx.cardview.widget.CardView android:layout_width="60dp" android:layout_height="60dp"
-            app:cardBackgroundColor="@color/black" app:cardCornerRadius="12dp">
+        <com.google.android.material.card.MaterialCardView android:layout_width="60dp" android:layout_height="60dp"
+            app:cardBackgroundColor="@color/black" app:cardCornerRadius="12dp"
+            app:cardElevation="0dp" app:strokeColor="@color/border_subtle" app:strokeWidth="1dp">
             <ImageView android:id="@+id/iv_history_image" android:layout_width="match_parent"
                 android:layout_height="match_parent" android:padding="4dp" />
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_marginStart="16dp" android:layout_weight="1" android:orientation="vertical">
             <TextView android:id="@+id/tv_history_result" android:layout_width="wrap_content"
@@ -31,4 +37,4 @@
             android:contentDescription="Xóa mục này"
             app:tint="@color/error" />
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

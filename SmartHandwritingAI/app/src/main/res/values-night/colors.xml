@@ -4,51 +4,52 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Primary palette — Soft Indigo / Slate Blue -->
-    <color name="primary">#FF6C8EEF</color>
-    <color name="primary_dark">#FF0D1117</color>
-    <color name="primary_light">#FF8DA4F2</color>
-    <color name="accent">#FF58A6FF</color>
+    <!-- Primary palette — Premium Indigo / Slate Blue -->
+    <color name="primary">#FF6366F1</color>
+    <color name="primary_dark">#FF0F172A</color>
+    <color name="primary_light">#FF818CF8</color>
+    <color name="accent">#FF3B82F6</color>
 
-    <!-- Surfaces — Deep Slate (GitHub-inspired dark) -->
-    <color name="surface_bg">#FF0D1117</color>
-    <color name="surface_card">#FF161B22</color>
-    <color name="surface_elevated">#FF1C2333</color>
+    <!-- Surfaces — Deep Slate (Warm, comfortable dark) -->
+    <color name="surface_bg">#FF0F172A</color>
+    <color name="surface_card">#FF1E293B</color>
+    <color name="surface_elevated">#FF334155</color>
 
     <!-- Text -->
-    <color name="text_primary">#FFF0F6FC</color>
-    <color name="text_secondary">#FF8B949E</color>
-    <color name="text_hint">#FF484F58</color>
+    <color name="text_primary">#FFE2E8F0</color>
+    <color name="text_secondary">#FF94A3B8</color>
+    <color name="text_hint">#FF64748B</color>
 
     <!-- Status -->
-    <color name="success">#FF3FB950</color>
-    <color name="warning">#FFD29922</color>
-    <color name="error">#FFFF7B72</color>
+    <color name="success">#FF10B981</color>
+    <color name="warning">#FFF59E0B</color>
+    <color name="error">#FFEF4444</color>
 
-    <!-- Gradient — Subtle, muted -->
-    <color name="gradient_start">#FF6C8EEF</color>
+    <!-- Gradient — Modern glowing indigo-blue -->
+    <color name="gradient_start">#FF6366F1</color>
     <color name="gradient_center">#FF8B5CF6</color>
-    <color name="gradient_end">#FF58A6FF</color>
+    <color name="gradient_end">#FF3B82F6</color>
 
-    <!-- Buttons — Muted, harmonious -->
-    <color name="btn_camera">#FF6C8EEF</color>
-    <color name="btn_gallery">#FFDB8B45</color>
-    <color name="btn_draw">#FF3FB950</color>
+    <!-- Buttons — Modern & Harmonious -->
+    <color name="btn_camera">#FF6366F1</color>
+    <color name="btn_gallery">#FFF59E0B</color>
+    <color name="btn_draw">#FF10B981</color>
     <color name="btn_history">#FF8B5CF6</color>
-    <color name="btn_clear">#FFFF7B72</color>
-    <color name="btn_predict">#FF3FB950</color>
+    <color name="btn_clear">#FFEF4444</color>
+    <color name="btn_predict">#FF10B981</color>
 
     <!-- Bottom Nav -->
-    <color name="nav_active">#FF58A6FF</color>
-    <color name="nav_inactive">#FF8B949E</color>
-    <color name="nav_background">#FF010409</color>
-    <color name="nav_indicator">#1A58A6FF</color>
+    <color name="nav_active">#FF6366F1</color>
+    <color name="nav_inactive">#FF94A3B8</color>
+    <color name="nav_background">#FF0F172A</color>
+    <color name="nav_indicator">#1A6366F1</color>
 
     <!-- Divider / Border -->
-    <color name="divider">#1AFFFFFF</color>
-    <color name="border_subtle">#0DFFFFFF</color>
+    <color name="divider">#FF334155</color>
+    <color name="border_subtle">#FF334155</color>
 
     <!-- Dynamic icon/toolbar tint (adapts to theme) -->
     <color name="icon_tint">#FFFFFFFF</color>
     <color name="toolbar_text">#FFFFFFFF</color>
 </resources>
+

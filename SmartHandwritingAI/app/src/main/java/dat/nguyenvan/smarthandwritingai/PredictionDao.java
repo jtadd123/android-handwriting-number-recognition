@@ -25,6 +25,4 @@ public interface PredictionDao {
     void deleteAll();
     @Query("SELECT COUNT(*) FROM prediction_history")
     int getCount();
-    @Query("SELECT result, COUNT(*) as count, AVG(confidence) as avgConf FROM prediction_history GROUP BY result ORDER BY count DESC")
-    List<CharacterStat> getCharacterStats();
 }

@@ -7,171 +7,259 @@
     android:background="@color/surface_bg"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="20dp"
+    android:padding="16dp"
     tools:context=".DrawActivity">
 
     <!-- Header -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_marginBottom="8dp">
 
         <ImageButton
             android:id="@+id/btn_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/btn_back"
-            android:src="@android:drawable/ic_menu_revert"
+            android:src="@drawable/ic_arrow_back"
             app:tint="@color/text_primary" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
+            android:layout_centerInParent="true"
             android:text="@string/title_draw"
             android:textColor="@color/text_primary"
-            android:textSize="22sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <ImageButton
             android:id="@+id/btn_brush_settings"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/brush_settings_title"
-            android:src="@android:drawable/ic_menu_manage"
-            app:tint="@color/accent" />
-    </LinearLayout>
+            android:src="@drawable/ic_brush_settings"
+            app:tint="@color/primary" />
+    </RelativeLayout>
 
-    <TextView
+    <!-- Mode Selection Toggle Group -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggle_group_mode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:singleSelection="true"
+        app:checkedButton="@id/btn_mode_single">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_mode_single"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nhận Dạng Tự Do"
+            android:textSize="12sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:cornerRadius="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_mode_math"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Giải Toán AI"
+            android:textSize="12sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:cornerRadius="12dp" />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <TextView
+        android:id="@+id/tv_draw_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="@string/draw_guide_hint"
         android:textColor="@color/text_secondary"
         android:textSize="13sp" />
 
-    <!-- Drawing Area -->
-    <androidx.cardview.widget.CardView
+    <!-- Drawing Area (Premium Digitizing Pad) -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_weight="1"
         app:cardBackgroundColor="@color/black"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="8dp">
+        app:cardCornerRadius="24dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/border_subtle"
+        app:strokeWidth="1.5dp">
 
         <dat.nguyenvan.smarthandwritingai.DrawingView
             android:id="@+id/drawing_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- AI Calibration Tools -->
-    <LinearLayout
+    <!-- Floating Calibration & Settings Panel -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:gravity="center"
-        android:layout_marginTop="8dp"
-        android:background="@color/border_subtle">
-        
-        <Button
-            android:id="@+id/btn_rotate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_rotate"
-            android:textSize="11sp"
-            android:backgroundTint="#4CAF50"
-            android:layout_marginEnd="8dp"/>
+        android:layout_marginTop="12dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/border_subtle"
+        app:cardBackgroundColor="@color/surface_card">
 
-        <Button
-            android:id="@+id/btn_flip"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/btn_flip"
-            android:textSize="11sp"
-            android:backgroundTint="#FF9800"/>
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/tv_current_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hướng: 0°"
-            android:textColor="@color/text_primary"
-            android:layout_marginStart="12dp"
-            android:textSize="11sp"/>
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tv_current_setting"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Hướng: 0°"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
 
-    <!-- Result Area -->
-    <androidx.cardview.widget.CardView
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_rotate"
+                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/btn_rotate"
+                android:textSize="12sp"
+                app:icon="@drawable/ic_rotate"
+                app:iconSize="16dp"
+                app:strokeColor="@color/success"
+                android:textColor="@color/success"
+                app:iconTint="@color/success"
+                android:paddingVertical="0dp"
+                android:paddingHorizontal="12dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_flip"
+                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="@string/btn_flip"
+                android:textSize="12sp"
+                app:icon="@drawable/ic_flip"
+                app:iconSize="16dp"
+                app:strokeColor="@color/warning"
+                android:textColor="@color/warning"
+                app:iconTint="@color/warning"
+                android:paddingVertical="0dp"
+                android:paddingHorizontal="12dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Floating Result Card -->
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_draw_result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:visibility="gone"
         app:cardBackgroundColor="@color/surface_card"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="6dp">
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        app:strokeColor="@color/primary"
+        app:strokeWidth="1.5dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:gravity="center_vertical">
 
-                <TextView
+                <!-- Left: Result Text and TTS -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/draw_result_prefix"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="18sp" />
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tv_draw_result"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/draw_result_prefix"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/tv_draw_result"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="?"
+                        android:textColor="@color/primary"
+                        android:textSize="28sp"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/btn_speak_draw_result"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Đọc kết quả"
+                        android:src="@drawable/ic_volume_up"
+                        app:tint="@color/primary" />
+                </LinearLayout>
+
+                <!-- Right: Confidence Pill Badge -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="?"
-                    android:textColor="@color/accent"
-                    android:textSize="42sp"
-                    android:textStyle="bold" />
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/bg_rounded_pill"
+                    android:backgroundTint="#1A10B981"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:gravity="center">
 
-                <ImageButton
-                    android:id="@+id/btn_speak_draw_result"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="12dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_lock_silent_mode_off"
-                    app:tint="@color/accent" />
+                    <TextView
+                        android:id="@+id/tv_draw_confidence"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0%"
+                        android:textColor="@color/success"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </RelativeLayout>
 
-                <View
-                    android:layout_width="24dp"
-                    android:layout_height="1dp" />
-
-                <TextView
-                    android:id="@+id/tv_draw_confidence"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:textColor="@color/success"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- AI Feedback Text -->
+            <!-- AI Feedback Message -->
             <TextView
                 android:id="@+id/tv_ai_feedback"
                 android:layout_width="match_parent"
@@ -183,62 +271,72 @@
                 android:textSize="13sp"
                 android:visibility="gone" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Bottom Buttons -->
+    <!-- Bottom Actions Control Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="4dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <!-- Undo Button -->
         <ImageButton
             android:id="@+id/btn_undo"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/bg_rounded_pill"
             android:backgroundTint="@color/surface_elevated"
-            android:src="@android:drawable/ic_menu_revert"
+            android:contentDescription="Undo"
+            android:src="@drawable/ic_undo"
             app:tint="@color/icon_tint" />
 
         <!-- Redo Button -->
         <ImageButton
             android:id="@+id/btn_redo"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_marginEnd="8dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="12dp"
             android:background="@drawable/bg_rounded_pill"
             android:backgroundTint="@color/surface_elevated"
-            android:scaleX="-1"
-            android:src="@android:drawable/ic_menu_revert"
+            android:contentDescription="Redo"
+            android:src="@drawable/ic_redo"
             app:tint="@color/icon_tint" />
 
+        <!-- Clear Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_clear"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:text="@string/btn_clear"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            app:backgroundTint="@color/btn_clear"
-            app:cornerRadius="14dp" />
+            android:textColor="@color/error"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:strokeColor="@color/error"
+            app:cornerRadius="12dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
 
+        <!-- Solve/Save Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_predict"
             android:layout_width="0dp"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:text="@string/btn_save_result"
-            android:textColor="@color/primary_dark"
-            android:textSize="15sp"
+            android:textColor="@color/white"
+            android:textSize="14sp"
             android:textStyle="bold"
-            app:backgroundTint="@color/btn_predict"
-            app:cornerRadius="14dp" />
+            app:backgroundTint="@color/primary"
+            app:cornerRadius="12dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
 
     </LinearLayout>
 

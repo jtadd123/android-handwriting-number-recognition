@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_bg"
+    android:background="@drawable/bg_login_gradient"
     tools:context=".OnboardingActivity">
 
     <androidx.viewpager2.widget.ViewPager2
@@ -29,7 +29,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onboarding_btn_skip"
-            android:textColor="@color/text_secondary" />
+            android:textColor="#94A3B8"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <Space
             android:layout_width="0dp"
@@ -40,7 +42,8 @@
             android:id="@+id/layout_indicators"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" />
+            android:orientation="horizontal"
+            android:gravity="center" />
 
         <Space
             android:layout_width="0dp"
@@ -51,9 +54,15 @@
             android:id="@+id/btn_next"
             style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:text="@string/onboarding_btn_next"
-            app:cornerRadius="20dp" />
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/primary"
+            app:cornerRadius="16dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

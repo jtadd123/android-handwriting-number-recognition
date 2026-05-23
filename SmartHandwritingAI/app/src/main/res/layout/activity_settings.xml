@@ -21,7 +21,7 @@
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:icon="@android:drawable/ic_menu_revert"
+            app:icon="@drawable/ic_arrow_back"
             app:iconTint="@color/text_primary" />
 
         <TextView
@@ -58,12 +58,14 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/surface_card"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border_subtle"
+                app:strokeWidth="1dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -157,9 +159,10 @@
                             android:layout_height="52dp"
                             android:background="@drawable/bg_action_button"
                             android:contentDescription="Bật/tắt đọc giọng nói"
-                            android:src="@android:drawable/ic_lock_silent_mode_off"
+                            android:src="@drawable/ic_volume_up"
                             android:scaleType="centerInside"
-                            android:padding="12dp" />
+                            android:padding="12dp"
+                            app:tint="@color/text_primary" />
                     </LinearLayout>
 
                     <TextView
@@ -170,7 +173,7 @@
                         android:textSize="11sp"
                         android:layout_marginTop="6dp"/>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Appearance -->
             <TextView
@@ -184,12 +187,14 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/surface_card"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border_subtle"
+                app:strokeWidth="1dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -231,7 +236,7 @@
                         android:textSize="11sp"
                         android:layout_marginTop="4dp"/>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Data Management -->
             <TextView
@@ -245,12 +250,14 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/surface_card"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border_subtle"
+                app:strokeWidth="1dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -282,10 +289,10 @@
                         android:layout_height="wrap_content"
                         android:text="@string/setting_clear_data"
                         android:textColor="@color/error"
-                        app:cornerRadius="12dp"
+                        app:cornerRadius="16dp"
                         app:strokeColor="@color/error" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Account Section -->
             <TextView
@@ -299,12 +306,14 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/surface_card"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border_subtle"
+                app:strokeWidth="1dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -331,7 +340,7 @@
                         android:text="@string/setting_logout"
                         android:textColor="@color/error"
                         android:contentDescription="Đăng xuất khỏi tài khoản"
-                        app:cornerRadius="12dp"
+                        app:cornerRadius="16dp"
                         app:strokeColor="@color/error" />
 
                     <com.google.android.material.button.MaterialButton
@@ -342,9 +351,9 @@
                         android:textColor="@color/white"
                         android:contentDescription="Đăng nhập vào tài khoản Firebase"
                         app:backgroundTint="@color/primary"
-                        app:cornerRadius="12dp" />
+                        app:cornerRadius="16dp" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- About -->
             <TextView
@@ -358,12 +367,14 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/surface_card"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border_subtle"
+                app:strokeWidth="1dp"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -394,8 +405,9 @@
                         android:textSize="12sp"
                         android:layout_marginTop="4dp"/>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
+

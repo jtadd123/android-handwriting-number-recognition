@@ -61,6 +61,10 @@ public class DigitClassifier {
     }
 
     public PredictionResult predict(Bitmap bitmap) {
+        return predict(bitmap, false);
+    }
+
+    public PredictionResult predict(Bitmap bitmap, boolean isMathModeOnly) {
         if (!isInitialized) return null;
 
         ByteBuffer inputBuffer = ImageProcessor.preprocessImage(bitmap);
@@ -82,13 +86,26 @@ public class DigitClassifier {
             + " label=" + (maxIdx < LABELS.length ? LABELS[maxIdx] : "?") 
             + " confidence=" + String.format("%.2f%%", maxConf * 100));
 
-        return getBestPrediction(output[0]);
+        return getBestPrediction(output[0], isMathModeOnly);
     }
 
-    private PredictionResult getBestPrediction(float[] probabilities) {
+    private PredictionResult getBestPrediction(float[] probabilities, boolean isMathModeOnly) {
         float[] mergedProbabilities = probabilities.clone();
         for (String[] group : EQUIVALENCE_GROUPS) {
             mergeGroup(mergedProbabilities, group);
+        }
+
+        if (isMathModeOnly) {
+            // Filter: Zero out non-math classes.
+            // Allowed classes: "0"-"9", "X", "D".
+            for (int i = 0; i < LABELS.length; i++) {
+                String label = LABELS[i];
+                boolean isDigit = label.length() == 1 && Character.isDigit(label.charAt(0));
+                boolean isValidMathChar = isDigit || label.equals("X") || label.equals("D");
+                if (!isValidMathChar) {
+                    mergedProbabilities[i] = 0f;
+                }
+            }
         }
 
         java.util.List<PredictionItem> allPredictions = new java.util.ArrayList<>();
