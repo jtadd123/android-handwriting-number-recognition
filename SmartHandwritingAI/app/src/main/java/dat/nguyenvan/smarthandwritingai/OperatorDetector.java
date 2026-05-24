@@ -85,31 +85,175 @@ public class OperatorDetector {
             RectF r1 = individualBounds.get(0);
             RectF r2 = individualBounds.get(1);
 
-            // Kiểm tra xem 2 nét có giao nhau không
             boolean intersects = RectF.intersects(r1, r2);
 
-            // Hoặc khoảng cách tâm rất gần nhau
             float centerX1 = r1.centerX();
             float centerY1 = r1.centerY();
             float centerX2 = r2.centerX();
             float centerY2 = r2.centerY();
             float xDist = Math.abs(centerX1 - centerX2);
             float yDist = Math.abs(centerY1 - centerY2);
-            boolean centersClose = (xDist < groupW * 0.5f && yDist < groupH * 0.5f);
+            // Ngưỡng khoảng cách tâm rất gần nhau để đảm bảo giao nhau ở giữa
+            boolean centersVeryClose = (xDist < Math.max(r1.width(), r2.width()) * 0.35f 
+                                     && yDist < Math.max(r1.height(), r2.height()) * 0.35f);
 
-            if (intersects || centersClose) {
+            if (intersects || centersVeryClose) {
                 float groupRatio = groupW / Math.max(1f, groupH);
-                // Khung bao chung tương đối vuông vắn (tránh chữ số dài dẹt)
                 if (groupRatio > 0.4f && groupRatio < 2.5f) {
-                    // Kiểm tra một nét thiên về chiều ngang và một nét thiên về chiều dọc
-                    boolean vertical1 = r1.height() > r1.width() * 0.8f;
-                    boolean horizontal1 = r1.width() > r1.height() * 0.8f;
-                    boolean vertical2 = r2.height() > r2.width() * 0.8f;
-                    boolean horizontal2 = r2.width() > r2.height() * 0.8f;
+                    boolean vertical1 = r1.height() > r1.width() * 0.6f;
+                    boolean horizontal1 = r1.width() > r1.height() * 0.6f;
+                    boolean vertical2 = r2.height() > r2.width() * 0.6f;
+                    boolean horizontal2 = r2.width() > r2.height() * 0.6f;
 
                     if ((vertical1 && horizontal2) || (horizontal1 && vertical2)) {
-                        return "+";
+                        // Kiểm tra giao nhau gần tâm của cả hai nét (tránh nhận diện nhầm số 4, 7, 1 có móc)
+                        float intersectX = centerX1;
+                        float intersectY = centerY1;
+                        if (intersects) {
+                            RectF intersectRect = new RectF();
+                            intersectRect.left = Math.max(r1.left, r2.left);
+                            intersectRect.right = Math.min(r1.right, r2.right);
+                            intersectRect.top = Math.max(r1.top, r2.top);
+                            intersectRect.bottom = Math.min(r1.bottom, r2.bottom);
+                            intersectX = intersectRect.centerX();
+                            intersectY = intersectRect.centerY();
+                        }
+
+                        boolean nearCenter1 = Math.abs(intersectX - centerX1) < r1.width() * 0.38f
+                                && Math.abs(intersectY - centerY1) < r1.height() * 0.38f;
+                        boolean nearCenter2 = Math.abs(intersectX - centerX2) < r2.width() * 0.38f
+                                && Math.abs(intersectY - centerY2) < r2.height() * 0.38f;
+
+                        if (nearCenter1 && nearCenter2) {
+                            return "+";
+                        }
                     }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Nhận dạng nhanh các toán tử +, -, = từ bitmap 28x28 (cho chế độ ảnh)
+     * originalRatio là tỷ lệ aspect ratio (width / height) ban đầu của kí tự.
+     */
+    public static String detectOperatorFromBitmap(android.graphics.Bitmap bitmap, float originalRatio) {
+        if (bitmap == null) return null;
+
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        int[] pixels = new int[w * h];
+        bitmap.getPixels(pixels, 0, w, 0, 0, w, h);
+
+        // 1. Nhận dạng dấu trừ '-'
+        if (originalRatio > 2.0f) {
+            return "-";
+        }
+
+        // Đếm số pixel trắng trong từng dòng để phân tích dấu bằng '='
+        int[] rowCounts = new int[h];
+        int totalWhite = 0;
+        for (int y = 0; y < h; y++) {
+            int count = 0;
+            for (int x = 0; x < w; x++) {
+                int val = (pixels[y * w + x] >> 16) & 0xFF;
+                if (val > 128) {
+                    count++;
+                }
+            }
+            rowCounts[y] = count;
+            totalWhite += count;
+        }
+
+        if (totalWhite < 15) return null;
+
+        // 2. Nhận dạng dấu bằng '='
+        int topMaxIdx = -1;
+        int topMaxVal = 0;
+        for (int y = 2; y <= 12; y++) {
+            if (rowCounts[y] > topMaxVal) {
+                topMaxVal = rowCounts[y];
+                topMaxIdx = y;
+            }
+        }
+
+        int bottomMaxIdx = -1;
+        int bottomMaxVal = 0;
+        for (int y = 15; y <= 25; y++) {
+            if (rowCounts[y] > bottomMaxVal) {
+                bottomMaxVal = rowCounts[y];
+                bottomMaxIdx = y;
+            }
+        }
+
+        if (topMaxIdx != -1 && bottomMaxIdx != -1 && topMaxVal > 6 && bottomMaxVal > 6) {
+            int minVal = Integer.MAX_VALUE;
+            for (int y = topMaxIdx + 1; y < bottomMaxIdx; y++) {
+                if (rowCounts[y] < minVal) {
+                    minVal = rowCounts[y];
+                }
+            }
+            if (minVal < 4) {
+                return "=";
+            }
+        }
+
+        // 3. Nhận dạng dấu cộng '+'
+        if (originalRatio > 0.6f && originalRatio < 1.6f) {
+            int centerX = 14;
+            int centerY = 14;
+
+            int centerWhite = 0;
+            for (int cy = centerY - 3; cy <= centerY + 3; cy++) {
+                for (int cx = centerX - 3; cx <= centerX + 3; cx++) {
+                    int val = (pixels[cy * w + cx] >> 16) & 0xFF;
+                    if (val > 128) centerWhite++;
+                }
+            }
+
+            if (centerWhite > 10) {
+                boolean goUp = false, goDown = false, goLeft = false, goRight = false;
+                
+                // Đi lên
+                for (int y = centerY - 4; y >= 2; y--) {
+                    int rowSum = 0;
+                    for (int x = centerX - 3; x <= centerX + 3; x++) {
+                        if (((pixels[y * w + x] >> 16) & 0xFF) > 128) rowSum++;
+                    }
+                    if (rowSum > 1) { goUp = true; break; }
+                }
+
+                // Đi xuống
+                for (int y = centerY + 4; y <= 25; y++) {
+                    int rowSum = 0;
+                    for (int x = centerX - 3; x <= centerX + 3; x++) {
+                        if (((pixels[y * w + x] >> 16) & 0xFF) > 128) rowSum++;
+                    }
+                    if (rowSum > 1) { goDown = true; break; }
+                }
+
+                // Đi sang trái
+                for (int x = centerX - 4; x >= 2; x--) {
+                    int colSum = 0;
+                    for (int y = centerY - 3; y <= centerY + 3; y++) {
+                        if (((pixels[y * w + x] >> 16) & 0xFF) > 128) colSum++;
+                    }
+                    if (colSum > 1) { goLeft = true; break; }
+                }
+
+                // Đi sang phải
+                for (int x = centerX + 4; x <= 25; x++) {
+                    int colSum = 0;
+                    for (int y = centerY - 3; y <= centerY + 3; y++) {
+                        if (((pixels[y * w + x] >> 16) & 0xFF) > 128) colSum++;
+                    }
+                    if (colSum > 1) { goRight = true; break; }
+                }
+
+                if (goUp && goDown && goLeft && goRight) {
+                    return "+";
                 }
             }
         }

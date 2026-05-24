@@ -271,6 +271,8 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+
+
             <!-- Action Buttons (Camera & Gallery — shown on Home tab) -->
             <LinearLayout
                 android:id="@+id/layout_home_options"

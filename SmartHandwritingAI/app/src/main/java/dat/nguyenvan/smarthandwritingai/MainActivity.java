@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton btnCamera, btnGallery, btnBack;
     private BottomNavigationView bottomNavigation;
 
+
     private DigitClassifier digitClassifier;
     private Bitmap currentBitmap;
     private ExecutorService executorService;
@@ -141,6 +142,8 @@ public class MainActivity extends AppCompatActivity {
         scanLine       = findViewById(R.id.scan_line);
         bottomNavigation = findViewById(R.id.bottom_navigation);
         executorService = Executors.newSingleThreadExecutor();
+
+        // Auto-detect math mode is integrated directly.
     }
 
     private void initModel() {
@@ -317,26 +320,119 @@ public class MainActivity extends AppCompatActivity {
         executorService.execute(() -> {
             try {
                 Thread.sleep(500);
-                DigitClassifier.PredictionResult result = digitClassifier.predict(bitmap);
-                Bitmap debugBitmap = ImageProcessor.getLastPreprocessedBitmap();
+
+                DigitClassifier.PredictionResult result;
+                Bitmap debugBitmap = null;
+
+                if (true) {
+                    java.util.List<FractionParser.SegmentedSymbol> symbols = ImageProcessor.segmentImage(bitmap);
+                    if (symbols.isEmpty()) {
+                        result = digitClassifier.predict(bitmap);
+                        debugBitmap = ImageProcessor.getLastPreprocessedBitmap();
+                    } else {
+                        java.util.List<DrawActivity.ExpressionToken> tokens = FractionParser.parseLayout(
+                                symbols, digitClassifier, false, true, 64f
+                        );
+
+                        boolean hasMathOperator = false;
+                        for (DrawActivity.ExpressionToken t : tokens) {
+                            if (t.isOperator) {
+                                hasMathOperator = true;
+                                break;
+                            }
+                        }
+
+                        java.util.List<DrawActivity.ExpressionToken> finalTokens = tokens;
+                        if (hasMathOperator) {
+                            finalTokens = DrawActivity.correctExpression(tokens);
+                        }
+
+                        StringBuilder exprBuilder = new StringBuilder();
+                        float totalConfidence = 0;
+                        int digitCount = 0;
+
+                        for (DrawActivity.ExpressionToken t : finalTokens) {
+                            if (t.isOperator) {
+                                if (t.text.equals("*")) {
+                                    exprBuilder.append(" x ");
+                                } else if (t.text.equals("/")) {
+                                    exprBuilder.append("/");
+                                } else {
+                                    exprBuilder.append(" ").append(t.text).append(" ");
+                                }
+                            } else {
+                                exprBuilder.append(t.text);
+                                totalConfidence += t.confidence;
+                                digitCount++;
+                            }
+                        }
+
+                        float avgConfidence = digitCount > 0 ? (totalConfidence / digitCount) : 100f;
+                        String finalRawExpr = exprBuilder.toString().replaceAll("\\s+", " ").trim();
+
+                        String finalLabel = finalRawExpr;
+                        if (hasMathOperator) {
+                            String cleanExpr = finalRawExpr.replace("x", "*").replace(":", "/").replaceAll("\\s+", "");
+                            String exprToSolve = cleanExpr.split("=")[0];
+                            try {
+                                double solution = MathParser.eval(exprToSolve);
+                                String mathResult;
+                                if (solution == (long) solution) {
+                                    mathResult = String.valueOf((long) solution);
+                                } else {
+                                    mathResult = String.format(Locale.US, "%.2f", solution);
+                                }
+                                if (!finalRawExpr.contains("=")) {
+                                    finalLabel = finalRawExpr + " = " + mathResult;
+                                } else {
+                                    finalLabel = finalRawExpr.split("=")[0].trim() + " = " + mathResult;
+                                }
+                            } catch (Exception ex) {
+                                // Silently fallback: do not append " = Err" if evaluation fails
+                                finalLabel = finalRawExpr;
+                            }
+                        }
+
+                        final String solvedLabel = finalLabel;
+                        final float solvedConfidence = avgConfidence;
+
+                        DigitClassifier.PredictionItem[] topK = new DigitClassifier.PredictionItem[3];
+                        topK[0] = new DigitClassifier.PredictionItem(solvedLabel, solvedConfidence);
+                        topK[1] = new DigitClassifier.PredictionItem("", 0f);
+                        topK[2] = new DigitClassifier.PredictionItem("", 0f);
+                        result = new DigitClassifier.PredictionResult(solvedLabel, solvedConfidence, topK);
+                    }
+                } else {
+                    result = digitClassifier.predict(bitmap);
+                    debugBitmap = ImageProcessor.getLastPreprocessedBitmap();
+                }
+
+                final DigitClassifier.PredictionResult finalResult = result;
+                final Bitmap finalDebugBitmap = debugBitmap;
 
                 runOnUiThread(() -> {
                     layoutLoading.setVisibility(View.GONE);
-                    if (result != null) {
-                        displayResult(result);
-                        if (debugBitmap != null) {
+                    if (finalResult != null) {
+                        displayResult(finalResult);
+                        if (finalDebugBitmap != null) {
                             layoutDebug.setVisibility(View.VISIBLE);
-                            ivDebug.setImageBitmap(debugBitmap);
+                            ivDebug.setImageBitmap(finalDebugBitmap);
+                        } else {
+                            layoutDebug.setVisibility(View.GONE);
                         }
-                        savePrediction(bitmap, result.label, result.confidence);
+                        savePrediction(bitmap, finalResult.label, finalResult.confidence);
                         hapticFeedback();
 
-                        // Đọc kết quả bằng TTS nếu bật
                         boolean ttsOn = getSharedPreferences("AI_CONFIG", MODE_PRIVATE)
                                 .getBoolean("tts_enabled", true);
                         if (ttsOn && tts != null) {
-                            String speak = getString(R.string.tts_speak_format, result.label, result.confidence);
-                            tts.speak(speak, TextToSpeech.QUEUE_FLUSH, null, "main_result");
+                            String speakText;
+                            if (finalResult.label.contains("=")) {
+                                speakText = "Biểu thức có kết quả là " + finalResult.label.substring(finalResult.label.indexOf("=") + 1).trim();
+                            } else {
+                                speakText = getString(R.string.tts_speak_format, finalResult.label, finalResult.confidence);
+                            }
+                            tts.speak(speakText, TextToSpeech.QUEUE_FLUSH, null, "main_result");
                         }
                     }
                 });
@@ -370,6 +466,7 @@ public class MainActivity extends AppCompatActivity {
         layoutTop.addView(header);
 
         for (DigitClassifier.PredictionItem item : result.topK) {
+            if (item.label == null || item.label.isEmpty()) continue;
             View view = getLayoutInflater().inflate(R.layout.item_prediction_bar, layoutTop, false);
             ((TextView) view.findViewById(R.id.tv_label)).setText(item.label);
             ((TextView) view.findViewById(R.id.tv_confidence_value)).setText(String.format("%.1f%%", item.confidence));

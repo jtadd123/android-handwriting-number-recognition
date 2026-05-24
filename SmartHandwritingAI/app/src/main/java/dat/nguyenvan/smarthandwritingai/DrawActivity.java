@@ -17,6 +17,15 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import android.transition.TransitionManager;
+import android.view.ViewGroup;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -43,7 +52,22 @@ public class DrawActivity extends AppCompatActivity {
     private com.google.android.material.button.MaterialButtonToggleGroup toggleGroupMode;
     private TextView tvDrawHint;
     private boolean isMathMode = false;
+    private boolean isFractionMode = true;
     private android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+
+    // Biến hỗ trợ sửa lỗi AI
+    private CardView cardAiCorrecting;
+    private CardView cardAiSuggestion;
+    private TextView tvAiSuggestionText;
+    private Button btnApplySuggestion;
+    private TextView tvAiCorrectingText;
+    private ObjectAnimator correctingPulseAnim;
+    private int correctingDotCount = 0;
+    private android.os.Handler dotAnimHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable dotAnimRunnable;
+    private String lastCorrectedExpression = "";
+    private String lastCorrectedMathResult = "";
+    private float lastCorrectedAvgConfidence = 100f;
     private Runnable predictRunnable = () -> {
         if (!drawingView.isEmpty()) {
             predictDrawing(false); // Realtime predict
@@ -64,6 +88,35 @@ public class DrawActivity extends AppCompatActivity {
         tvCurrentSetting = findViewById(R.id.tv_current_setting);
         tvAiFeedback = findViewById(R.id.tv_ai_feedback);
         cardDrawResult = findViewById(R.id.card_draw_result);
+
+        cardAiCorrecting = findViewById(R.id.card_ai_correcting);
+        cardAiSuggestion = findViewById(R.id.card_ai_suggestion);
+        tvAiSuggestionText = findViewById(R.id.tv_ai_suggestion_text);
+        btnApplySuggestion = findViewById(R.id.btn_apply_suggestion);
+        tvAiCorrectingText = findViewById(R.id.tv_ai_correcting);
+
+        if (btnApplySuggestion != null) {
+            btnApplySuggestion.setOnClickListener(v -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && cardDrawResult != null) {
+                    TransitionManager.beginDelayedTransition((ViewGroup) cardDrawResult.getParent());
+                }
+                tvDrawResult.setText(lastCorrectedExpression);
+                tvDrawConfidence.setText(String.format(Locale.US, "%.1f%%", lastCorrectedAvgConfidence));
+                if (tvAiFeedback != null) {
+                    tvAiFeedback.setText("💡 Đã áp dụng gợi ý công thức đúng của AI.");
+                    tvAiFeedback.setTextColor(getColor(R.color.success));
+                    tvAiFeedback.setVisibility(View.VISIBLE);
+                }
+                if (cardAiSuggestion != null) {
+                    cardAiSuggestion.setVisibility(View.GONE);
+                }
+                hapticFeedback();
+                if (tts != null) {
+                    String cleanSpeak = lastCorrectedExpression.split("=")[0].trim().replace("x", "nhân").replace(":", "chia");
+                    tts.speak("Đã áp dụng biểu thức " + cleanSpeak, TextToSpeech.QUEUE_FLUSH, null, "apply_suggestion");
+                }
+            });
+        }
         btnRotate = findViewById(R.id.btn_rotate);
         btnFlip = findViewById(R.id.btn_flip);
         btnUndo = findViewById(R.id.btn_undo);
@@ -72,6 +125,7 @@ public class DrawActivity extends AppCompatActivity {
         // Khởi tạo các view chế độ Giải Toán AI
         toggleGroupMode = findViewById(R.id.toggle_group_mode);
         tvDrawHint = findViewById(R.id.tv_draw_hint);
+
 
         if (toggleGroupMode != null) {
             toggleGroupMode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
@@ -85,7 +139,13 @@ public class DrawActivity extends AppCompatActivity {
                         ((Button) findViewById(R.id.btn_predict)).setText(R.string.btn_save_result);
                     }
                     drawingView.clearCanvas();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && cardDrawResult != null) {
+                        TransitionManager.beginDelayedTransition((ViewGroup) cardDrawResult.getParent());
+                    }
                     cardDrawResult.setVisibility(View.GONE);
+                    if (cardAiCorrecting != null) cardAiCorrecting.setVisibility(View.GONE);
+                    if (cardAiSuggestion != null) cardAiSuggestion.setVisibility(View.GONE);
+                    stopAiCorrectingAnimations();
                     handler.removeCallbacks(predictRunnable);
                 }
             });
@@ -118,7 +178,13 @@ public class DrawActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_clear).setOnClickListener(v -> {
             drawingView.clearCanvas();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && cardDrawResult != null) {
+                TransitionManager.beginDelayedTransition((ViewGroup) cardDrawResult.getParent());
+            }
             cardDrawResult.setVisibility(View.GONE);
+            if (cardAiCorrecting != null) cardAiCorrecting.setVisibility(View.GONE);
+            if (cardAiSuggestion != null) cardAiSuggestion.setVisibility(View.GONE);
+            stopAiCorrectingAnimations();
         });
 
         btnUndo.setOnClickListener(v -> drawingView.onClickUndo());
@@ -268,16 +334,35 @@ public class DrawActivity extends AppCompatActivity {
 
             executorService.execute(() -> {
                 try {
+                    java.util.List<FractionParser.SegmentedSymbol> symbols = new java.util.ArrayList<>();
+                    for (DrawingView.StrokeCluster cluster : clusters) {
+                        Bitmap clusterBitmap = drawingView.getBitmapForCluster(cluster);
+                        DrawingView.PathData[] paths = cluster.paths.toArray(new DrawingView.PathData[0]);
+                        symbols.add(new FractionParser.SegmentedSymbol(
+                                cluster.left, cluster.top, cluster.right, cluster.bottom, clusterBitmap, paths
+                        ));
+                    }
+
+                    java.util.List<ExpressionToken> tokens = FractionParser.parseLayout(
+                            symbols, digitClassifier, isMathMode, isFractionMode, drawingView.getBrushSize()
+                    );
+
                     StringBuilder resultBuilder = new StringBuilder();
                     float totalConfidence = 0;
                     int count = 0;
 
-                    for (DrawingView.StrokeCluster cluster : clusters) {
-                        Bitmap clusterBitmap = drawingView.getBitmapForCluster(cluster);
-                        DigitClassifier.PredictionResult pred = digitClassifier.predict(clusterBitmap);
-                        if (pred != null) {
-                            resultBuilder.append(pred.label);
-                            totalConfidence += pred.confidence;
+                    for (ExpressionToken token : tokens) {
+                        if (token.isOperator) {
+                            if (token.text.equals("*")) {
+                                resultBuilder.append("x");
+                            } else if (token.text.equals("/")) {
+                                resultBuilder.append("/");
+                            } else {
+                                resultBuilder.append(token.text);
+                            }
+                        } else {
+                            resultBuilder.append(token.text);
+                            totalConfidence += token.confidence;
                             count++;
                         }
                     }
@@ -285,7 +370,7 @@ public class DrawActivity extends AppCompatActivity {
                     String finalLabel = resultBuilder.toString().trim();
                     if (finalLabel.isEmpty()) return;
 
-                    float finalConfidence = count > 0 ? (totalConfidence / count) : 0f;
+                    float finalConfidence = count > 0 ? (totalConfidence / count) : 100f;
 
                     SharedPreferences configPrefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
                     int threshold = configPrefs.getInt("confidence_threshold", 50);
@@ -334,122 +419,282 @@ public class DrawActivity extends AppCompatActivity {
 
             executorService.execute(() -> {
                 try {
+                    // Hiển thị trạng thái "AI correcting..." trên UI thread
+                    runOnUiThread(() -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && cardDrawResult != null) {
+                            TransitionManager.beginDelayedTransition((ViewGroup) cardDrawResult.getParent());
+                        }
+                        if (cardAiCorrecting != null) cardAiCorrecting.setVisibility(View.VISIBLE);
+                        if (cardDrawResult != null) cardDrawResult.setVisibility(View.GONE);
+                        if (cardAiSuggestion != null) cardAiSuggestion.setVisibility(View.GONE);
+                        startAiCorrectingAnimations();
+                    });
+
+                    long startTime = System.currentTimeMillis();
+
                     // Bước 1: Phân tách nét vẽ thành các cụm
                     ArrayList<DrawingView.StrokeCluster> clusters = drawingView.getSegmentedClusters();
-                    if (clusters.isEmpty()) return;
+                    if (clusters.isEmpty()) {
+                        runOnUiThread(() -> {
+                            stopAiCorrectingAnimations();
+                            if (cardAiCorrecting != null) cardAiCorrecting.setVisibility(View.GONE);
+                        });
+                        return;
+                    }
 
-                    StringBuilder expressionBuilder = new StringBuilder();
-                    float totalConfidence = 0;
-                    int aiCount = 0;
-                    boolean hasEquals = false;
-
-                    // Bước 2: Duyệt qua từng cụm nét vẽ để nhận diện toán tử hoặc chữ số
+                    java.util.List<FractionParser.SegmentedSymbol> symbols = new java.util.ArrayList<>();
                     for (DrawingView.StrokeCluster cluster : clusters) {
-                        DrawingView.PathData[] pathArray = cluster.paths.toArray(new DrawingView.PathData[0]);
-                        
-                        // Kiểm tra xem cụm nét vẽ có phải là toán tử heuristic (+, -, =) không
-                        String detectedOp = OperatorDetector.detectOperator(pathArray, drawingView.getBrushSize());
+                        Bitmap clusterBitmap = drawingView.getBitmapForCluster(cluster);
+                        DrawingView.PathData[] paths = cluster.paths.toArray(new DrawingView.PathData[0]);
+                        symbols.add(new FractionParser.SegmentedSymbol(
+                                cluster.left, cluster.top, cluster.right, cluster.bottom, clusterBitmap, paths
+                        ));
+                    }
 
-                        if (detectedOp != null) {
-                            if (detectedOp.equals("=")) {
-                                hasEquals = true;
-                            }
-                            expressionBuilder.append(" ").append(detectedOp).append(" ");
-                        } else {
-                            // Nếu không phải toán tử, vẽ cụm này lên bitmap đưa qua AI
-                            Bitmap clusterBitmap = drawingView.getBitmapForCluster(cluster);
-                            DigitClassifier.PredictionResult pred = digitClassifier.predict(clusterBitmap, true);
+                    java.util.List<ExpressionToken> rawTokens = FractionParser.parseLayout(
+                            symbols, digitClassifier, isMathMode, isFractionMode, drawingView.getBrushSize()
+                    );
 
-                            if (pred != null) {
-                                String label = pred.label;
-                                // Ánh xạ các nhãn tương đương
-                                if (label.equalsIgnoreCase("X")) {
-                                    expressionBuilder.append(" * "); // phép nhân
-                                } else if (label.equalsIgnoreCase("D")) {
-                                    expressionBuilder.append(" / "); // phép chia
-                                } else {
-                                    expressionBuilder.append(label);
-                                }
-                                totalConfidence += pred.confidence;
-                                aiCount++;
+                    boolean hasEquals = false;
+                    for (ExpressionToken token : rawTokens) {
+                        if (token.text.equals("=")) {
+                            hasEquals = true;
+                            break;
+                        }
+                    }
+
+                    if (rawTokens.isEmpty()) {
+                        runOnUiThread(() -> {
+                            stopAiCorrectingAnimations();
+                            if (cardAiCorrecting != null) cardAiCorrecting.setVisibility(View.GONE);
+                        });
+                        return;
+                    }
+
+                    // Đánh dấu các ký tự độ tin cậy thấp (< 80%)
+                    float UNSURE_THRESHOLD = 80.0f;
+                    boolean hasUnsure = false;
+                    for (ExpressionToken token : rawTokens) {
+                        if (!token.isOperator && token.confidence < UNSURE_THRESHOLD) {
+                            token.isUnsure = true;
+                            hasUnsure = true;
+                        }
+                    }
+
+                    // Tiến hành sửa lỗi chuỗi toán tử (Ví dụ: ++ -> +, */ -> /)
+                    java.util.List<ExpressionToken> correctedTokens = correctExpression(rawTokens);
+                    boolean wasCorrected = false;
+                    if (correctedTokens.size() < rawTokens.size()) {
+                        wasCorrected = true;
+                    } else {
+                        for (ExpressionToken t : correctedTokens) {
+                            if (t.isCorrected) {
+                                wasCorrected = true;
+                                break;
                             }
                         }
                     }
 
-                    String finalExpression = expressionBuilder.toString().trim();
-                    if (finalExpression.isEmpty()) return;
+                    // Xây dựng chuỗi hiển thị thô (Raw) có màu highlight cho ký tự không chắc chắn
+                    SpannableStringBuilder rawSpannable = new SpannableStringBuilder();
+                    float rawTotalConfidence = 0;
+                    int rawAiCount = 0;
 
-                    // Bước 3: Tính toán biểu thức số học
-                    String cleanExpr = finalExpression.replaceAll("\\s+", "");
-                    String mathResult = "";
-                    boolean solveSuccess = false;
+                    for (ExpressionToken token : rawTokens) {
+                        String displayVal;
+                        if (token.text.equals("*")) {
+                            displayVal = "x";
+                        } else if (token.text.equals("/")) {
+                            displayVal = "/";
+                        } else {
+                            displayVal = token.text;
+                        }
 
-                    boolean shouldSolve = cleanExpr.contains("=") || saveToHistory;
-                    
-                    if (shouldSolve) {
-                        String exprToSolve = cleanExpr.split("=")[0];
+                        if (token.isOperator) {
+                            rawSpannable.append(" ");
+                            int start = rawSpannable.length();
+                            rawSpannable.append(displayVal);
+                            int end = rawSpannable.length();
+                            rawSpannable.append(" ");
+
+                            if (token.isUnsure) {
+                                rawSpannable.setSpan(new ForegroundColorSpan(Color.parseColor("#F59E0B")), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                rawSpannable.setSpan(new BackgroundColorSpan(Color.parseColor("#33F59E0B")), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+                        } else {
+                            int start = rawSpannable.length();
+                            rawSpannable.append(displayVal);
+                            int end = rawSpannable.length();
+
+                            if (token.isUnsure) {
+                                rawSpannable.setSpan(new ForegroundColorSpan(Color.parseColor("#F59E0B")), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                rawSpannable.setSpan(new BackgroundColorSpan(Color.parseColor("#33F59E0B")), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+
+                            rawTotalConfidence += token.confidence;
+                            rawAiCount++;
+                        }
+                    }
+
+                    float rawAvgConfidence = rawAiCount > 0 ? (rawTotalConfidence / rawAiCount) : 100f;
+
+                    // Giải toán trên chuỗi thô (Raw)
+                    StringBuilder rawExprBuilder = new StringBuilder();
+                    for (ExpressionToken token : rawTokens) {
+                        rawExprBuilder.append(token.text);
+                    }
+                    String rawCleanExpr = rawExprBuilder.toString().replaceAll("\\s+", "");
+                    String rawMathResult = "";
+                    boolean rawSolveSuccess = false;
+                    boolean shouldSolveRaw = rawCleanExpr.contains("=") || saveToHistory;
+
+                    if (shouldSolveRaw) {
+                        String exprToSolve = rawCleanExpr.split("=")[0];
                         try {
                             double solution = MathParser.eval(exprToSolve);
-                            solveSuccess = true;
+                            rawSolveSuccess = true;
                             if (solution == (long) solution) {
-                                mathResult = String.valueOf((long) solution);
+                                rawMathResult = String.valueOf((long) solution);
                             } else {
-                                mathResult = String.format(Locale.US, "%.2f", solution);
+                                rawMathResult = String.format(Locale.US, "%.2f", solution);
                             }
                         } catch (Exception ex) {
-                            mathResult = "Err";
+                            rawMathResult = "Err";
                         }
                     }
 
-                    final boolean finalSolveSuccess = solveSuccess;
-                    final String finalMathResult = mathResult;
+                    final boolean finalRawSolveSuccess = rawSolveSuccess;
+                    final String finalRawMathResult = rawMathResult;
 
-                    final String displayResultText;
-                    if (finalSolveSuccess) {
-                        // Định dạng hiển thị đẹp: "5 + 3 x 2 = 11"
-                        String visualExpr = finalExpression.replace("*", "x").replace("/", ":");
+                    SpannableStringBuilder displayResultSpannable = new SpannableStringBuilder(rawSpannable);
+                    if (finalRawSolveSuccess) {
+                        String visualExpr = rawSpannable.toString();
                         if (!visualExpr.contains("=")) {
-                            displayResultText = visualExpr + " = " + finalMathResult;
+                            displayResultSpannable.append(" = ").append(finalRawMathResult);
                         } else {
-                            String beforeEquals = finalExpression.split("=")[0].trim().replace("*", "x").replace("/", ":");
-                            displayResultText = beforeEquals + " = " + finalMathResult;
+                            int equalsIdx = visualExpr.indexOf("=");
+                            if (equalsIdx != -1) {
+                                displayResultSpannable.clear();
+                                displayResultSpannable.append(rawSpannable.subSequence(0, equalsIdx)).append(" = ").append(finalRawMathResult);
+                            }
                         }
-                    } else {
-                        displayResultText = finalExpression.replace("*", "x").replace("/", ":");
                     }
 
-                    float finalAvgConfidence = aiCount > 0 ? (totalConfidence / aiCount) : 100f;
+                    // Xử lý chuỗi công thức đã được sửa lỗi (Corrected)
+                    StringBuilder correctedExprBuilder = new StringBuilder();
+                    for (ExpressionToken token : correctedTokens) {
+                        correctedExprBuilder.append(token.text);
+                    }
+                    String correctedExprStr = correctedExprBuilder.toString();
+                    String correctedCleanExpr = correctedExprStr.replaceAll("\\s+", "");
 
-                    // Lưu vào DB lịch sử nếu bấm nút Giải Toán (saveToHistory = true)
+                    String correctedMathResult = "";
+                    boolean correctedSolveSuccess = false;
+                    String exprToSolveCorrected = correctedCleanExpr.split("=")[0];
+                    try {
+                        double solution = MathParser.eval(exprToSolveCorrected);
+                        correctedSolveSuccess = true;
+                        if (solution == (long) solution) {
+                            correctedMathResult = String.valueOf((long) solution);
+                        } else {
+                            correctedMathResult = String.format(Locale.US, "%.2f", solution);
+                        }
+                    } catch (Exception ex) {
+                        correctedMathResult = "Err";
+                    }
+
+                    float correctedTotalConfidence = 0;
+                    int correctedAiCount = 0;
+                    for (ExpressionToken token : correctedTokens) {
+                        if (!token.isOperator) {
+                            correctedTotalConfidence += token.confidence;
+                            correctedAiCount++;
+                        }
+                    }
+                    float correctedAvgConfidence = correctedAiCount > 0 ? (correctedTotalConfidence / correctedAiCount) : 100f;
+
+                    String visualCorrected = correctedExprStr.replace("*", " x ").replace("/", "/").replace("+", " + ").replace("-", " - ").replaceAll("\\s+", " ").trim();
+                    if (!visualCorrected.contains("=")) {
+                        visualCorrected = visualCorrected + " = " + correctedMathResult;
+                    } else {
+                        String beforeEquals = visualCorrected.split("=")[0].trim();
+                        visualCorrected = beforeEquals + " = " + correctedMathResult;
+                    }
+
+                    lastCorrectedExpression = visualCorrected;
+                    lastCorrectedMathResult = correctedMathResult;
+                    lastCorrectedAvgConfidence = correctedAvgConfidence;
+
+                    // Lưu lịch sử (Sử dụng biểu thức đã sửa đổi nếu được áp dụng, hoặc biểu thức thô ban đầu)
                     if (saveToHistory && displayBitmap != null) {
                         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                         displayBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
                         String base64Image = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
 
+                        String dbSaveExpr = wasCorrected ? visualCorrected : displayResultSpannable.toString();
+                        float dbSaveConf = wasCorrected ? correctedAvgConfidence : rawAvgConfidence;
+
                         PredictionEntity entity = new PredictionEntity(
                                 base64Image,
-                                displayResultText, // Lưu toàn bộ phép toán và đáp án
-                                finalAvgConfidence,
+                                dbSaveExpr,
+                                dbSaveConf,
                                 System.currentTimeMillis()
                         );
                         db.predictionDao().insert(entity);
                     }
 
+                    // Đảm bảo loading chạy tối thiểu 900ms để trải nghiệm mượt mà
+                    long elapsed = System.currentTimeMillis() - startTime;
+                    if (elapsed < 900) {
+                        try {
+                            Thread.sleep(900 - elapsed);
+                        } catch (InterruptedException ignored) {}
+                    }
+
+                    final boolean finalWasCorrected = wasCorrected;
+                    final boolean finalHasUnsure = hasUnsure;
+                    final float finalAvgConfidenceToDisplay = rawAvgConfidence;
+                    final SpannableStringBuilder finalDisplayResultSpannable = displayResultSpannable;
+
                     runOnUiThread(() -> {
-                        tvDrawResult.setText(displayResultText);
-                        tvDrawConfidence.setText(String.format(Locale.US, "%.1f%%", finalAvgConfidence));
-                        cardDrawResult.setVisibility(View.VISIBLE);
-                        
-                        showAiFeedback(finalAvgConfidence, true);
+                        stopAiCorrectingAnimations();
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && cardDrawResult != null) {
+                            TransitionManager.beginDelayedTransition((ViewGroup) cardDrawResult.getParent());
+                        }
+
+                        if (cardAiCorrecting != null) cardAiCorrecting.setVisibility(View.GONE);
+                        if (tvDrawResult != null) tvDrawResult.setText(finalDisplayResultSpannable);
+                        if (tvDrawConfidence != null) tvDrawConfidence.setText(String.format(Locale.US, "%.1f%%", finalAvgConfidenceToDisplay));
+                        if (cardDrawResult != null) cardDrawResult.setVisibility(View.VISIBLE);
+
+                        // Hiển thị gợi ý sửa đổi nếu phát hiện chuỗi toán tử thừa/sai
+                        if (finalWasCorrected && cardAiSuggestion != null) {
+                            if (tvAiSuggestionText != null) {
+                                tvAiSuggestionText.setText(lastCorrectedExpression);
+                            }
+                            cardAiSuggestion.setVisibility(View.VISIBLE);
+                        }
+
+                        // Điều chỉnh phản hồi của AI nếu có ký tự không chắc chắn
+                        if (tvAiFeedback != null) {
+                            tvAiFeedback.setVisibility(View.VISIBLE);
+                            if (finalHasUnsure) {
+                                tvAiFeedback.setText("✏️ Ký tự màu cam có độ tin cậy thấp. Hãy vẽ rõ ràng hơn hoặc Áp dụng gợi ý.");
+                                tvAiFeedback.setTextColor(getColor(R.color.warning));
+                            } else {
+                                showAiFeedback(finalAvgConfidenceToDisplay, true);
+                            }
+                        }
+
                         hapticFeedback();
 
-                        // Đọc to kết quả qua TTS
+                        // Đọc kết quả qua TTS
                         if (saveToHistory && tts != null) {
                             String speakText;
-                            if (finalSolveSuccess) {
-                                speakText = "Biểu thức có kết quả là " + finalMathResult;
+                            if (finalRawSolveSuccess) {
+                                speakText = "Biểu thức có kết quả là " + finalRawMathResult;
                             } else {
-                                speakText = "Biểu thức nhận dạng được là " + displayResultText;
+                                speakText = "Biểu thức nhận dạng được là " + finalDisplayResultSpannable.toString().replace("x", "nhân").replace(":", "chia");
                             }
                             tts.speak(speakText, TextToSpeech.QUEUE_FLUSH, null, "draw_result_math");
                         }
@@ -457,7 +702,11 @@ public class DrawActivity extends AppCompatActivity {
 
                 } catch (Exception e) {
                     Log.e("DrawActivity", "Math solver prediction error", e);
-                    runOnUiThread(() -> UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Lỗi giải toán: " + e.getMessage()));
+                    runOnUiThread(() -> {
+                        stopAiCorrectingAnimations();
+                        if (cardAiCorrecting != null) cardAiCorrecting.setVisibility(View.GONE);
+                        UIUtils.showErrorSnackbar(findViewById(android.R.id.content), "Lỗi giải toán: " + e.getMessage());
+                    });
                 }
             });
         }
@@ -493,8 +742,109 @@ public class DrawActivity extends AppCompatActivity {
         }
     }
 
+    private void startAiCorrectingAnimations() {
+        if (cardAiCorrecting == null) return;
+        correctingPulseAnim = ObjectAnimator.ofFloat(cardAiCorrecting, "alpha", 0.6f, 1.0f);
+        correctingPulseAnim.setDuration(450);
+        correctingPulseAnim.setRepeatMode(ValueAnimator.REVERSE);
+        correctingPulseAnim.setRepeatCount(ValueAnimator.INFINITE);
+        correctingPulseAnim.start();
+
+        correctingDotCount = 0;
+        if (dotAnimRunnable != null) {
+            dotAnimHandler.removeCallbacks(dotAnimRunnable);
+        }
+        dotAnimRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (cardAiCorrecting != null && cardAiCorrecting.getVisibility() == View.VISIBLE) {
+                    StringBuilder text = new StringBuilder("AI correcting");
+                    for (int i = 0; i < correctingDotCount; i++) {
+                        text.append(".");
+                    }
+                    if (tvAiCorrectingText != null) {
+                        tvAiCorrectingText.setText(text.toString());
+                    }
+                    correctingDotCount = (correctingDotCount + 1) % 4;
+                    dotAnimHandler.postDelayed(this, 300);
+                }
+            }
+        };
+        dotAnimHandler.post(dotAnimRunnable);
+    }
+
+    private void stopAiCorrectingAnimations() {
+        if (correctingPulseAnim != null) {
+            correctingPulseAnim.cancel();
+        }
+        if (cardAiCorrecting != null) {
+            cardAiCorrecting.setAlpha(1.0f);
+        }
+        if (dotAnimRunnable != null) {
+            dotAnimHandler.removeCallbacks(dotAnimRunnable);
+        }
+    }
+
+    public static class ExpressionToken {
+        public String text;
+        public boolean isOperator;
+        public float confidence;
+        public boolean isCorrected;
+        public boolean isUnsure;
+
+        public ExpressionToken(String text, boolean isOperator, float confidence) {
+            this.text = text;
+            this.isOperator = isOperator;
+            this.confidence = confidence;
+            this.isCorrected = false;
+            this.isUnsure = false;
+        }
+    }
+
+    public static java.util.List<ExpressionToken> correctExpression(java.util.List<ExpressionToken> tokens) {
+        java.util.List<ExpressionToken> result = new java.util.ArrayList<>();
+        int i = 0;
+        while (i < tokens.size()) {
+            ExpressionToken current = tokens.get(i);
+            if (current.isOperator && !current.text.equals("=")) {
+                java.util.List<ExpressionToken> opSeq = new java.util.ArrayList<>();
+                opSeq.add(current);
+                int j = i + 1;
+                while (j < tokens.size() && tokens.get(j).isOperator && !tokens.get(j).text.equals("=")) {
+                    opSeq.add(tokens.get(j));
+                    j++;
+                }
+
+                if (opSeq.size() > 1) {
+                    ExpressionToken lastToken = opSeq.get(opSeq.size() - 1);
+                    if (lastToken.text.equals("-")) {
+                        if (opSeq.size() == 2) {
+                            result.addAll(opSeq);
+                        } else {
+                            ExpressionToken correctedPrefix = opSeq.get(opSeq.size() - 2);
+                            correctedPrefix.isCorrected = true;
+                            result.add(correctedPrefix);
+                            result.add(lastToken);
+                        }
+                    } else {
+                        lastToken.isCorrected = true;
+                        result.add(lastToken);
+                    }
+                } else {
+                    result.add(current);
+                }
+                i = j;
+            } else {
+                result.add(current);
+                i++;
+            }
+        }
+        return result;
+    }
+
     @Override
     protected void onDestroy() {
+        stopAiCorrectingAnimations();
         digitClassifier.close();
         executorService.shutdown();
         if (tts != null) { tts.stop(); tts.shutdown(); }

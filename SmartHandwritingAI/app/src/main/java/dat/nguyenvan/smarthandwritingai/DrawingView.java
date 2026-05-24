@@ -18,6 +18,7 @@ public class DrawingView extends View {
     private ArrayList<PathData> paths = new ArrayList<>();
     private ArrayList<PathData> undonePaths = new ArrayList<>();
     private Path currentPath;
+    private ArrayList<android.graphics.PointF> currentPoints = new ArrayList<>();
     
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
@@ -32,16 +33,18 @@ public class DrawingView extends View {
         void onDrawEnd();
     }
 
-    // Inner class to store path with its paint properties
+    // Inner class to store path with its paint properties and points
     public static class PathData {
         public Path path;
         public int color;
         public float strokeWidth;
+        public ArrayList<android.graphics.PointF> points;
 
-        public PathData(Path path, int color, float strokeWidth) {
+        public PathData(Path path, int color, float strokeWidth, ArrayList<android.graphics.PointF> points) {
             this.path = path;
             this.color = color;
             this.strokeWidth = strokeWidth;
+            this.points = points;
         }
     }
 
@@ -122,8 +125,22 @@ public class DrawingView extends View {
         undonePaths.clear();
         currentPath = new Path();
         currentPath.moveTo(x, y);
+        currentPoints = new ArrayList<>();
+        currentPoints.add(new android.graphics.PointF(x, y));
         mX = x;
         mY = y;
+    }
+
+    private void addInterpolatedPoints(float x1, float y1, float x2, float y2) {
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        if (len == 0) return;
+        int steps = Math.max(1, (int) (len / 6.0f));
+        for (int i = 0; i <= steps; i++) {
+            float t = (float) i / steps;
+            currentPoints.add(new android.graphics.PointF(x1 + dx * t, y1 + dy * t));
+        }
     }
 
     private void touchMove(float x, float y) {
@@ -131,6 +148,7 @@ public class DrawingView extends View {
         float dy = Math.abs(y - mY);
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
             currentPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
+            addInterpolatedPoints(mX, mY, x, y);
             mX = x;
             mY = y;
         }
@@ -138,7 +156,8 @@ public class DrawingView extends View {
 
     private void touchUp() {
         currentPath.lineTo(mX, mY);
-        paths.add(new PathData(currentPath, paintColor, strokeWidth));
+        currentPoints.add(new android.graphics.PointF(mX, mY));
+        paths.add(new PathData(currentPath, paintColor, strokeWidth, currentPoints));
         currentPath = null;
         if (drawListener != null) {
             drawListener.onDrawEnd();
@@ -287,8 +306,66 @@ public class DrawingView extends View {
             if (bounds.bottom > bottom) bottom = bounds.bottom;
         }
 
-        public boolean isOverlappingOrClose(android.graphics.RectF bounds, float threshold) {
-            // Calculate horizontal distance between bounding boxes
+        public boolean isOverlappingOrClose(PathData newPath, float threshold) {
+            if (newPath.points == null || newPath.points.isEmpty()) {
+                return isOverlappingOrCloseBoundingBox(newPath);
+            }
+
+            // 1. Kiểm tra khoảng cách điểm-đối-điểm thực tế (đối với nét giao nhau/chạm nhau như '+', 'x')
+            float minDistanceSq = Float.MAX_VALUE;
+            for (PathData clusterPath : this.paths) {
+                if (clusterPath.points == null || clusterPath.points.isEmpty()) continue;
+                for (android.graphics.PointF p1 : newPath.points) {
+                    for (android.graphics.PointF p2 : clusterPath.points) {
+                        float dx = p1.x - p2.x;
+                        float dy = p1.y - p2.y;
+                        float distSq = dx * dx + dy * dy;
+                        if (distSq < minDistanceSq) {
+                            minDistanceSq = distSq;
+                        }
+                    }
+                }
+            }
+
+            if (minDistanceSq != Float.MAX_VALUE) {
+                float distanceThreshold = newPath.strokeWidth * 0.35f;
+                if (minDistanceSq <= (distanceThreshold * distanceThreshold)) {
+                    return true;
+                }
+            }
+
+            // 2. Kiểm tra phần chồng lấn nét song song xếp dọc (đặc biệt cho dấu bằng '=')
+            android.graphics.RectF r1 = new android.graphics.RectF();
+            newPath.path.computeBounds(r1, true);
+            for (PathData clusterPath : this.paths) {
+                android.graphics.RectF r2 = new android.graphics.RectF();
+                clusterPath.path.computeBounds(r2, true);
+
+                float overlapLeft = Math.max(r1.left, r2.left);
+                float overlapRight = Math.min(r1.right, r2.right);
+                float overlapW = overlapRight - overlapLeft;
+                float minW = Math.min(r1.width(), r2.width());
+
+                if (overlapW > minW * 0.5f) {
+                    float verticalDist = 0;
+                    if (r1.bottom < r2.top) {
+                        verticalDist = r2.top - r1.bottom;
+                    } else if (r2.bottom < r1.top) {
+                        verticalDist = r1.top - r2.bottom;
+                    }
+                    if (verticalDist < newPath.strokeWidth * 0.8f) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private boolean isOverlappingOrCloseBoundingBox(PathData newPath) {
+            android.graphics.RectF bounds = new android.graphics.RectF();
+            newPath.path.computeBounds(bounds, true);
+
             float dx = 0;
             if (bounds.right < this.left) {
                 dx = this.left - bounds.right;
@@ -296,7 +373,6 @@ public class DrawingView extends View {
                 dx = bounds.left - this.right;
             }
 
-            // Calculate vertical distance between bounding boxes
             float dy = 0;
             if (bounds.bottom < this.top) {
                 dy = this.top - bounds.bottom;
@@ -304,20 +380,11 @@ public class DrawingView extends View {
                 dy = bounds.top - this.bottom;
             }
 
-            // 2D distance
             double dist = Math.sqrt(dx * dx + dy * dy);
-
-            // Separate characters horizontally: do not merge if horizontal gap is larger than threshold * 0.6
-            if (dx > threshold * 0.6f) {
+            if (dx > 6f) {
                 return false;
             }
-
-            // Separate lines vertically: do not merge if vertical gap is larger than threshold * 2.0
-            if (dy > threshold * 2.0f) {
-                return false;
-            }
-
-            return dist <= threshold * 2.0f;
+            return dist <= 96f;
         }
 
         public void merge(StrokeCluster other) {
@@ -339,7 +406,7 @@ public class DrawingView extends View {
 
             ArrayList<StrokeCluster> overlapping = new ArrayList<>();
             for (StrokeCluster c : clusters) {
-                if (c.isOverlappingOrClose(bounds, threshold)) {
+                if (c.isOverlappingOrClose(pd, threshold)) {
                     overlapping.add(c);
                 }
             }
