@@ -29,7 +29,7 @@
 
 ## 📱 Ảnh Giao Diện
 
-### Đăng Nhập & Trang Chủ
+### Đăng Nhập
 
 <table>
   <tr>
@@ -37,20 +37,22 @@
       <img src="Images/giaodiendangnhap.jpg" alt="Đăng nhập" width="200"><br>
       <b>Đăng Nhập</b>
     </td>
-    <td align="center">
-      <img src="Images/giaodiennhandangtiengviet.jpg" alt="Trang chủ Tiếng Việt" width="200"><br>
-      <b>Trang Chủ (Tiếng Việt)</b>
-    </td>
-    <td align="center">
-      <img src="Images/giaodiennhandangtienganh.jpg" alt="Trang chủ Tiếng Anh" width="200"><br>
-      <b>Trang Chủ (English)</b>
-    </td>
   </tr>
 </table>
 
 ### Vẽ Tay & Nhận Dạng
 
 <table>
+  <tr>
+    <td align="center">
+      <img src="Images/giaodiennhandangtiengviet.jpg" alt="Nhận dạng Tiếng Việt" width="200"><br>
+      <b>Nhận Dạng (Tiếng Việt)</b>
+    </td>
+    <td align="center">
+      <img src="Images/giaodiennhandangtienganh.jpg" alt="Nhận dạng Tiếng Anh" width="200"><br>
+      <b>Nhận Dạng (English)</b>
+    </td>
+  </tr>
   <tr>
     <td align="center">
       <img src="Images/vetay1.jpg" alt="Vẽ tay nhận dạng số" width="200"><br>
@@ -61,11 +63,6 @@
       <b>Giải Toán AI</b>
     </td>
   </tr>
-</table>
-
-### Nhận Dạng Từ Ảnh
-
-<table>
   <tr>
     <td align="center">
       <img src="Images/tinhnangnhandang1.jpg" alt="Crop ảnh" width="200"><br>
