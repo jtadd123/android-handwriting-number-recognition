@@ -182,7 +182,7 @@ public class FractionParser {
         }
 
         // 2. Nhận dạng bằng AI (Mô hình TFLite)
-        DigitClassifier.PredictionResult pred = classifier.predict(sym.bitmap, isMathMode);
+        DigitClassifier.PredictionResult pred = classifier.predict(sym.bitmap, isMathMode, sym.paths == null);
         if (pred != null) {
             String label = pred.label;
             if (label.equalsIgnoreCase("X")) {

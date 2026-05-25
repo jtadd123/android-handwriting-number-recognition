@@ -96,4 +96,28 @@ public class DigitClassifierTest {
                     e instanceof NullPointerException && e.getMessage() == null);
         }
     }
+
+    @Test
+    public void testEquivalenceGroupMerging() {
+        // Find index of "Q" and "2"
+        int qIdx = -1;
+        int twoIdx = -1;
+        for (int i = 0; i < DigitClassifier.LABELS.length; i++) {
+            if (DigitClassifier.LABELS[i].equals("Q")) qIdx = i;
+            if (DigitClassifier.LABELS[i].equals("2")) twoIdx = i;
+        }
+        
+        // Assert we found them
+        assertTrue(qIdx != -1);
+        assertTrue(twoIdx != -1);
+        
+        // Set raw probabilities: Q has 1.0f (100%), all others 0.0f
+        float[] probs = new float[DigitClassifier.NUM_CLASSES];
+        probs[qIdx] = 1.0f;
+        
+        DigitClassifier.PredictionResult result = classifier.getBestPrediction(probs, false);
+        
+        assertEquals("Label should be merged to 2", "2", result.label);
+        assertEquals("Confidence should be 100%", 100.0f, result.confidence, 0.01f);
+    }
 }

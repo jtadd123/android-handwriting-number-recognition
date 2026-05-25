@@ -28,9 +28,9 @@ public class ImageProcessor {
 
     public static ByteBuffer preprocessImage(Bitmap bitmap) {
         // 1. Iterative Downscale to preserve strokes before binarization
-        // We downscale until max dimension is <= 150
+        // We downscale until max dimension is <= 300
         Bitmap workingBitmap = bitmap;
-        while (workingBitmap.getWidth() > 150 || workingBitmap.getHeight() > 150) {
+        while (workingBitmap.getWidth() > 300 || workingBitmap.getHeight() > 300) {
             int nw = workingBitmap.getWidth() / 2;
             int nh = workingBitmap.getHeight() / 2;
             workingBitmap = Bitmap.createScaledBitmap(workingBitmap, nw, nh, true);
@@ -57,7 +57,7 @@ public class ImageProcessor {
         int cumSum = 0;
         for (int i = 0; i < 256; i++) {
             cumSum += histogram[i];
-            if (cumSum >= totalPixels * 0.02) { minVal = i; break; }
+            if (cumSum >= totalPixels * 0.005) { minVal = i; break; }
         }
         cumSum = 0;
         for (int i = 255; i >= 0; i--) {
@@ -81,26 +81,11 @@ public class ImageProcessor {
         float borderMean = (float) borderSum / borderCount;
         boolean invert = borderMean > (minVal + maxVal) / 2.0f;
 
-        int threshold;
-        if (invert) {
-            // White background, black pen. Keep only the darkest 40% of the range as ink.
-            threshold = minVal + (int)((maxVal - minVal) * 0.40);
-        } else {
-            // Black background, white pen. Keep only the brightest 40% of the range as ink.
-            threshold = maxVal - (int)((maxVal - minVal) * 0.40);
-        }
-
-        int[] inkPixels = new int[width * height];
-        for (int i = 0; i < intensities.length; i++) {
-            if (invert) {
-                inkPixels[i] = intensities[i] < threshold ? 255 : 0;
-            } else {
-                inkPixels[i] = intensities[i] > threshold ? 255 : 0;
-            }
-        }
+        int[] inkPixels = adaptiveThreshold(intensities, width, height, invert, minVal, maxVal);
 
         // 7. Morphological noise removal
         removeSmallNoise(inkPixels, width, height);
+        bridgeSmallStrokeGaps(inkPixels, width, height);
 
         // 8. Find Bounding Box
         int minX = width, minY = height, maxX = -1, maxY = -1;
@@ -211,6 +196,51 @@ public class ImageProcessor {
         System.arraycopy(cleaned, 0, pixels, 0, pixels.length);
     }
 
+    static void bridgeSmallStrokeGaps(int[] pixels, int w, int h) {
+        int maxGap = Math.max(6, Math.min(12, Math.min(w, h) / 8));
+        int maxDrift = Math.max(1, maxGap / 2);
+        int[] bridged = pixels.clone();
+
+        for (int y = 1; y < h - 1; y++) {
+            for (int x = 1; x < w - 1; x++) {
+                if (pixels[y * w + x] != 255) continue;
+
+                for (int dy = 2; dy <= maxGap; dy++) {
+                    int targetY = y + dy;
+                    if (targetY >= h - 1) break;
+
+                    for (int dx = -maxDrift; dx <= maxDrift; dx++) {
+                        int targetX = x + dx;
+                        if (targetX <= 0 || targetX >= w - 1) continue;
+                        if (pixels[targetY * w + targetX] == 255) {
+                            drawBridge(bridged, w, h, x, y, targetX, targetY);
+                        }
+                    }
+                }
+            }
+        }
+
+        System.arraycopy(bridged, 0, pixels, 0, pixels.length);
+    }
+
+    private static void drawBridge(int[] pixels, int w, int h, int x1, int y1, int x2, int y2) {
+        int steps = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
+        for (int i = 0; i <= steps; i++) {
+            float t = steps == 0 ? 0f : (float) i / steps;
+            int x = Math.round(x1 + (x2 - x1) * t);
+            int y = Math.round(y1 + (y2 - y1) * t);
+            for (int oy = -1; oy <= 1; oy++) {
+                for (int ox = -1; ox <= 1; ox++) {
+                    int px = x + ox;
+                    int py = y + oy;
+                    if (px >= 0 && px < w && py >= 0 && py < h) {
+                        pixels[py * w + px] = 255;
+                    }
+                }
+            }
+        }
+    }
+
     private static Bitmap dilate(Bitmap src) {
         int w = src.getWidth();
         int h = src.getHeight();
@@ -238,6 +268,34 @@ public class ImageProcessor {
         return out;
     }
 
+    private static int[] dilateBinary(int[] pixels, int w, int h) {
+        int[] out = new int[w * h];
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                if (pixels[y * w + x] == 255) {
+                    out[y * w + x] = 255;
+                    continue;
+                }
+                int max = 0;
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        int nx = x + dx;
+                        int ny = y + dy;
+                        if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+                            if (pixels[ny * w + nx] == 255) {
+                                max = 255;
+                                break;
+                            }
+                        }
+                    }
+                    if (max == 255) break;
+                }
+                out[y * w + x] = max;
+            }
+        }
+        return out;
+    }
+
     public static Bitmap toGrayscale(Bitmap original) {
         Bitmap grayscale = Bitmap.createBitmap(original.getWidth(), original.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(grayscale);
@@ -247,6 +305,65 @@ public class ImageProcessor {
         paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
         canvas.drawBitmap(original, 0, 0, paint);
         return grayscale;
+    }
+
+    public static int[] adaptiveThreshold(int[] intensities, int width, int height, boolean invert, int minVal, int maxVal) {
+        int[] binary = new int[width * height];
+        int windowSize = Math.max(15, Math.min(35, Math.min(width, height) / 6));
+        if (windowSize % 2 == 0) windowSize++; // Ensure odd window size
+        int radius = windowSize / 2;
+        
+        // Compute integral image for fast local sum
+        long[] integral = new long[width * height];
+        for (int y = 0; y < height; y++) {
+            long rowSum = 0;
+            for (int x = 0; x < width; x++) {
+                int val = intensities[y * width + x];
+                rowSum += val;
+                if (y == 0) {
+                    integral[y * width + x] = rowSum;
+                } else {
+                    integral[y * width + x] = integral[(y - 1) * width + x] + rowSum;
+                }
+            }
+        }
+
+        // Local thresholding
+        for (int y = 0; y < height; y++) {
+            int y1 = Math.max(0, y - radius);
+            int y2 = Math.min(height - 1, y + radius);
+            for (int x = 0; x < width; x++) {
+                int x1 = Math.max(0, x - radius);
+                int x2 = Math.min(width - 1, x + radius);
+                
+                // Get sum using integral image
+                long sum = integral[y2 * width + x2];
+                if (x1 > 0) sum -= integral[y2 * width + (x1 - 1)];
+                if (y1 > 0) sum -= integral[(y1 - 1) * width + x2];
+                if (x1 > 0 && y1 > 0) sum += integral[(y1 - 1) * width + (x1 - 1)];
+                
+                int count = (x2 - x1 + 1) * (y2 - y1 + 1);
+                float mean = (float) sum / count;
+                
+                int val = intensities[y * width + x];
+                if (invert) {
+                    int globalCutoff = minVal + (int) ((maxVal - minVal) * 0.80f);
+                    if (val > globalCutoff) {
+                        binary[y * width + x] = 0;
+                    } else {
+                        binary[y * width + x] = (val < mean * 0.93f && (mean - val) > 10) ? 255 : 0;
+                    }
+                } else {
+                    int globalCutoff = minVal + (int) ((maxVal - minVal) * 0.20f);
+                    if (val < globalCutoff) {
+                        binary[y * width + x] = 0;
+                    } else {
+                        binary[y * width + x] = (val > mean * 1.07f && (val - mean) > 10) ? 255 : 0;
+                    }
+                }
+            }
+        }
+        return binary;
     }
 
     public static class Component {
@@ -263,6 +380,14 @@ public class ImageProcessor {
         public int maxX = -1;
         public int minY = Integer.MAX_VALUE;
         public int maxY = -1;
+
+        public int totalPoints() {
+            int sum = 0;
+            for (Component c : components) {
+                sum += c.points.size();
+            }
+            return sum;
+        }
 
         public void addComponent(Component c) {
             components.add(c);
@@ -319,7 +444,7 @@ public class ImageProcessor {
 
         // 1. Iterative Downscale to preserve strokes before binarization
         Bitmap workingBitmap = bitmap;
-        while (workingBitmap.getWidth() > 150 || workingBitmap.getHeight() > 150) {
+        while (workingBitmap.getWidth() > 300 || workingBitmap.getHeight() > 300) {
             int nw = workingBitmap.getWidth() / 2;
             int nh = workingBitmap.getHeight() / 2;
             workingBitmap = Bitmap.createScaledBitmap(workingBitmap, nw, nh, true);
@@ -346,7 +471,7 @@ public class ImageProcessor {
         int cumSum = 0;
         for (int i = 0; i < 256; i++) {
             cumSum += histogram[i];
-            if (cumSum >= totalPixels * 0.02) { minVal = i; break; }
+            if (cumSum >= totalPixels * 0.005) { minVal = i; break; }
         }
         cumSum = 0;
         for (int i = 255; i >= 0; i--) {
@@ -368,26 +493,16 @@ public class ImageProcessor {
             borderCount += 2;
         }
         float borderMean = (float) borderSum / borderCount;
-        boolean invert = borderMean > (minVal + maxVal) / 2.0f;
+        boolean invert = true; // Always invert for camera/gallery photos (dark ink on light paper)
 
-        int threshold;
-        if (invert) {
-            threshold = minVal + (int)((maxVal - minVal) * 0.40);
-        } else {
-            threshold = maxVal - (int)((maxVal - minVal) * 0.40);
-        }
-
-        int[] inkPixels = new int[width * height];
-        for (int i = 0; i < intensities.length; i++) {
-            if (invert) {
-                inkPixels[i] = intensities[i] < threshold ? 255 : 0;
-            } else {
-                inkPixels[i] = intensities[i] > threshold ? 255 : 0;
-            }
-        }
+        int[] inkPixels = adaptiveThreshold(intensities, width, height, invert, minVal, maxVal);
 
         // 4. Remove small noise
         removeSmallNoise(inkPixels, width, height);
+        bridgeSmallStrokeGaps(inkPixels, width, height);
+
+        // Dilate binary image to close tiny gaps in handwritten strokes before grouping components
+        inkPixels = dilateBinary(inkPixels, width, height);
 
         // 5. CCA - Find Connected Components
         boolean[] visited = new boolean[width * height];
@@ -440,7 +555,7 @@ public class ImageProcessor {
             return resultList;
         }
 
-        // 6. Gộp các component gần nhau thành cụm ký tự (Symbol Clusters)
+        // 6. Gộp các component gần nhau thành cụm ký tự (Symbol Clusters) trước khi lọc nhiễu đường biên
         java.util.List<SymbolCluster> clusters = new java.util.ArrayList<>();
         float maxDist = Math.max(12f, Math.max(width, height) * 0.10f);
 
@@ -468,27 +583,65 @@ public class ImageProcessor {
             }
         }
 
+        if (clusters.isEmpty()) {
+            return resultList;
+        }
+
+        // Find the maximum cluster size (total points count)
+        int maxClusterPoints = 0;
+        for (SymbolCluster sc : clusters) {
+            int pts = sc.totalPoints();
+            if (pts > maxClusterPoints) {
+                maxClusterPoints = pts;
+            }
+        }
+
+        // Lọc bỏ cụm nhiễu nhỏ hoặc cụm bóng đổ ở biên (Border shadows/noise)
+        java.util.List<SymbolCluster> filteredClusters = new java.util.ArrayList<>();
+        for (SymbolCluster sc : clusters) {
+            int pts = sc.totalPoints();
+            
+            // Lọc nhiễu kích thước siêu nhỏ (nhỏ hơn 8% cụm lớn nhất)
+            if (pts < Math.max(8, (int) (maxClusterPoints * 0.08f))) {
+                continue;
+            }
+
+            // Lọc nhiễu bám biên/bóng đổ góc ảnh
+            boolean touchesBorder = (sc.minX <= 2 || sc.minY <= 2 || sc.maxX >= width - 3 || sc.maxY >= height - 3);
+            float centerX = sc.minX + (sc.maxX - sc.minX) / 2f;
+            float centerY = sc.minY + (sc.maxY - sc.minY) / 2f;
+            boolean overlapsCenter = (centerX >= width * 0.25f && centerX <= width * 0.75f) && 
+                                     (centerY >= height * 0.25f && centerY <= height * 0.75f);
+            
+            if (touchesBorder && !overlapsCenter) {
+                // Nếu cụm chạm biên, lệch tâm và nhỏ hơn 35% cụm lớn nhất thì coi là nhiễu biên/bóng đổ
+                if (pts < maxClusterPoints * 0.35f) {
+                    continue;
+                }
+            }
+            filteredClusters.add(sc);
+        }
+        clusters = filteredClusters;
+
+        if (clusters.isEmpty()) {
+            return resultList;
+        }
+
         // 7. Tạo preprocessed bitmap 28x28 cho từng cụm và lưu thành SegmentedSymbol
         for (SymbolCluster cluster : clusters) {
             int cropW = cluster.width();
             int cropH = cluster.height();
 
-            int padding = Math.max(2, (int) (Math.max(cropW, cropH) * 0.15f));
-            int maxDim = Math.max(cropW, cropH);
-            int size = maxDim + 2 * padding;
-
-            Bitmap clusterBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+            // Create a tight bitmap around the cluster components (no padding)
+            Bitmap clusterBitmap = Bitmap.createBitmap(cropW, cropH, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(clusterBitmap);
             canvas.drawColor(Color.BLACK);
 
-            int dx = padding + (maxDim - cropW) / 2;
-            int dy = padding + (maxDim - cropH) / 2;
-
             for (Component comp : cluster.components) {
                 for (android.graphics.Point pt : comp.points) {
-                    int px = pt.x - cluster.minX + dx;
-                    int py = pt.y - cluster.minY + dy;
-                    if (px >= 0 && px < size && py >= 0 && py < size) {
+                    int px = pt.x - cluster.minX;
+                    int py = pt.y - cluster.minY;
+                    if (px >= 0 && px < cropW && py >= 0 && py < cropH) {
                         clusterBitmap.setPixel(px, py, Color.WHITE);
                     }
                 }
@@ -498,8 +651,16 @@ public class ImageProcessor {
             Canvas finalCanvas = new Canvas(finalBitmap);
             finalCanvas.drawColor(Color.BLACK);
 
-            Bitmap scaled = Bitmap.createScaledBitmap(clusterBitmap, 20, 20, true);
-            finalCanvas.drawBitmap(scaled, 4, 4, null);
+            // Scale tightly to 20x20 preserving aspect ratio
+            float scale = 20.0f / Math.max(cropW, cropH);
+            int sw = Math.max(1, Math.round(cropW * scale));
+            int sh = Math.max(1, Math.round(cropH * scale));
+            Bitmap scaled = Bitmap.createScaledBitmap(clusterBitmap, sw, sh, true);
+
+            // Center the scaled bitmap in the 28x28 canvas
+            float offsetX = (28 - sw) / 2f;
+            float offsetY = (28 - sh) / 2f;
+            finalCanvas.drawBitmap(scaled, offsetX, offsetY, null);
 
             finalBitmap = dilate(finalBitmap);
 
@@ -519,5 +680,21 @@ public class ImageProcessor {
         java.util.Collections.sort(resultList, (s1, s2) -> Float.compare(s1.left, s2.left));
 
         return resultList;
+    }
+
+    public static ByteBuffer convertPreprocessedBitmapToByteBuffer(Bitmap bitmap) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(w * h * FLOAT_SIZE);
+        byteBuffer.order(java.nio.ByteOrder.nativeOrder());
+        byteBuffer.rewind();
+
+        int[] pixels = new int[w * h];
+        bitmap.getPixels(pixels, 0, w, 0, 0, w, h);
+        for (int p : pixels) {
+            float val = ((p >> 16) & 0xFF) / 255.0f;
+            byteBuffer.putFloat(val);
+        }
+        return byteBuffer;
     }
 }

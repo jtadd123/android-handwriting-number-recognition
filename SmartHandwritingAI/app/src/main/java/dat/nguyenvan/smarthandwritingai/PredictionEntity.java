@@ -18,6 +18,9 @@ public class PredictionEntity {
     @androidx.room.ColumnInfo(name = "is_favorite")
     public boolean isFavorite = false;        
 
+    @androidx.room.ColumnInfo(name = "image_url")
+    private String imageUrl;
+
     public PredictionEntity(String imageBase64, String result, float confidence, long timestamp) {
         this.isFavorite = false;
         this.imageBase64 = imageBase64;
@@ -42,4 +45,7 @@ public class PredictionEntity {
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

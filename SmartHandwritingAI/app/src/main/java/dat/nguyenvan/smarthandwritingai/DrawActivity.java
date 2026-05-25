@@ -112,7 +112,8 @@ public class DrawActivity extends AppCompatActivity {
                 }
                 hapticFeedback();
                 if (tts != null) {
-                    String cleanSpeak = lastCorrectedExpression.split("=")[0].trim().replace("x", "nhân").replace(":", "chia");
+                    String[] parts = lastCorrectedExpression.split("=", -1);
+                    String cleanSpeak = (parts.length > 0 ? parts[0] : "").trim().replace("x", "nhân").replace(":", "chia");
                     tts.speak("Đã áp dụng biểu thức " + cleanSpeak, TextToSpeech.QUEUE_FLUSH, null, "apply_suggestion");
                 }
             });
@@ -395,6 +396,21 @@ public class DrawActivity extends AppCompatActivity {
                                 System.currentTimeMillis()
                         );
                         db.predictionDao().insert(entity);
+
+                        boolean isSyncEnabled = getSharedPreferences("AI_CONFIG", MODE_PRIVATE).getBoolean("firebase_sync", false);
+                        if (isSyncEnabled && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+                            FirebaseSyncHelper.syncPrediction(DrawActivity.this, entity, new FirebaseSyncHelper.OnSyncCompleteListener() {
+                                @Override
+                                public void onSuccess(String imageUrl) {
+                                    Log.d("DrawActivity", "Auto sync successful: " + imageUrl);
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    Log.e("DrawActivity", "Auto sync failed: " + e.getMessage());
+                                }
+                            });
+                        }
                     }
 
                     runOnUiThread(() -> {
@@ -549,7 +565,8 @@ public class DrawActivity extends AppCompatActivity {
                     boolean shouldSolveRaw = rawCleanExpr.contains("=") || saveToHistory;
 
                     if (shouldSolveRaw) {
-                        String exprToSolve = rawCleanExpr.split("=")[0];
+                        String[] parts = rawCleanExpr.split("=", -1);
+                        String exprToSolve = parts.length > 0 ? parts[0] : "";
                         try {
                             double solution = MathParser.eval(exprToSolve);
                             rawSolveSuccess = true;
@@ -590,7 +607,8 @@ public class DrawActivity extends AppCompatActivity {
 
                     String correctedMathResult = "";
                     boolean correctedSolveSuccess = false;
-                    String exprToSolveCorrected = correctedCleanExpr.split("=")[0];
+                    String[] correctedParts = correctedCleanExpr.split("=", -1);
+                    String exprToSolveCorrected = correctedParts.length > 0 ? correctedParts[0] : "";
                     try {
                         double solution = MathParser.eval(exprToSolveCorrected);
                         correctedSolveSuccess = true;
@@ -617,7 +635,8 @@ public class DrawActivity extends AppCompatActivity {
                     if (!visualCorrected.contains("=")) {
                         visualCorrected = visualCorrected + " = " + correctedMathResult;
                     } else {
-                        String beforeEquals = visualCorrected.split("=")[0].trim();
+                        String[] visualParts = visualCorrected.split("=", -1);
+                        String beforeEquals = (visualParts.length > 0 ? visualParts[0] : "").trim();
                         visualCorrected = beforeEquals + " = " + correctedMathResult;
                     }
 
@@ -641,6 +660,21 @@ public class DrawActivity extends AppCompatActivity {
                                 System.currentTimeMillis()
                         );
                         db.predictionDao().insert(entity);
+
+                        boolean isSyncEnabled = getSharedPreferences("AI_CONFIG", MODE_PRIVATE).getBoolean("firebase_sync", false);
+                        if (isSyncEnabled && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+                            FirebaseSyncHelper.syncPrediction(DrawActivity.this, entity, new FirebaseSyncHelper.OnSyncCompleteListener() {
+                                @Override
+                                public void onSuccess(String imageUrl) {
+                                    Log.d("DrawActivity", "Auto sync successful: " + imageUrl);
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    Log.e("DrawActivity", "Auto sync failed: " + e.getMessage());
+                                }
+                            });
+                        }
                     }
 
                     // Đảm bảo loading chạy tối thiểu 900ms để trải nghiệm mượt mà

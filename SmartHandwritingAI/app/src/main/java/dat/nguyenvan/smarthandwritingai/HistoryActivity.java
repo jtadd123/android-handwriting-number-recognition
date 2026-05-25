@@ -217,19 +217,29 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
             return;
         }
 
-        if (db == null) { Toast.makeText(this, R.string.msg_firebase_not_configured, Toast.LENGTH_SHORT).show(); return; }
+        com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "Vui lòng đăng nhập để đồng bộ lịch sử.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Toast.makeText(this, R.string.msg_syncing_firebase, Toast.LENGTH_SHORT).show();
-        executorService.execute(() -> {
-            List<PredictionEntity> all = AppDatabase.getInstance(this).predictionDao().getAllPredictions();
-            for (PredictionEntity p : all) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("result", p.getResult());
-                data.put("confidence", p.getConfidence());
-                data.put("timestamp", p.getTimestamp());
-                data.put("isFavorite", p.isFavorite);
-                db.collection("history").document(String.valueOf(p.getTimestamp())).set(data);
+        FirebaseSyncHelper.syncAll(this, new FirebaseSyncHelper.OnSyncAllListener() {
+            @Override
+            public void onProgress(int current, int total) {
             }
-            runOnUiThread(() -> Toast.makeText(this, R.string.msg_sync_success, Toast.LENGTH_SHORT).show());
+
+            @Override
+            public void onComplete(int successCount, int totalCount) {
+                runOnUiThread(() -> {
+                    if (successCount > 0) {
+                        Toast.makeText(HistoryActivity.this, getString(R.string.msg_sync_success) + " (" + successCount + "/" + totalCount + ")", Toast.LENGTH_SHORT).show();
+                        loadHistory();
+                    } else {
+                        Toast.makeText(HistoryActivity.this, "Đồng bộ hoàn tất (0 mục mới).", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         });
     }
 

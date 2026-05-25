@@ -144,116 +144,152 @@ public class OperatorDetector {
 
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
+        if (w < 28 || h < 28) return null; // Safe guard for dimensions
+
         int[] pixels = new int[w * h];
         bitmap.getPixels(pixels, 0, w, 0, 0, w, h);
 
-        // 1. Nhận dạng dấu trừ '-'
-        if (originalRatio > 2.0f) {
-            return "-";
+        // Corner pixel checking: count white pixels in the 4 corners of the 20x20 bounding box
+        int cornerWhite = 0;
+        // Top-Left corner: [4..8, 4..8]
+        for (int y = 4; y <= 8; y++) {
+            for (int x = 4; x <= 8; x++) {
+                if (((pixels[y * w + x] >> 16) & 0xFF) > 128) cornerWhite++;
+            }
+        }
+        // Top-Right corner: [19..23, 4..8]
+        for (int y = 4; y <= 8; y++) {
+            for (int x = 19; x <= 23; x++) {
+                if (((pixels[y * w + x] >> 16) & 0xFF) > 128) cornerWhite++;
+            }
+        }
+        // Bottom-Left corner: [4..8, 19..23]
+        for (int y = 19; y <= 23; y++) {
+            for (int x = 4; x <= 8; x++) {
+                if (((pixels[y * w + x] >> 16) & 0xFF) > 128) cornerWhite++;
+            }
+        }
+        // Bottom-Right corner: [19..23, 19..23]
+        for (int y = 19; y <= 23; y++) {
+            for (int x = 19; x <= 23; x++) {
+                if (((pixels[y * w + x] >> 16) & 0xFF) > 128) cornerWhite++;
+            }
         }
 
-        // Đếm số pixel trắng trong từng dòng để phân tích dấu bằng '='
+        if (cornerWhite > 3) {
+            return null; // Bypasses operator heuristics, routes to TFLite AI model
+        }
+
+        // Count row and column white pixels
         int[] rowCounts = new int[h];
+        int[] colCounts = new int[w];
         int totalWhite = 0;
+        int maxRow = 0;
+        int maxCol = 0;
         for (int y = 0; y < h; y++) {
-            int count = 0;
             for (int x = 0; x < w; x++) {
                 int val = (pixels[y * w + x] >> 16) & 0xFF;
                 if (val > 128) {
-                    count++;
+                    rowCounts[y]++;
+                    colCounts[x]++;
+                    totalWhite++;
                 }
             }
-            rowCounts[y] = count;
-            totalWhite += count;
         }
 
-        if (totalWhite < 15) return null;
+        for (int y = 0; y < h; y++) {
+            if (rowCounts[y] > maxRow) maxRow = rowCounts[y];
+        }
+        for (int x = 0; x < w; x++) {
+            if (colCounts[x] > maxCol) maxCol = colCounts[x];
+        }
+
+        if (totalWhite < 12) return null;
+
+        // 1. Nhận dạng dấu trừ '-'
+        if (originalRatio > 2.0f && maxRow >= 8 && maxCol < 6) {
+            return "-";
+        }
 
         // 2. Nhận dạng dấu bằng '='
-        int topMaxIdx = -1;
-        int topMaxVal = 0;
-        for (int y = 2; y <= 12; y++) {
-            if (rowCounts[y] > topMaxVal) {
-                topMaxVal = rowCounts[y];
-                topMaxIdx = y;
-            }
-        }
-
-        int bottomMaxIdx = -1;
-        int bottomMaxVal = 0;
-        for (int y = 15; y <= 25; y++) {
-            if (rowCounts[y] > bottomMaxVal) {
-                bottomMaxVal = rowCounts[y];
-                bottomMaxIdx = y;
-            }
-        }
-
-        if (topMaxIdx != -1 && bottomMaxIdx != -1 && topMaxVal > 6 && bottomMaxVal > 6) {
-            int minVal = Integer.MAX_VALUE;
-            for (int y = topMaxIdx + 1; y < bottomMaxIdx; y++) {
-                if (rowCounts[y] < minVal) {
-                    minVal = rowCounts[y];
+        if (originalRatio >= 0.7f && maxCol < 7) {
+            int topMaxIdx = -1;
+            int topMaxVal = 0;
+            int yStartTop = Math.max(0, (int)(h * 0.07));
+            int yEndTop = Math.min(h - 1, (int)(h * 0.45));
+            for (int y = yStartTop; y <= yEndTop; y++) {
+                if (rowCounts[y] > topMaxVal) {
+                    topMaxVal = rowCounts[y];
+                    topMaxIdx = y;
                 }
             }
-            if (minVal < 4) {
-                return "=";
+
+            int bottomMaxIdx = -1;
+            int bottomMaxVal = 0;
+            int yStartBottom = Math.max(0, (int)(h * 0.55));
+            int yEndBottom = Math.min(h - 1, (int)(h * 0.93));
+            for (int y = yStartBottom; y <= yEndBottom; y++) {
+                if (rowCounts[y] > bottomMaxVal) {
+                    bottomMaxVal = rowCounts[y];
+                    bottomMaxIdx = y;
+                }
+            }
+
+            if (topMaxIdx != -1 && bottomMaxIdx != -1 && topMaxVal > 6 && bottomMaxVal > 6) {
+                int minVal = Integer.MAX_VALUE;
+                for (int y = topMaxIdx + 1; y < bottomMaxIdx; y++) {
+                    if (rowCounts[y] < minVal) {
+                        minVal = rowCounts[y];
+                    }
+                }
+                if (minVal <= 1) {
+                    return "=";
+                }
             }
         }
 
         // 3. Nhận dạng dấu cộng '+'
         if (originalRatio > 0.6f && originalRatio < 1.6f) {
-            int centerX = 14;
-            int centerY = 14;
-
-            int centerWhite = 0;
-            for (int cy = centerY - 3; cy <= centerY + 3; cy++) {
-                for (int cx = centerX - 3; cx <= centerX + 3; cx++) {
-                    int val = (pixels[cy * w + cx] >> 16) & 0xFF;
-                    if (val > 128) centerWhite++;
-                }
-            }
-
-            if (centerWhite > 10) {
-                boolean goUp = false, goDown = false, goLeft = false, goRight = false;
-                
-                // Đi lên
-                for (int y = centerY - 4; y >= 2; y--) {
-                    int rowSum = 0;
-                    for (int x = centerX - 3; x <= centerX + 3; x++) {
-                        if (((pixels[y * w + x] >> 16) & 0xFF) > 128) rowSum++;
+            // A plus sign must have strong vertical and horizontal strokes intersecting near the center
+            if (maxRow >= 8 && maxCol >= 8) {
+                // Find peak row and column (center of the cross strokes)
+                int peakRow = -1;
+                int maxRowVal = 0;
+                for (int y = 0; y < h; y++) {
+                    if (rowCounts[y] > maxRowVal) {
+                        maxRowVal = rowCounts[y];
+                        peakRow = y;
                     }
-                    if (rowSum > 1) { goUp = true; break; }
                 }
-
-                // Đi xuống
-                for (int y = centerY + 4; y <= 25; y++) {
-                    int rowSum = 0;
-                    for (int x = centerX - 3; x <= centerX + 3; x++) {
-                        if (((pixels[y * w + x] >> 16) & 0xFF) > 128) rowSum++;
+                int peakCol = -1;
+                int maxColVal = 0;
+                for (int x = 0; x < w; x++) {
+                    if (colCounts[x] > maxColVal) {
+                        maxColVal = colCounts[x];
+                        peakCol = x;
                     }
-                    if (rowSum > 1) { goDown = true; break; }
                 }
 
-                // Đi sang trái
-                for (int x = centerX - 4; x >= 2; x--) {
-                    int colSum = 0;
-                    for (int y = centerY - 3; y <= centerY + 3; y++) {
-                        if (((pixels[y * w + x] >> 16) & 0xFF) > 128) colSum++;
+                // Verify peak position is near the center [8..20]
+                if (peakRow >= 8 && peakRow <= 20 && peakCol >= 8 && peakCol <= 20) {
+                    // Count white pixels in quadrants (outside the central cross of width 5)
+                    int quadrantWhite = 0;
+                    for (int y = 0; y < h; y++) {
+                        for (int x = 0; x < w; x++) {
+                            int val = (pixels[y * w + x] >> 16) & 0xFF;
+                            if (val > 128) {
+                                if (Math.abs(x - peakCol) > 2 && Math.abs(y - peakRow) > 2) {
+                                    quadrantWhite++;
+                                }
+                            }
+                        }
                     }
-                    if (colSum > 1) { goLeft = true; break; }
-                }
 
-                // Đi sang phải
-                for (int x = centerX + 4; x <= 25; x++) {
-                    int colSum = 0;
-                    for (int y = centerY - 3; y <= centerY + 3; y++) {
-                        if (((pixels[y * w + x] >> 16) & 0xFF) > 128) colSum++;
+                    // For '+' sign, quadrant pixels must be very low (typically < 18% of total white pixels)
+                    // and total white pixels must not be too high (indicates solid blobs rather than thin lines)
+                    if (quadrantWhite < totalWhite * 0.18f && totalWhite < 150) {
+                        return "+";
                     }
-                    if (colSum > 1) { goRight = true; break; }
-                }
-
-                if (goUp && goDown && goLeft && goRight) {
-                    return "+";
                 }
             }
         }

@@ -324,87 +324,45 @@ public class MainActivity extends AppCompatActivity {
                 DigitClassifier.PredictionResult result;
                 Bitmap debugBitmap = null;
 
-                if (true) {
-                    java.util.List<FractionParser.SegmentedSymbol> symbols = ImageProcessor.segmentImage(bitmap);
-                    if (symbols.isEmpty()) {
-                        result = digitClassifier.predict(bitmap);
-                        debugBitmap = ImageProcessor.getLastPreprocessedBitmap();
-                    } else {
-                        java.util.List<DrawActivity.ExpressionToken> tokens = FractionParser.parseLayout(
-                                symbols, digitClassifier, false, true, 64f
-                        );
-
-                        boolean hasMathOperator = false;
-                        for (DrawActivity.ExpressionToken t : tokens) {
-                            if (t.isOperator) {
-                                hasMathOperator = true;
-                                break;
-                            }
-                        }
-
-                        java.util.List<DrawActivity.ExpressionToken> finalTokens = tokens;
-                        if (hasMathOperator) {
-                            finalTokens = DrawActivity.correctExpression(tokens);
-                        }
-
-                        StringBuilder exprBuilder = new StringBuilder();
-                        float totalConfidence = 0;
-                        int digitCount = 0;
-
-                        for (DrawActivity.ExpressionToken t : finalTokens) {
-                            if (t.isOperator) {
-                                if (t.text.equals("*")) {
-                                    exprBuilder.append(" x ");
-                                } else if (t.text.equals("/")) {
-                                    exprBuilder.append("/");
-                                } else {
-                                    exprBuilder.append(" ").append(t.text).append(" ");
-                                }
-                            } else {
-                                exprBuilder.append(t.text);
-                                totalConfidence += t.confidence;
-                                digitCount++;
-                            }
-                        }
-
-                        float avgConfidence = digitCount > 0 ? (totalConfidence / digitCount) : 100f;
-                        String finalRawExpr = exprBuilder.toString().replaceAll("\\s+", " ").trim();
-
-                        String finalLabel = finalRawExpr;
-                        if (hasMathOperator) {
-                            String cleanExpr = finalRawExpr.replace("x", "*").replace(":", "/").replaceAll("\\s+", "");
-                            String exprToSolve = cleanExpr.split("=")[0];
-                            try {
-                                double solution = MathParser.eval(exprToSolve);
-                                String mathResult;
-                                if (solution == (long) solution) {
-                                    mathResult = String.valueOf((long) solution);
-                                } else {
-                                    mathResult = String.format(Locale.US, "%.2f", solution);
-                                }
-                                if (!finalRawExpr.contains("=")) {
-                                    finalLabel = finalRawExpr + " = " + mathResult;
-                                } else {
-                                    finalLabel = finalRawExpr.split("=")[0].trim() + " = " + mathResult;
-                                }
-                            } catch (Exception ex) {
-                                // Silently fallback: do not append " = Err" if evaluation fails
-                                finalLabel = finalRawExpr;
-                            }
-                        }
-
-                        final String solvedLabel = finalLabel;
-                        final float solvedConfidence = avgConfidence;
-
-                        DigitClassifier.PredictionItem[] topK = new DigitClassifier.PredictionItem[3];
-                        topK[0] = new DigitClassifier.PredictionItem(solvedLabel, solvedConfidence);
-                        topK[1] = new DigitClassifier.PredictionItem("", 0f);
-                        topK[2] = new DigitClassifier.PredictionItem("", 0f);
-                        result = new DigitClassifier.PredictionResult(solvedLabel, solvedConfidence, topK);
-                    }
-                } else {
-                    result = digitClassifier.predict(bitmap);
+                java.util.List<FractionParser.SegmentedSymbol> symbols = ImageProcessor.segmentImage(bitmap);
+                if (symbols.isEmpty()) {
+                    result = digitClassifier.predict(bitmap, DigitClassifier.PredictionMode.ALL_CLASSES, false);
                     debugBitmap = ImageProcessor.getLastPreprocessedBitmap();
+                } else if (shouldClassifyWholeImageAsSingleDigit(symbols)) {
+                    result = digitClassifier.predict(bitmap, DigitClassifier.PredictionMode.ALL_CLASSES, false);
+                    debugBitmap = ImageProcessor.getLastPreprocessedBitmap();
+                } else if (symbols.size() == 1) {
+                    FractionParser.SegmentedSymbol sym = symbols.get(0);
+                    result = digitClassifier.predict(sym.bitmap, DigitClassifier.PredictionMode.ALL_CLASSES, true);
+                    debugBitmap = sym.bitmap;
+                } else {
+                    StringBuilder exprBuilder = new StringBuilder();
+                    float totalConfidence = 0;
+                    int digitCount = 0;
+
+                    java.util.Collections.sort(symbols, (s1, s2) -> Float.compare(s1.left, s2.left));
+                    for (FractionParser.SegmentedSymbol sym : symbols) {
+                        DigitClassifier.PredictionResult digitResult =
+                                digitClassifier.predict(sym.bitmap, DigitClassifier.PredictionMode.ALL_CLASSES, true);
+                        if (digitResult != null) {
+                            exprBuilder.append(digitResult.label);
+                            totalConfidence += digitResult.confidence;
+                            digitCount++;
+                        }
+                    }
+
+                    float avgConfidence = digitCount > 0 ? (totalConfidence / digitCount) : 100f;
+                    final String solvedLabel = exprBuilder.toString();
+                    final float solvedConfidence = avgConfidence;
+
+                    DigitClassifier.PredictionItem[] topK = new DigitClassifier.PredictionItem[3];
+                    topK[0] = new DigitClassifier.PredictionItem(solvedLabel, solvedConfidence);
+                    topK[1] = new DigitClassifier.PredictionItem("", 0f);
+                    topK[2] = new DigitClassifier.PredictionItem("", 0f);
+                    result = new DigitClassifier.PredictionResult(solvedLabel, solvedConfidence, topK);
+                    if (!symbols.isEmpty()) {
+                        debugBitmap = symbols.get(0).bitmap;
+                    }
                 }
 
                 final DigitClassifier.PredictionResult finalResult = result;
@@ -445,6 +403,49 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    static boolean shouldClassifyWholeImageAsSingleDigit(List<FractionParser.SegmentedSymbol> symbols) {
+        if (symbols == null || symbols.size() <= 1 || symbols.size() > 3) {
+            return false;
+        }
+
+        float minX = Float.MAX_VALUE;
+        float minY = Float.MAX_VALUE;
+        float maxX = -1f;
+        float maxY = -1f;
+        float totalWidth = 0f;
+        java.util.List<FractionParser.SegmentedSymbol> sorted = new java.util.ArrayList<>(symbols);
+        java.util.Collections.sort(sorted, (s1, s2) -> Float.compare(s1.left, s2.left));
+
+        for (FractionParser.SegmentedSymbol sym : sorted) {
+            minX = Math.min(minX, sym.left);
+            minY = Math.min(minY, sym.top);
+            maxX = Math.max(maxX, sym.right);
+            maxY = Math.max(maxY, sym.bottom);
+            totalWidth += sym.width();
+        }
+
+        float unionWidth = maxX - minX;
+        float unionHeight = Math.max(1f, maxY - minY);
+        if (unionWidth / unionHeight > 0.70f) {
+            return false;
+        }
+
+        float maxAllowedGap = Math.max(8f, unionHeight * 0.22f);
+        float totalGap = unionWidth - totalWidth;
+        if (totalGap > unionHeight * 0.18f) {
+            return false;
+        }
+
+        for (int i = 1; i < sorted.size(); i++) {
+            float gap = sorted.get(i).left - sorted.get(i - 1).right;
+            if (gap > maxAllowedGap) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private void displayResult(DigitClassifier.PredictionResult result) {
         tvResult.setText(result.label);
         tvConfidence.setText(String.format("%.1f%%", result.confidence));
@@ -456,14 +457,6 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout layoutTop = findViewById(R.id.layout_top_predictions);
         layoutTop.removeAllViews();
-
-        TextView header = new TextView(this);
-        header.setText(getString(R.string.main_top_predictions_title));
-        header.setTextColor(getColor(R.color.text_secondary));
-        header.setTextSize(14);
-        header.setTypeface(null, android.graphics.Typeface.BOLD);
-        header.setPadding(0, 0, 0, 16);
-        layoutTop.addView(header);
 
         for (DigitClassifier.PredictionItem item : result.topK) {
             if (item.label == null || item.label.isEmpty()) continue;
@@ -513,8 +506,23 @@ public class MainActivity extends AppCompatActivity {
                 Bitmap resized = Bitmap.createScaledBitmap(bitmap, 56, 56, true);
                 resized.compress(Bitmap.CompressFormat.PNG, 100, baos);
                 String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-                AppDatabase.getInstance(this).predictionDao()
-                        .insert(new PredictionEntity(base64, result, confidence, System.currentTimeMillis()));
+                PredictionEntity entity = new PredictionEntity(base64, result, confidence, System.currentTimeMillis());
+                AppDatabase.getInstance(this).predictionDao().insert(entity);
+
+                boolean isSyncEnabled = getSharedPreferences("AI_CONFIG", MODE_PRIVATE).getBoolean("firebase_sync", false);
+                if (isSyncEnabled && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    FirebaseSyncHelper.syncPrediction(this, entity, new FirebaseSyncHelper.OnSyncCompleteListener() {
+                        @Override
+                        public void onSuccess(String imageUrl) {
+                            Log.d(TAG, "Auto sync successful: " + imageUrl);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e(TAG, "Auto sync failed: " + e.getMessage());
+                        }
+                    });
+                }
             } catch (Exception e) {
                 Log.e(TAG, "Error saving prediction: " + e.getMessage());
             }

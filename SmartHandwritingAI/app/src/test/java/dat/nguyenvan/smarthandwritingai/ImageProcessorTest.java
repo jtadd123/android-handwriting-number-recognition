@@ -29,4 +29,41 @@ public class ImageProcessorTest {
         boolean flipped = ImageProcessor.isFlipped;
         assertTrue("isFlipped should be a valid boolean", flipped == true || flipped == false);
     }
+    @Test
+    public void bridgeSmallStrokeGapReconnectsBrokenNine() {
+        int width = 28;
+        int height = 28;
+        int[] pixels = new int[width * height];
+
+        pixels[8 * width + 14] = 255;
+        pixels[9 * width + 14] = 255;
+        pixels[10 * width + 15] = 255;
+        pixels[15 * width + 16] = 255;
+        pixels[16 * width + 16] = 255;
+
+        ImageProcessor.bridgeSmallStrokeGaps(pixels, width, height);
+
+        assertEquals(255, pixels[11 * width + 15]);
+        assertEquals(255, pixels[12 * width + 15]);
+        assertEquals(255, pixels[13 * width + 16]);
+        assertEquals(255, pixels[14 * width + 16]);
+    }
+
+    @Test
+    public void bridgeSmallStrokeGapDoesNotMergeSeparateCharacters() {
+        int width = 40;
+        int height = 28;
+        int[] pixels = new int[width * height];
+
+        pixels[10 * width + 6] = 255;
+        pixels[11 * width + 6] = 255;
+        pixels[10 * width + 28] = 255;
+        pixels[11 * width + 28] = 255;
+
+        ImageProcessor.bridgeSmallStrokeGaps(pixels, width, height);
+
+        for (int x = 7; x < 28; x++) {
+            assertEquals(0, pixels[10 * width + x]);
+        }
+    }
 }
