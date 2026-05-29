@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.ml.modeldownloader)
     implementation(libs.material)
     implementation(libs.cardview)
     implementation(libs.recyclerview)

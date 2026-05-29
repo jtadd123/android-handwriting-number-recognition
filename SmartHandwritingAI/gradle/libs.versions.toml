@@ -39,6 +39,7 @@ firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+firebase-ml-modeldownloader = { group = "com.google.firebase", name = "firebase-ml-modeldownloader" }
 mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
 lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
 ucrop = { group = "com.github.yalantis", name = "ucrop", version.ref = "ucrop" }

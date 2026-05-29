@@ -7,6 +7,11 @@ import android.util.Log;
 
 import org.tensorflow.lite.Interpreter;
 
+import com.google.firebase.ml.modeldownloader.CustomModel;
+import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
+import com.google.firebase.ml.modeldownloader.DownloadType;
+import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -43,10 +48,15 @@ public class DigitClassifier {
 
     public DigitClassifier(Context context) {
         try {
+            // Bước 1: Khởi tạo mô hình mặc định từ assets để chạy offline (Fallback)
             initializeInterpreter(context);
             isInitialized = true;
+            Log.d(TAG, "Đã khởi tạo mô hình fallback thành công từ assets.");
+            
+            // Bước 2: Bất đồng bộ kiểm tra và tải mô hình mới từ Firebase ML Cloud
+            checkForModelUpdate(context);
         } catch (Throwable e) {
-            Log.e(TAG, "Lỗi khi load mô hình: " + e.getMessage());
+            Log.e(TAG, "Lỗi khi load mô hình fallback: " + e.getMessage());
         }
     }
 
@@ -64,6 +74,41 @@ public class DigitClassifier {
         long startOffset = fileDescriptor.getStartOffset();
         long declaredLength = fileDescriptor.getDeclaredLength();
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+    }
+
+    private void checkForModelUpdate(Context context) {
+        CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
+                .build(); // Tải qua bất kỳ mạng nào để kiểm tra nhanh
+
+        Log.d(TAG, "Đang kiểm tra cập nhật mô hình AI từ Firebase ML Cloud...");
+        FirebaseModelDownloader.getInstance()
+                .getModel("HandwritingModel", DownloadType.LATEST_MODEL, conditions)
+                .addOnSuccessListener(customModel -> {
+                    java.io.File modelFile = customModel.getFile();
+                    if (modelFile != null) {
+                        Log.d(TAG, "Đã tải thành công mô hình từ Firebase ML: " + modelFile.getAbsolutePath());
+                        try {
+                            Interpreter.Options options = new Interpreter.Options();
+                            options.setNumThreads(4);
+                            Interpreter newInterpreter = new Interpreter(modelFile, options);
+
+                            // Đồng bộ hóa để thay thế interpreter cũ
+                            synchronized (this) {
+                                if (interpreter != null) {
+                                    interpreter.close();
+                                }
+                                interpreter = newInterpreter;
+                                isInitialized = true;
+                            }
+                            Log.d(TAG, "Đã cập nhật và nạp thành công mô hình AI mới từ Firebase Cloud!");
+                        } catch (Exception e) {
+                            Log.e(TAG, "Lỗi nạp mô hình đã tải từ Firebase: " + e.getMessage());
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Không thể tải mô hình từ Firebase ML: " + e.getMessage() + ". Tiếp tục sử dụng mô hình fallback.");
+                });
     }
 
     public PredictionResult predict(Bitmap bitmap) {
@@ -90,7 +135,13 @@ public class DigitClassifier {
         float[] inputPixels = readInputPixels(inputBuffer);
         float[][] output = new float[1][NUM_CLASSES];
 
-        interpreter.run(inputBuffer, output);
+        synchronized (this) {
+            if (interpreter != null) {
+                interpreter.run(inputBuffer, output);
+            } else {
+                return null;
+            }
+        }
 
         // Debug: Log tensor info and top predictions
         Log.d(TAG, "[DEBUG] Input buffer size: " + inputBuffer.capacity() + " bytes");
@@ -407,8 +458,11 @@ public class DigitClassifier {
     }
 
     public void close() {
-        if (interpreter != null) {
-            interpreter.close();
+        synchronized (this) {
+            if (interpreter != null) {
+                interpreter.close();
+                interpreter = null;
+            }
         }
     }
 
