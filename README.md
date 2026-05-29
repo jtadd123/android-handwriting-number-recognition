@@ -1,6 +1,6 @@
 # ✍️ SmartHandwritingAI
 
-Ứng dụng Android nhận diện chữ viết tay thông minh sử dụng **TensorFlow Lite** và **EMNIST Dataset** — hỗ trợ nhận dạng số (0–9) và chữ cái (A–Z), giải phép tính viết tay, đồng bộ dữ liệu qua **Firebase**.
+Ứng dụng Android nhận diện chữ viết tay thông minh sử dụng **TensorFlow Lite** và **EMNIST Dataset** — hỗ trợ nhận dạng số (0–9) và chữ cái (A–Z), giải phép tính viết tay, đồng bộ dữ liệu qua **Firebase Storage & Firestore**, tích hợp **GitHub Actions CI/CD** và **Firebase ML (Model Downloader)**.
 
 <p align="center">
   <img src="Images/animation1.jpg" alt="Onboarding 1" width="200">
@@ -14,22 +14,21 @@
 
 **SmartHandwritingAI** là ứng dụng Android được xây dựng bằng Java, tích hợp mô hình AI (CNN) được huấn luyện trên dataset EMNIST để nhận dạng **36 ký tự** (0–9, A–Z) từ chữ viết tay. Ứng dụng hỗ trợ nhiều phương thức nhập liệu: vẽ tay trực tiếp, chụp ảnh từ camera, hoặc chọn ảnh từ thư viện.
 
-### ✨ Điểm nổi bật
+### ✨ Điểm nổi bật (MLOps & AI DevOps)
 
-- 🤖 **AI nhận dạng realtime** — Nhận diện ngay khi bạn vẽ xong
-- 🧮 **Giải toán AI** — Vẽ biểu thức toán học, AI tự tính kết quả
-- 📸 **Camera thông minh** — Chụp ảnh + crop tự động với UCrop
-- 🔊 **Text-to-Speech** — Đọc kết quả bằng giọng nói
-- 🌙 **Dark Mode** — Giao diện tối hiện đại
-- 🌐 **Đa ngôn ngữ** — Tiếng Việt & Tiếng Anh
-- ☁️ **Firebase Cloud Sync** — Đồng bộ lịch sử lên đám mây
-- 💾 **Room Database** — Lưu trữ lịch sử offline
+- 🤖 **AI nhận dạng realtime** — Nhận diện ngay khi bạn vẽ xong (debounce 500ms).
+- 🧮 **Giải toán AI** — Vẽ biểu thức toán học (bao gồm phân số lồng nhau), AI tự tính kết quả và tự sửa lỗi logic ngữ cảnh.
+- 🔄 **Cập nhật mô hình từ xa (OTA)** — Tích hợp **Firebase ML Model Downloader** giúp cập nhật mô hình AI ngầm thời gian chạy không cần build lại app.
+- 🚀 **Tự động hóa CI/CD** — Cấu hình **GitHub Actions** tự động chạy kiểm thử và build đóng gói APK cài đặt khi push code.
+- 📸 **Camera thông minh** — Chụp ảnh + crop tự động với UCrop.
+- 💾 **Room Database & Firebase Cloud** — Lưu trữ cục bộ bằng SQLite (Room) và đồng bộ đám mây bằng **Cloud Firestore** & **Firebase Storage**.
+- 🔊 **Text-to-Speech** & **Dark Mode** — Đọc kết quả bằng giọng nói và tối ưu giao diện tối hiện đại.
 
 ---
 
 ## 📱 Ảnh Giao Diện
 
-### Đăng Nhập
+### Đăng Nhập & Đăng Ký
 
 <table>
   <tr>
@@ -99,64 +98,31 @@
 ## 🚀 Chức Năng Chi Tiết
 
 ### 1. 🏠 Trang Chủ — Nhận Dạng Từ Ảnh
-- Chụp ảnh trực tiếp từ **Camera**
-- Chọn ảnh từ **Thư Viện**
-- Crop & xoay ảnh tự động bằng **UCrop**
-- Hiển thị:
-  - Ảnh gốc đã crop
-  - **AI Input** — Ảnh 28×28px mà model thực sự nhận
-  - Kết quả nhận dạng + độ tự tin
-  - **Top 3 dự đoán** với biểu đồ confidence
-- Đọc kết quả bằng giọng nói (**TTS**)
-- Phản hồi thông minh theo chất lượng ảnh
+- Chụp ảnh trực tiếp từ **Camera** hoặc chọn ảnh từ **Thư Viện**.
+- Crop & xoay ảnh tự động bằng **UCrop**.
+- Hiển thị ảnh gốc đã crop & **AI Input** (ảnh 28×28px mà model nhìn thấy).
+- Hiển thị kết quả nhận dạng + **Top 3 dự đoán** kèm biểu đồ trực quan (**MPAndroidChart**).
 
 ### 2. ✏️ Vẽ Tay — DrawActivity
-- Canvas vẽ tay với tùy chỉnh **màu sắc** và **cỡ nét** bút
+- Canvas vẽ tay với tùy chỉnh **màu sắc** và **cỡ nét** bút kèm Undo/Redo.
 - Hai chế độ:
-  - **Nhận Dạng Tự Do** — Vẽ từng ký tự, AI nhận diện realtime
-  - **Giải Toán AI** — Vẽ biểu thức (VD: `2 + 3 =`), AI phân tách số và toán tử rồi tính kết quả
-- Hỗ trợ **Xoay 90°** và **Lật Gương** ảnh vẽ
-- Undo / Redo
-- Phản hồi AI đánh giá chất lượng chữ viết
-- Lưu kết quả vào lịch sử
+  - **Nhận Dạng Tự Do** — Vẽ từng ký tự, AI nhận diện realtime (debounce 500ms).
+  - **Giải Toán AI** — Vẽ biểu thức, tự phân tách nét bằng BFS, giải toán phân số lồng nhau và tự sửa lỗi logic ngữ cảnh AI (<80% confidence).
 
 ### 3. 📋 Lịch Sử — HistoryActivity
-- Danh sách tất cả kết quả nhận dạng
-- **Tìm kiếm** lịch sử
-- Lọc theo **Tất cả** / **Yêu thích**
-- Đánh dấu ⭐ yêu thích
-- Xóa từng mục hoặc xóa tất cả
-- Đồng bộ lên Firebase (**Cloud Sync**)
+- Lưu offline bằng Room DB, hỗ trợ tìm kiếm, đánh dấu yêu thích và vuốt ngang (swipe) để xóa.
+- Đồng bộ dữ liệu lên Firebase (**Cloud Storage** cho ảnh và **Cloud Firestore** cho text/metadata).
 
 ### 4. ⚙️ Cài Đặt — SettingsActivity
-| Tính năng | Mô tả |
-|---|---|
-| **Ngưỡng độ tin cậy** | Slider điều chỉnh ngưỡng confidence (0–100%) |
-| **Text-to-Speech** | Bật/tắt đọc kết quả bằng giọng nói |
-| **Dark Mode** | Chế độ tối / sáng |
-| **Ngôn ngữ** | Chuyển đổi Tiếng Việt ↔ Tiếng Anh |
-| **Đồng bộ Firebase** | Sao lưu lịch sử lên Cloud |
-| **Xóa dữ liệu** | Xóa toàn bộ lịch sử cục bộ |
-| **Tài khoản** | Đăng nhập / Đăng ký / Đăng xuất |
-
-### 5. 🔐 Đăng Nhập — LoginActivity
-- Đăng nhập / Đăng ký bằng **Username + Password**
-- Hỗ trợ chế độ **Offline** (bỏ qua đăng nhập)
-- Lưu trữ tài khoản trên Firebase Realtime Database
-- Mã hóa mật khẩu bảo mật
-
-### 6. 🎬 Onboarding
-- 3 màn hình giới thiệu tính năng với **Lottie Animation**
-- Chỉ hiển thị lần đầu sử dụng
+- Điều chỉnh ngưỡng confidence (0–100%).
+- Bật/tắt đọc kết quả giọng nói (TTS), Dark Mode và cấu hình ngôn ngữ (Anh/Việt).
 
 ---
 
-## 🧠 Mô Hình AI
+## 🧠 Quy Trình Huấn Luyện & Mô Hình AI
 
 ### Kiến Trúc CNN
-
 Mô hình được huấn luyện trên **EMNIST Dataset** (digits + letters) với kiến trúc CNN:
-
 ```
 Input (28×28×1)
    ↓
@@ -171,74 +137,66 @@ Dense(256) → BatchNorm → Dropout(0.5)
 Dense(36, softmax) → Output
 ```
 
-### Thông Số
+### So Sánh Hiệu Năng Thực Nghiệm (Float32 vs. Float16 Quantized)
 
-| Thông số | Giá trị |
-|---|---|
-| **Input** | 28 × 28 × 1 (grayscale) |
-| **Output** | 36 classes (0–9, A–Z) |
-| **Dataset** | EMNIST Digits + Letters |
-| **Optimizer** | Adam (lr=0.001) |
-| **Epochs** | 30 (EarlyStopping) |
-| **Format** | TensorFlow Lite (float16 quantized) |
-| **Kích thước model** | ~655 KB |
-
-### Xử Lý Ảnh Đầu Vào
-
-1. Chuyển ảnh sang **grayscale**
-2. Phát hiện & crop vùng chứa ký tự (**bounding box**)
-3. Thêm padding để giữ tỷ lệ
-4. Resize về **28×28 px**
-5. Đảo ngược nền (nền đen, nét trắng — giống EMNIST)
-6. Chuẩn hóa pixel [0, 1]
+#### 1. Mô hình EMNIST (36 lớp chữ + số)
+* **Kích thước mô hình:** Giảm từ **3.2 MB** (Float32) xuống còn **~655 KB** (Float16) ➡️ **Tiết kiệm 80% dung lượng**.
+* **Độ trễ suy luận (Latency):** Giảm xuống còn **~18 ms** trên thiết bị di động, phản hồi thời gian thực.
+* **Độ chính xác (Accuracy):** Duy trì ở mức **86.22%** (chỉ giảm cực nhỏ ~0.32% so với Float32).
 
 ---
 
-## 🏗️ Kiến Trúc Hệ Thống
+## 🏗️ Sơ Đồ Kiến Trúc Hệ Thống
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                   SmartHandwritingAI                 │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  ┌──────────┐  ┌───────────┐  ┌──────────────────┐  │
-│  │  Camera  │  │  Gallery  │  │  Drawing Canvas  │  │
-│  └────┬─────┘  └─────┬─────┘  └────────┬─────────┘  │
-│       │              │                  │            │
-│       └──────────┬───┘                  │            │
-│                  ▼                      ▼            │
-│         ┌──────────────┐      ┌─────────────────┐   │
-│         │  UCrop       │      │  DrawingView    │   │
-│         │  (Crop/Rotate│      │  (Canvas)       │   │
-│         └──────┬───────┘      └────────┬────────┘   │
-│                │                       │            │
-│                └───────────┬───────────┘            │
-│                            ▼                        │
-│                  ┌──────────────────┐               │
-│                  │ ImageProcessor   │               │
-│                  │ (Preprocessing)  │               │
-│                  └────────┬─────────┘               │
-│                           ▼                         │
-│                  ┌──────────────────┐               │
-│                  │ DigitClassifier  │               │
-│                  │ (TFLite Model)   │               │
-│                  └────────┬─────────┘               │
-│                           ▼                         │
-│              ┌────────────┴─────────────┐           │
-│              ▼                          ▼           │
-│    ┌──────────────────┐     ┌────────────────────┐  │
-│    │  MathParser      │     │  OperatorDetector  │  │
-│    │  FractionParser  │     │  (Math Mode)       │  │
-│    └──────────────────┘     └────────────────────┘  │
-│                                                     │
-│  ┌─────────────────────────────────────────────────┐│
-│  │                Data Layer                       ││
-│  │  ┌──────────────┐    ┌───────────────────────┐  ││
-│  │  │ Room Database │    │ Firebase RTDB         │  ││
-│  │  │ (Offline)     │◄──►│ (Cloud Sync)          │  ││
-│  │  └──────────────┘    └───────────────────────┘  ││
-│  └─────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────┐  │
+│                   SmartHandwritingAI                 │  │
+├─────────────────────────────────────────────────────┤  │
+│                                                     │  │
+│  ┌──────────┐  ┌───────────┐  ┌──────────────────┐  │  │
+│  │  Camera  │  │  Gallery  │  │  Drawing Canvas  │  │  │
+│  └────┬─────┘  └─────┬─────┘  └────────┬─────────┘  │  │
+│       │              │                  │            │  │
+│       └──────────┬───┘                  │            │  │
+│                  ▼                      ▼            │  │
+│         ┌──────────────┐      ┌─────────────────┐   │  │
+│         │  UCrop       │      │  DrawingView    │   │  │
+│         │  (Crop/Rotate│      │  (Canvas)       │   │  │
+│         └──────┬───────┘      └────────┬────────┘   │  │
+│                │                       │            │  │
+│                └───────────┬───────────┘            │  │
+│                            ▼                        │  │
+│                  ┌──────────────────┐               │  │
+│                  │ ImageProcessor   │               │  │
+│                  │ (Preprocessing)  │               │  │
+│                  └────────┬─────────┘               │  │
+│                           ▼                         │  │
+│                  ┌──────────────────┐               │  │
+│                  │ DigitClassifier  │               │  │
+│                  │ (TFLite Model)   │               │  │
+│                  └────────┬─────────┘               │  │
+│                           ▼                         │  │
+│              ┌────────────┴─────────────┐           │  │
+│              ▼                          ▼           │  │
+│    ┌──────────────────┐     ┌────────────────────┐  │  │
+│    │  MathParser      │     │  OperatorDetector  │  │  │
+│    │  FractionParser  │     │  (Math Mode)       │  │  │
+│    └──────────────────┘     └────────────────────┘  │  │
+│                                                     │  │
+│  ┌─────────────────────────────────────────────────┐│  │
+│  │                Data & MLOps Layer               ││  │
+│  │  ┌──────────────┐    ┌───────────────────────┐  ││  │
+│  │  │ Room Database │    │ Firebase Cloud Storage│  ││  │
+│  │  │ (Offline)     │◄──►│ & Cloud Firestore     │  ││  │
+│  │  └──────────────┘    └───────────────────────┘  ││  │
+│  │                      ┌───────────────────────┐  ││  │
+│  │                      │ Firebase ML           │  ││  │
+│  │                      │ (Model Downloader)    │  ││  │
+│  │                      └───────────────────────┘  ││  │
+│  └─────────────────────────────────────────────────┘│  │
+└─────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -247,18 +205,18 @@ Dense(36, softmax) → Output
 
 | Công nghệ | Mục đích |
 |---|---|
-| **Java** | Ngôn ngữ chính phát triển Android App |
-| **TensorFlow Lite** | Inference mô hình AI trên thiết bị |
-| **EMNIST Dataset** | Huấn luyện mô hình nhận dạng 36 ký tự |
-| **Firebase Realtime Database** | Đồng bộ lịch sử & tài khoản người dùng |
-| **Firebase Auth** | Xác thực người dùng |
+| **Java (JDK 11)** | Ngôn ngữ chính phát triển Android App |
+| **TensorFlow Lite** | Inference mô hình AI offline trên thiết bị |
+| **Firebase ML Downloader** | Cập nhật mô hình AI động từ xa (OTA) |
+| **GitHub Actions** | Xây dựng pipeline tích hợp liên tục CI/CD |
+| **Cloud Firestore** | Lưu trữ metadata lịch sử đồng bộ đám mây |
+| **Firebase Storage** | Lưu trữ tệp hình ảnh nét vẽ đám mây |
+| **Firebase Auth** | Xác thực đăng nhập & đăng ký người dùng |
 | **Room Database** | Lưu trữ lịch sử offline cục bộ |
 | **UCrop** | Crop & xoay ảnh trước khi nhận dạng |
 | **MPAndroidChart** | Biểu đồ Top 3 predictions |
 | **Lottie Animation** | Hoạt ảnh Onboarding & Splash |
 | **Material Design 3** | Giao diện hiện đại với Dark Mode |
-| **Text-to-Speech** | Đọc kết quả bằng giọng nói |
-| **TensorFlow / Keras** | Huấn luyện model CNN (Python) |
 
 ---
 
@@ -266,6 +224,9 @@ Dense(36, softmax) → Output
 
 ```
 SmartHandwritingAI/
+├── .github/
+│   └── workflows/
+│       └── android_ci.yml                   # Cấu hình GitHub Actions CI/CD
 ├── app/
 │   ├── src/main/
 │   │   ├── java/dat/nguyenvan/smarthandwritingai/
@@ -276,13 +237,13 @@ SmartHandwritingAI/
 │   │   │   ├── DrawActivity.java            # Vẽ tay & Giải toán
 │   │   │   ├── HistoryActivity.java         # Lịch sử dự đoán
 │   │   │   ├── SettingsActivity.java        # Cài đặt ứng dụng
-│   │   │   ├── DigitClassifier.java         # TFLite model inference
+│   │   │   ├── DigitClassifier.java         # TFLite model inference & Firebase ML Downloader
 │   │   │   ├── ImageProcessor.java          # Tiền xử lý ảnh cho AI
 │   │   │   ├── DrawingView.java             # Custom View canvas vẽ tay
 │   │   │   ├── MathParser.java              # Parser biểu thức toán học
 │   │   │   ├── OperatorDetector.java        # Phát hiện toán tử (+, -, ×, ÷, =)
 │   │   │   ├── FractionParser.java          # Xử lý phân số
-│   │   │   ├── FirebaseSyncHelper.java      # Đồng bộ Firebase
+│   │   │   ├── FirebaseSyncHelper.java      # Đồng bộ Firebase Storage & Firestore
 │   │   │   ├── AppDatabase.java             # Room Database config
 │   │   │   ├── PredictionEntity.java        # Entity lịch sử dự đoán
 │   │   │   ├── PredictionDao.java           # Data Access Object
@@ -290,20 +251,7 @@ SmartHandwritingAI/
 │   │   │   ├── OnboardingAdapter.java       # ViewPager adapter
 │   │   │   └── UIUtils.java                 # Utility functions
 │   │   ├── assets/
-│   │   │   └── model.tflite                 # Mô hình AI (~655 KB)
-│   │   └── res/
-│   │       ├── layout/                      # XML layouts
-│   │       ├── values/                      # Strings (Tiếng Việt)
-│   │       ├── values-en/                   # Strings (English)
-│   │       ├── values-night/                # Dark mode colors
-│   │       ├── raw/                         # Lottie animations
-│   │       └── drawable/                    # Icons & drawables
-│   └── google-services.json                 # Firebase config
-├── colab/
-│   └── train_mnist_model.py                 # Script train model (Colab)
-├── train_emnist_model.py                    # Script train EMNIST 36 classes
-├── build.gradle.kts                         # Root Gradle config
-└── settings.gradle.kts                      # Gradle settings
+│   │   │   └── model.tflite                 # Mô hình AI mặc định (~655 KB)
 ```
 
 ---
@@ -311,148 +259,29 @@ SmartHandwritingAI/
 ## ⚡ Cài Đặt & Chạy
 
 ### Yêu Cầu
-
 - **Android Studio** Ladybug (2024.2) trở lên
 - **JDK 11+**
-- **Android SDK 36** (compileSdk)
-- **Min SDK 24** (Android 7.0+)
-- Tài khoản **Firebase** (đã cấu hình Realtime Database & Auth)
+- **Android SDK 36**
+- Tài khoản **Firebase**
 
 ### Bước 1: Clone Repository
-
 ```bash
 git clone https://github.com/jtadd123/android-handwriting-number-recognition.git
-cd android-handwriting-number-recognition/SmartHandwritingAI
 ```
 
 ### Bước 2: Cấu hình Firebase
-
 1. Tạo project trên [Firebase Console](https://console.firebase.google.com/)
-2. Thêm Android app với package name: `dat.nguyenvan.smarthandwritingai`
-3. Tải file `google-services.json` và đặt vào thư mục `app/`
-4. Bật **Realtime Database** và **Authentication** trên Firebase Console
+2. Tải file `google-services.json` đặt vào thư mục `app/`
+3. Kích hoạt **Authentication**, **Cloud Firestore** và **Firebase Storage**
+4. Trong mục **AI services > Machine Learning**, chọn tab **Custom**, tạo mô hình mới tên là **`HandwritingModel`** và upload file `model.tflite` của bạn lên ở trạng thái **Published**.
 
 ### Bước 3: Build & Run
-
 1. Mở thư mục `SmartHandwritingAI` bằng **Android Studio**
-2. Đợi Gradle Sync hoàn tất
-3. Kết nối thiết bị Android hoặc khởi động Emulator
-4. Nhấn ▶️ **Run** để build và cài đặt
-
----
-
-## 🧪 Huấn Luyện Model
-
-### Chạy trên Google Colab
-
-1. Upload file `colab/train_mnist_model.py` lên Google Colab
-2. Chạy toàn bộ script
-3. Tải file `model.tflite` về
-
-### Chạy Local
-
-```bash
-# Cài đặt thư viện
-pip install tensorflow tensorflow-datasets numpy matplotlib scikit-learn seaborn
-
-# Chạy training
-python train_emnist_model.py
-```
-
-### Sau khi train xong
-
-1. Copy file `model.tflite` vào `SmartHandwritingAI/app/src/main/assets/`
-2. Đảm bảo `NUM_CLASSES = 36` trong `DigitClassifier.java`
-3. Labels theo thứ tự: `0, 1, 2, ..., 9, A, B, C, ..., Z`
-
----
-
-## 📊 Cấu Trúc Firebase Realtime Database
-
-```
-smarthandwriting/
-├── users/
-│   └── {username}/
-│       ├── email: "..."
-│       ├── password: "..." (hashed)
-│       └── predictions/
-│           └── {prediction_id}/
-│               ├── result: "9"
-│               ├── confidence: 96.8
-│               ├── timestamp: 1716...
-│               ├── imageBase64: "..."
-│               └── isFavorite: true
-```
-
----
-
-## 🔧 Cấu Hình Gradle
-
-```kotlin
-// app/build.gradle.kts
-android {
-    namespace = "dat.nguyenvan.smarthandwritingai"
-    compileSdk = 36
-    minSdk = 24
-    targetSdk = 36
-}
-
-dependencies {
-    // TensorFlow Lite
-    implementation(libs.tflite)
-
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.database)
-    implementation(libs.firebase.auth)
-
-    // Room Database
-    implementation(libs.room.runtime)
-    annotationProcessor(libs.room.compiler)
-
-    // UI Libraries
-    implementation(libs.mpandroidchart)  // Biểu đồ
-    implementation(libs.lottie)          // Animation
-    implementation(libs.ucrop)           // Crop ảnh
-    implementation(libs.material)        // Material Design
-}
-```
-
----
-
-## 📝 Ghi Chú
-
-- Ứng dụng hoạt động **hoàn toàn offline** — không cần internet để nhận dạng chữ viết tay
-- Firebase chỉ cần thiết cho tính năng **đồng bộ Cloud** và **đăng nhập**
-- Model TFLite chạy **on-device**, đảm bảo tốc độ và quyền riêng tư
-- Hỗ trợ **Dark Mode** tự động theo theme hệ thống
-- Đa ngôn ngữ: Tiếng Việt (mặc định) & Tiếng Anh
-
----
-
-## 🗂️ Trạng Thái Project
-
-| Module | Trạng thái |
-|---|---|
-| Mô hình AI (TFLite) | ✅ Hoàn thành |
-| Nhận dạng từ Camera/Gallery | ✅ Hoàn thành |
-| Vẽ tay & nhận dạng realtime | ✅ Hoàn thành |
-| Giải toán AI | ✅ Hoàn thành |
-| Lịch sử dự đoán (Room DB) | ✅ Hoàn thành |
-| Firebase Cloud Sync | ✅ Hoàn thành |
-| Đăng nhập / Đăng ký | ✅ Hoàn thành |
-| Dark Mode & Đa ngôn ngữ | ✅ Hoàn thành |
-| Onboarding & Animations | ✅ Hoàn thành |
-| Text-to-Speech | ✅ Hoàn thành |
+2. Đợi Gradle Sync và chạy app qua nút ▶️ **Run**.
 
 ---
 
 ## 👨‍💻 Tác Giả
 
-**Nguyễn Văn Đạt**
-
----
-
-## 📄 License
-
-Dự án này được phát triển cho mục đích học tập và nghiên cứu.
+**Nguyễn Văn Đạt** - MSSV: 65130430  
+GVHD: Mai Cường Thọ
