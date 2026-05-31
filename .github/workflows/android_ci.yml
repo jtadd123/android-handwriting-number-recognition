@@ -31,8 +31,7 @@ jobs:
       run: |
         if [ -z "$GOOGLE_SERVICES_JSON" ]; then
           echo "GOOGLE_SERVICES_JSON secret is not set. Creating a mock google-services.json..."
-          cat <<EOF > SmartHandwritingAI/app/google-services.json
-          {
+          echo '{
             "project_info": {
               "project_number": "123456789",
               "project_id": "mock-project-id",
@@ -60,8 +59,7 @@ jobs:
               }
             ],
             "configuration_version": "1"
-          }
-          EOF
+          }' > SmartHandwritingAI/app/google-services.json
         else
           echo "Creating google-services.json from secret..."
           echo "$GOOGLE_SERVICES_JSON" > SmartHandwritingAI/app/google-services.json
