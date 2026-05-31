@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private View cardResult, layoutHomeOptions, layoutLoading, scanLine;
     private MaterialButton btnCamera, btnGallery, btnBack;
     private BottomNavigationView bottomNavigation;
+    private ImageButton btnSpeakResult;
 
 
     private DigitClassifier digitClassifier;
@@ -141,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         layoutLoading  = findViewById(R.id.layout_loading);
         scanLine       = findViewById(R.id.scan_line);
         bottomNavigation = findViewById(R.id.bottom_navigation);
+        btnSpeakResult = findViewById(R.id.btn_speak_result);
         executorService = Executors.newSingleThreadExecutor();
 
         // Auto-detect math mode is integrated directly.
@@ -181,9 +183,13 @@ public class MainActivity extends AppCompatActivity {
         btnGallery.setOnClickListener(v -> galleryLauncher.launch("image/*"));
         btnBack.setOnClickListener(v -> resetState());
 
-        ImageButton btnSpeakResult = findViewById(R.id.btn_speak_result);
         if (btnSpeakResult != null) {
             btnSpeakResult.setOnClickListener(v -> {
+                boolean ttsEnabled = getSharedPreferences("AI_CONFIG", MODE_PRIVATE).getBoolean("tts_enabled", true);
+                if (!ttsEnabled) {
+                    UIUtils.showWarningSnackbar(findViewById(android.R.id.content), getString(R.string.msg_tts_disabled));
+                    return;
+                }
                 String text = tvResult.getText().toString();
                 if (!text.equals("?") && tts != null) {
                     tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "btn_speak");
@@ -193,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigation() {
+        bottomNavigation.setItemIconTintList(null);
         bottomNavigation.setSelectedItemId(R.id.nav_home);
         bottomNavigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -225,6 +232,8 @@ public class MainActivity extends AppCompatActivity {
             bottomNavigation.setSelectedItemId(R.id.nav_home);
         }
 
+        updateTtsButtonState();
+
         if (getIntent().hasExtra("draw_result")) {
             String drawResult = getIntent().getStringExtra("draw_result");
             float drawConfidence = getIntent().getFloatExtra("draw_confidence", 0);
@@ -235,6 +244,19 @@ public class MainActivity extends AppCompatActivity {
                 tvResult.setText(drawResult);
                 tvConfidence.setText(String.format("%.1f%%", drawConfidence));
                 tvHint.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void updateTtsButtonState() {
+        if (btnSpeakResult != null) {
+            boolean ttsEnabled = getSharedPreferences("AI_CONFIG", MODE_PRIVATE).getBoolean("tts_enabled", true);
+            if (ttsEnabled) {
+                btnSpeakResult.setImageResource(R.drawable.ic_volume_up);
+                btnSpeakResult.setColorFilter(getColor(R.color.primary));
+            } else {
+                btnSpeakResult.setImageResource(R.drawable.ic_volume_off);
+                btnSpeakResult.setColorFilter(getColor(R.color.text_hint));
             }
         }
     }

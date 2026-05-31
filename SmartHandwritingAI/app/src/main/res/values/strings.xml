@@ -23,6 +23,8 @@
     <string name="btn_predict">Nhận Dạng</string>
     <string name="draw_hint">Dùng ngón tay vẽ một chữ số (0-9)</string>
     <string name="draw_empty">Vui lòng vẽ một số trước!</string>
+    <string name="tab_freeform">Nhận Dạng Tự Do</string>
+    <string name="tab_math">Giải Toán AI</string>
 
     
     <string name="title_history">Lịch Sử Dự Đoán</string>
@@ -76,7 +78,7 @@
     <string name="msg_history_cleared">Đã xóa toàn bộ lịch sử!</string>
     <string name="msg_logged_out">Đã đăng xuất</string>
     <string name="msg_tts_init_failed">Không thể khởi tạo TTS. Kiểm tra engine giọng nói trên thiết bị.</string>
-    <string name="msg_tts_disabled">Đã tắt giọng nói AI</string>
+    <string name="msg_tts_disabled">Đã tắt giọng nói</string>
     <string name="msg_tts_enabled_speak">Đã bật giọng nói</string>
 
 

@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Corner Brackets (Scan frame) -->
+    <path
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/nav_inactive"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M4,8V5C4,4.4 4.4,4 5,4H8 M16,4H19C19.6,4 20,4.4 20,5V8 M4,16V19C4,19.6 4.4,20 5,20H8 M16,20H19C19.6,20 20,19.6 20,19V16" />
+    <!-- Center AI Sparkle -->
+    <path
+        android:fillColor="@color/nav_inactive"
+        android:pathData="M12,8.5L12.7,10.9L15.1,11.6L12.7,12.3L12,14.7L11.3,12.3L8.9,11.6L11.3,10.9Z" />
+</vector>

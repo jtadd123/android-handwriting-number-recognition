@@ -328,7 +328,8 @@ public class DrawingView extends View {
             }
 
             if (minDistanceSq != Float.MAX_VALUE) {
-                float distanceThreshold = newPath.strokeWidth * 0.35f;
+                // Sử dụng ngưỡng khoảng cách từ tham số (threshold = strokeWidth * 0.75f) để gộp các nét vẽ
+                float distanceThreshold = Math.max(threshold, newPath.strokeWidth * 0.8f);
                 if (minDistanceSq <= (distanceThreshold * distanceThreshold)) {
                     return true;
                 }
@@ -381,10 +382,12 @@ public class DrawingView extends View {
             }
 
             double dist = Math.sqrt(dx * dx + dy * dy);
-            if (dx > 6f) {
+            float limitX = Math.max(8f, newPath.strokeWidth * 0.15f);
+            float limitDist = Math.max(96f, newPath.strokeWidth * 1.5f);
+            if (dx > limitX) {
                 return false;
             }
-            return dist <= 96f;
+            return dist <= limitDist;
         }
 
         public void merge(StrokeCluster other) {

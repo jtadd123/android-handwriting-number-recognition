@@ -33,22 +33,32 @@ public class SettingsActivity extends AppCompatActivity {
     private MaterialSwitch switchDarkMode;
     private ImageButton btnTtsToggle;
     private TextView tvTtsStatus;
+    private android.widget.LinearLayout settingsRootLayout;
 
     private TextToSpeech tts;
     private boolean isTtsReady = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
+        boolean isEnglish = prefs.getBoolean("isEnglish", false);
+        setLocaleTemp(isEnglish ? "en" : "vi");
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_OPEN, android.R.anim.fade_in, android.R.anim.fade_out);
+            overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_CLOSE, android.R.anim.fade_in, android.R.anim.fade_out);
+        } else {
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-
-        prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
 
         initViews();
         loadSettings();
     }
 
     private void initViews() {
+        settingsRootLayout = findViewById(R.id.settings_root_layout);
         seekbarThreshold = findViewById(R.id.seekbar_threshold);
         tvThresholdValue = findViewById(R.id.tv_threshold_value);
         switchFirebase = findViewById(R.id.switch_firebase);
@@ -212,9 +222,12 @@ public class SettingsActivity extends AppCompatActivity {
 
         switchLanguage.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("isEnglish", isChecked).apply();
-            AppCompatDelegate.setApplicationLocales(
-                androidx.core.os.LocaleListCompat.create(java.util.Locale.forLanguageTag(isChecked ? "en" : "vi"))
-            );
+            setLocaleTemp(isChecked ? "en" : "vi");
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+            finish();
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
         switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -239,6 +252,43 @@ public class SettingsActivity extends AppCompatActivity {
                 tvAccountEmail.setText(getString(R.string.setting_account_offline));
             }
         }
+    }
+
+    @Override
+    public void recreate() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_CLOSE, android.R.anim.fade_in, android.R.anim.fade_out);
+            overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_OPEN, android.R.anim.fade_in, android.R.anim.fade_out);
+        } else {
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
+        super.recreate();
+    }
+
+    private void setLocaleTemp(String langCode) {
+        Locale locale = new Locale(langCode);
+        Locale.setDefault(locale);
+        android.content.res.Resources resources = getResources();
+        android.content.res.Configuration config = resources.getConfiguration();
+        config.setLocale(locale);
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
+        
+        android.content.res.Resources appResources = getApplicationContext().getResources();
+        android.content.res.Configuration appConfig = appResources.getConfiguration();
+        appConfig.setLocale(locale);
+        appResources.updateConfiguration(appConfig, appResources.getDisplayMetrics());
+    }
+
+    @Override
+    public void finish() {
+        boolean isEnglish = prefs.getBoolean("isEnglish", false);
+        androidx.core.os.LocaleListCompat locales = androidx.core.os.LocaleListCompat.create(
+                java.util.Locale.forLanguageTag(isEnglish ? "en" : "vi")
+        );
+        if (!locales.equals(AppCompatDelegate.getApplicationLocales())) {
+            AppCompatDelegate.setApplicationLocales(locales);
+        }
+        super.finish();
     }
 
     @Override

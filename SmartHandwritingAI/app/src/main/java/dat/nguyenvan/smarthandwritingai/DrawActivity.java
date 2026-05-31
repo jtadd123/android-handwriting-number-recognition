@@ -12,6 +12,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -43,6 +44,7 @@ public class DrawActivity extends AppCompatActivity {
     private CardView cardDrawResult;
     private Button btnRotate, btnFlip;
     private View btnUndo, btnRedo;
+    private ImageButton btnSpeakDrawResult;
     private AppDatabase db;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private SharedPreferences prefs;
@@ -111,7 +113,8 @@ public class DrawActivity extends AppCompatActivity {
                     cardAiSuggestion.setVisibility(View.GONE);
                 }
                 hapticFeedback();
-                if (tts != null) {
+                boolean ttsEnabled = prefs.getBoolean("tts_enabled", true);
+                if (ttsEnabled && tts != null) {
                     String[] parts = lastCorrectedExpression.split("=", -1);
                     String cleanSpeak = (parts.length > 0 ? parts[0] : "").trim().replace("x", "nhân").replace(":", "chia");
                     tts.speak("Đã áp dụng biểu thức " + cleanSpeak, TextToSpeech.QUEUE_FLUSH, null, "apply_suggestion");
@@ -167,9 +170,14 @@ public class DrawActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
-        View btnSpeakResult = findViewById(R.id.btn_speak_draw_result);
-        if (btnSpeakResult != null) {
-            btnSpeakResult.setOnClickListener(v -> {
+        btnSpeakDrawResult = findViewById(R.id.btn_speak_draw_result);
+        if (btnSpeakDrawResult != null) {
+            btnSpeakDrawResult.setOnClickListener(v -> {
+                boolean ttsEnabled = prefs.getBoolean("tts_enabled", true);
+                if (!ttsEnabled) {
+                    UIUtils.showWarningSnackbar(findViewById(android.R.id.content), getString(R.string.msg_tts_disabled));
+                    return;
+                }
                 String text = tvDrawResult.getText().toString();
                 if (!text.equals("?") && tts != null) {
                     tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "btn_speak");
@@ -420,7 +428,8 @@ public class DrawActivity extends AppCompatActivity {
                         showAiFeedback(finalConfidence, true);
                         hapticFeedback();
 
-                        if (saveToHistory && tts != null) {
+                        boolean ttsEnabled = prefs.getBoolean("tts_enabled", true);
+                        if (saveToHistory && ttsEnabled && tts != null) {
                             String speak = getString(R.string.draw_tts_speak_format, finalLabel, finalConfidence);
                             tts.speak(speak, TextToSpeech.QUEUE_FLUSH, null, "draw_result");
                         }
@@ -723,7 +732,8 @@ public class DrawActivity extends AppCompatActivity {
                         hapticFeedback();
 
                         // Đọc kết quả qua TTS
-                        if (saveToHistory && tts != null) {
+                        boolean ttsEnabled = prefs.getBoolean("tts_enabled", true);
+                        if (saveToHistory && ttsEnabled && tts != null) {
                             String speakText;
                             if (finalRawSolveSuccess) {
                                 speakText = "Biểu thức có kết quả là " + finalRawMathResult;
@@ -874,6 +884,25 @@ public class DrawActivity extends AppCompatActivity {
             }
         }
         return result;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateTtsButtonState();
+    }
+
+    private void updateTtsButtonState() {
+        if (btnSpeakDrawResult != null) {
+            boolean ttsEnabled = prefs.getBoolean("tts_enabled", true);
+            if (ttsEnabled) {
+                btnSpeakDrawResult.setImageResource(R.drawable.ic_volume_up);
+                btnSpeakDrawResult.setColorFilter(getColor(R.color.primary));
+            } else {
+                btnSpeakDrawResult.setImageResource(R.drawable.ic_volume_off);
+                btnSpeakDrawResult.setColorFilter(getColor(R.color.text_hint));
+            }
+        }
     }
 
     @Override

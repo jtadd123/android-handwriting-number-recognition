@@ -1,0 +1,32 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Outer decorative circle -->
+    <path
+        android:pathData="M32,32m-28,0a28,28 0,1 1,56 0a28,28 0,1 1,-56 0"
+        android:strokeWidth="1"
+        android:strokeColor="#153B82F6" />
+        
+    <!-- Main Gallery Card Frame -->
+    <path
+        android:strokeWidth="2.5"
+        android:strokeColor="@color/text_hint"
+        android:pathData="M48,16H16C13.8,16 12,17.8 12,20V44C12,46.2 13.8,48 16,48H48C50.2,48 52,46.2 52,44V20C52,17.8 50.2,16 48,16Z" />
+        
+    <!-- Sun in Amber/Yellow -->
+    <path
+        android:fillColor="@color/warning"
+        android:pathData="M38,26m-3.5,0a3.5,3.5 0,1 1,7 0a3.5,3.5 0,1 1,-7 0" />
+    
+    <!-- Mountains in Indigo/Blue -->
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M16,44 L25,33 L33,41 L41,31 L48,44 Z" />
+        
+    <!-- AI Sparkle floating in top right in Success Green -->
+    <path
+        android:fillColor="@color/success"
+        android:pathData="M48,8L49.1,11.6L52.7,12.7L49.1,13.8L48,17.4L46.9,13.8L43.3,12.7L46.9,11.6Z" />
+</vector>

@@ -20,6 +20,8 @@
     <string name="btn_predict">Predict</string>
     <string name="draw_hint">Draw a digit (0-9)</string>
     <string name="draw_empty">Please draw first!</string>
+    <string name="tab_freeform">Freeform Mode</string>
+    <string name="tab_math">AI Math Solver</string>
     <string name="title_history">Prediction History</string>
     <string name="no_history">No history found</string>
     <string name="btn_clear_history">Clear All</string>

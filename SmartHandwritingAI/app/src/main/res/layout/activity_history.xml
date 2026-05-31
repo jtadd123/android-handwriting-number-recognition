@@ -140,7 +140,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@drawable/bg_bottom_nav"
-        app:itemIconTint="@color/bottom_nav_color"
+        app:itemIconTint="@null"
         app:itemTextColor="@color/bottom_nav_color"
         app:itemRippleColor="@color/nav_indicator"
         app:labelVisibilityMode="labeled"

@@ -100,10 +100,11 @@ public class OperatorDetector {
             if (intersects || centersVeryClose) {
                 float groupRatio = groupW / Math.max(1f, groupH);
                 if (groupRatio > 0.4f && groupRatio < 2.5f) {
-                    boolean vertical1 = r1.height() > r1.width() * 0.6f;
-                    boolean horizontal1 = r1.width() > r1.height() * 0.6f;
-                    boolean vertical2 = r2.height() > r2.width() * 0.6f;
-                    boolean horizontal2 = r2.width() > r2.height() * 0.6f;
+                    // Tăng độ nghiêm ngặt kiểm tra tỉ lệ khung nét (từ 0.6f lên 1.3f) để tránh nhận dạng nhầm số 4 vẽ bằng 2 nét
+                    boolean vertical1 = r1.height() > r1.width() * 1.3f;
+                    boolean horizontal1 = r1.width() > r1.height() * 1.3f;
+                    boolean vertical2 = r2.height() > r2.width() * 1.3f;
+                    boolean horizontal2 = r2.width() > r2.height() * 1.3f;
 
                     if ((vertical1 && horizontal2) || (horizontal1 && vertical2)) {
                         // Kiểm tra giao nhau gần tâm của cả hai nét (tránh nhận diện nhầm số 4, 7, 1 có móc)

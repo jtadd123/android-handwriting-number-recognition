@@ -82,6 +82,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
     }
 
     private void setupBottomNavigation() {
+        bottomNavigation.setItemIconTintList(null);
         bottomNavigation.setSelectedItemId(R.id.nav_history);
         bottomNavigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();

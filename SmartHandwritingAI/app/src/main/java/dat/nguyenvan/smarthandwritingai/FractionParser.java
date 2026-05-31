@@ -165,17 +165,18 @@ public class FractionParser {
             return new DrawActivity.ExpressionToken("/", true, 100f);
         }
 
-        // 1. Nhận dạng bằng Heuristics (Toán tử)
-        if (sym.paths != null) {
-            // Chế độ vẽ tay: Sử dụng OperatorDetector trực tiếp
-            String op = OperatorDetector.detectOperator(sym.paths, brushSize);
-            if (op != null) {
-                return new DrawActivity.ExpressionToken(op, true, 100f);
+        // 1. Nhận dạng bằng Heuristics (Toán tử) - chỉ chạy khi ở chế độ Giải Toán AI (isMathMode)
+        if (isMathMode) {
+            String op = null;
+            if (sym.paths != null) {
+                // Chế độ vẽ tay: Sử dụng OperatorDetector trực tiếp
+                op = OperatorDetector.detectOperator(sym.paths, brushSize);
             }
-        } else {
-            // Chế độ chụp/chọn ảnh: Phân tích hình học bitmap để tìm toán tử
-            float originalRatio = sym.width() / Math.max(1f, sym.height());
-            String op = OperatorDetector.detectOperatorFromBitmap(sym.bitmap, originalRatio);
+            if (op == null) {
+                // Thử thêm detector từ bitmap cho vẽ tay / chụp ảnh (hỗ trợ toán tử vẽ 1 nét nhanh)
+                float originalRatio = sym.width() / Math.max(1f, sym.height());
+                op = OperatorDetector.detectOperatorFromBitmap(sym.bitmap, originalRatio);
+            }
             if (op != null) {
                 return new DrawActivity.ExpressionToken(op, true, 100f);
             }

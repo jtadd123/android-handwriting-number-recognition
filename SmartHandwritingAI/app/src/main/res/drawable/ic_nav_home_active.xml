@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Corner Brackets (Scan frame) in Blue/Indigo -->
+    <path
+        android:strokeWidth="2.2"
+        android:strokeColor="@color/primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M4,8V5C4,4.4 4.4,4 5,4H8 M16,4H19C19.6,4 20,4.4 20,5V8 M4,16V19C4,19.6 4.4,20 5,20H8 M16,20H19C19.6,20 20,19.6 20,19V16" />
+    <!-- Center AI Sparkle in Amber/Yellow -->
+    <path
+        android:fillColor="@color/warning"
+        android:pathData="M12,7L13.1,10.6L16.7,11.7L13.1,12.8L12,16.4L10.9,12.8L7.3,11.7L10.9,10.6Z" />
+</vector>

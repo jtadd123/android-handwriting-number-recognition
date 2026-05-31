@@ -195,7 +195,7 @@ public class DigitClassifier {
         }
         java.util.Collections.sort(allPredictions);
 
-        if (mode == PredictionMode.ALL_CLASSES && inputPixels != null) {
+        if (inputPixels != null) {
             applyShapeDisambiguation(allPredictions, inputPixels);
             java.util.Collections.sort(allPredictions);
         }

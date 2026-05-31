@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="SmartHandwritingAI"
-            android:textColor="@color/text_primary"
+            android:textColor="#FFFFFF"
             android:textSize="28sp"
             android:textStyle="bold" />
 
@@ -33,9 +33,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Powered by TensorFlow Lite"
-            android:textColor="@color/accent"
-            android:textSize="14sp" />
+            android:text="@string/subtitle_main"
+            android:textColor="#00E5FF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08" />
     </LinearLayout>
 
 </RelativeLayout>
