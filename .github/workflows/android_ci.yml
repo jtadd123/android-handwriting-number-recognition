@@ -25,6 +25,48 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x SmartHandwritingAI/gradlew
 
+    - name: Decode/Create google-services.json
+      env:
+        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      run: |
+        if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+          echo "GOOGLE_SERVICES_JSON secret is not set. Creating a mock google-services.json..."
+          cat <<EOF > SmartHandwritingAI/app/google-services.json
+          {
+            "project_info": {
+              "project_number": "123456789",
+              "project_id": "mock-project-id",
+              "storage_bucket": "mock-project-id.appspot.com"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:123456789:android:123456789abcdef",
+                  "android_client_info": {
+                    "package_name": "dat.nguyenvan.smarthandwritingai"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "mock_api_key"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
+        else
+          echo "Creating google-services.json from secret..."
+          echo "$GOOGLE_SERVICES_JSON" > SmartHandwritingAI/app/google-services.json
+        fi
+
     - name: Build Debug APK
       run: |
         cd SmartHandwritingAI
