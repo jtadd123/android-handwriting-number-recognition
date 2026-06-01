@@ -8,6 +8,10 @@
   <img src="Images/animation3.jpg" alt="Onboarding 3" width="200">
 </p>
 
+## 🎥 Video Demo
+
+> 📺 [Bấm vào đây để xem Video Demo Ứng dụng](https://www.youtube.com/watch?v=uzIhsjt82VQ)
+
 ---
 
 ## 📖 Tổng Quan
