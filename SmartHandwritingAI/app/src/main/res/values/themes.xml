@@ -47,4 +47,33 @@
     <style name="Widget.App.BottomNav.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">@color/nav_indicator</item>
     </style>
+
+    <!-- Custom Theme for UCrop to style toolbar and prevent notch overlap -->
+    <style name="Theme.AppUCrop" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:fitsSystemWindows">true</item>
+        
+        <!-- Make toolbar taller so buttons are shifted down -->
+        <item name="actionBarSize">72dp</item>
+        <item name="android:actionBarSize">72dp</item>
+
+        <!-- Custom close (X) button style -->
+        <item name="toolbarNavigationButtonStyle">@style/Widget.App.UCrop.NavigationButton</item>
+        
+        <!-- Custom done (V) button style -->
+        <item name="actionButtonStyle">@style/Widget.App.UCrop.ActionButton</item>
+    </style>
+
+    <style name="Widget.App.UCrop.NavigationButton" parent="Widget.AppCompat.Toolbar.Button.Navigation">
+        <item name="android:minWidth">64dp</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="Widget.App.UCrop.ActionButton" parent="Widget.AppCompat.ActionButton">
+        <item name="android:minWidth">64dp</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
 </resources>

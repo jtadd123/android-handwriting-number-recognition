@@ -106,17 +106,37 @@ public class ImageProcessor {
         canvas.drawColor(Color.BLACK);
 
         if (maxX >= minX && maxY >= minY) {
+            // Expand bounding box by 3px to capture ink edge gradients
+            minX = Math.max(0, minX - 3);
+            minY = Math.max(0, minY - 3);
+            maxX = Math.min(width - 1, maxX + 3);
+            maxY = Math.min(height - 1, maxY + 3);
+
             int cropW = maxX - minX + 1;
             int cropH = maxY - minY + 1;
+
+            // Create dilated mask (2x) to include ink edge pixels
+            int[] edgeMask = dilateBinary(inkPixels, width, height);
+            edgeMask = dilateBinary(edgeMask, width, height);
+
+            // Create crop bitmap using GRAYSCALE values (not binary) for natural stroke gradients
             Bitmap cropBitmap = Bitmap.createBitmap(cropW, cropH, Bitmap.Config.ARGB_8888);
             int[] cropPixels = new int[cropW * cropH];
             for (int y = 0; y < cropH; y++) {
                 for (int x = 0; x < cropW; x++) {
-                    cropPixels[y * cropW + x] = inkPixels[(minY + y) * width + (minX + x)] == 255 ? Color.WHITE : Color.BLACK;
+                    int srcIdx = (minY + y) * width + (minX + x);
+                    if (edgeMask[srcIdx] == 255) {
+                        int grayVal = invert ? (255 - intensities[srcIdx]) : intensities[srcIdx];
+                        grayVal = Math.max(0, grayVal);
+                        cropPixels[y * cropW + x] = grayVal > 10 ? Color.argb(255, grayVal, grayVal, grayVal) : Color.BLACK;
+                    } else {
+                        cropPixels[y * cropW + x] = Color.BLACK;
+                    }
                 }
             }
             cropBitmap.setPixels(cropPixels, 0, cropW, 0, 0, cropW, cropH);
 
+            // Scale to 20x20 — bilinear on grayscale produces smooth EMNIST-like strokes
             float scale = 20.0f / Math.max(cropW, cropH);
             int sw = Math.max(1, Math.round(cropW * scale));
             int sh = Math.max(1, Math.round(cropH * scale));
@@ -127,10 +147,10 @@ public class ImageProcessor {
             canvas.drawBitmap(scaledInk, offsetX, offsetY, null);
         }
 
-        // 10. Dilation to thicken strokes
-        finalBitmap = dilate(finalBitmap);
+        // 10. Normalize contrast: scale so max pixel intensity reaches 255
+        normalizeContrast(finalBitmap);
 
-        // 11. Transformation
+        // 11. Transformation (dilation removed — EMNIST data has natural anti-aliased strokes without extra dilation)
         Matrix matrix = new Matrix();
         if (rotationDegrees != 0) matrix.postRotate(rotationDegrees);
         if (isFlipped) matrix.postScale(-1, 1, INPUT_SIZE / 2f, INPUT_SIZE / 2f);
@@ -158,7 +178,7 @@ public class ImageProcessor {
             + ", Inverted: " + invert
             + ", BorderMean: " + String.format("%.1f", borderMean));
 
-        // 12. Convert to ByteBuffer
+        // 11. Convert to ByteBuffer (divide by 255.0 to match EMNIST training normalization)
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(INPUT_SIZE * INPUT_SIZE * FLOAT_SIZE);
         byteBuffer.order(ByteOrder.nativeOrder());
         byteBuffer.rewind();
@@ -294,6 +314,33 @@ public class ImageProcessor {
             }
         }
         return out;
+    }
+
+    /**
+     * Normalizes the contrast of a bitmap so the brightest pixel becomes 255.
+     * This compensates for intensity loss during bilinear downscaling of binary images,
+     * while preserving the anti-aliased edge gradients and original stroke shapes.
+     */
+    private static void normalizeContrast(Bitmap bitmap) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        int[] pixels = new int[w * h];
+        bitmap.getPixels(pixels, 0, w, 0, 0, w, h);
+
+        int maxVal = 0;
+        for (int p : pixels) {
+            int v = (p >> 16) & 0xFF;
+            if (v > maxVal) maxVal = v;
+        }
+
+        if (maxVal > 0 && maxVal < 255) {
+            for (int i = 0; i < pixels.length; i++) {
+                int v = (pixels[i] >> 16) & 0xFF;
+                int nv = Math.min(255, v * 255 / maxVal);
+                pixels[i] = Color.argb(255, nv, nv, nv);
+            }
+            bitmap.setPixels(pixels, 0, w, 0, 0, w, h);
+        }
     }
 
     public static Bitmap toGrayscale(Bitmap original) {
@@ -501,6 +548,9 @@ public class ImageProcessor {
         removeSmallNoise(inkPixels, width, height);
         bridgeSmallStrokeGaps(inkPixels, width, height);
 
+        // Save a clone of the binarized pixels before calling dilateBinary to avoid double dilation
+        int[] originalInkPixels = inkPixels.clone();
+
         // Dilate binary image to close tiny gaps in handwritten strokes before grouping components
         inkPixels = dilateBinary(inkPixels, width, height);
 
@@ -642,7 +692,12 @@ public class ImageProcessor {
                     int px = pt.x - cluster.minX;
                     int py = pt.y - cluster.minY;
                     if (px >= 0 && px < cropW && py >= 0 && py < cropH) {
-                        clusterBitmap.setPixel(px, py, Color.WHITE);
+                        // Use inverted grayscale for natural stroke gradients
+                        int grayVal = 255 - intensities[pt.y * width + pt.x];
+                        grayVal = Math.max(0, grayVal);
+                        if (grayVal > 10) {
+                            clusterBitmap.setPixel(px, py, Color.argb(255, grayVal, grayVal, grayVal));
+                        }
                     }
                 }
             }
@@ -651,7 +706,7 @@ public class ImageProcessor {
             Canvas finalCanvas = new Canvas(finalBitmap);
             finalCanvas.drawColor(Color.BLACK);
 
-            // Scale tightly to 20x20 preserving aspect ratio
+            // Scale tightly to 20x20 — bilinear on grayscale produces smooth EMNIST-like strokes
             float scale = 20.0f / Math.max(cropW, cropH);
             int sw = Math.max(1, Math.round(cropW * scale));
             int sh = Math.max(1, Math.round(cropH * scale));
@@ -662,7 +717,8 @@ public class ImageProcessor {
             float offsetY = (28 - sh) / 2f;
             finalCanvas.drawBitmap(scaled, offsetX, offsetY, null);
 
-            finalBitmap = dilate(finalBitmap);
+            // Normalize contrast: scale so max pixel intensity reaches 255
+            normalizeContrast(finalBitmap);
 
             float scaleX = (float) bitmap.getWidth() / width;
             float scaleY = (float) bitmap.getHeight() / height;
