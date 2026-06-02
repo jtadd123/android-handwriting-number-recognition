@@ -50,14 +50,12 @@ public class DrawActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private TextToSpeech tts;
 
-    // View và biến trạng thái cho chế độ Giải Toán AI
     private com.google.android.material.button.MaterialButtonToggleGroup toggleGroupMode;
     private TextView tvDrawHint;
     private boolean isMathMode = false;
     private boolean isFractionMode = true;
     private android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
 
-    // Biến hỗ trợ sửa lỗi AI
     private CardView cardAiCorrecting;
     private CardView cardAiSuggestion;
     private TextView tvAiSuggestionText;
@@ -72,7 +70,7 @@ public class DrawActivity extends AppCompatActivity {
     private float lastCorrectedAvgConfidence = 100f;
     private Runnable predictRunnable = () -> {
         if (!drawingView.isEmpty()) {
-            predictDrawing(false); // Realtime predict
+            predictDrawing(false);
         }
     };
 
@@ -83,7 +81,7 @@ public class DrawActivity extends AppCompatActivity {
 
         db = AppDatabase.getInstance(this);
         digitClassifier = new DigitClassifier(this);
-        
+
         drawingView = findViewById(R.id.drawing_view);
         tvDrawResult = findViewById(R.id.tv_draw_result);
         tvDrawConfidence = findViewById(R.id.tv_draw_confidence);
@@ -126,10 +124,8 @@ public class DrawActivity extends AppCompatActivity {
         btnUndo = findViewById(R.id.btn_undo);
         btnRedo = findViewById(R.id.btn_redo);
 
-        // Khởi tạo các view chế độ Giải Toán AI
         toggleGroupMode = findViewById(R.id.toggle_group_mode);
         tvDrawHint = findViewById(R.id.tv_draw_hint);
-
 
         if (toggleGroupMode != null) {
             toggleGroupMode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
@@ -160,7 +156,6 @@ public class DrawActivity extends AppCompatActivity {
         ImageProcessor.isFlipped = prefs.getBoolean("flip", false);
         updateDirectionUI();
 
-        // Init TTS
         tts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
                 boolean isEnglish = prefs.getBoolean("isEnglish", false);
@@ -199,18 +194,16 @@ public class DrawActivity extends AppCompatActivity {
         btnUndo.setOnClickListener(v -> drawingView.onClickUndo());
         btnRedo.setOnClickListener(v -> drawingView.onClickRedo());
 
-        // Brush settings button
         findViewById(R.id.btn_brush_settings).setOnClickListener(v -> showBrushSettingsDialog());
 
-        // Listener cho Realtime Prediction (Debounced/Delay)
         drawingView.setOnDrawListener(() -> {
             if (!drawingView.isEmpty()) {
                 handler.removeCallbacks(predictRunnable);
                 if (isMathMode) {
-                    // Chờ lâu hơn (1.2 giây) để người dùng vẽ tiếp nét khác
+
                     handler.postDelayed(predictRunnable, 1200);
                 } else {
-                    // Nhận dạng nhanh cho ký tự đơn (500ms)
+
                     handler.postDelayed(predictRunnable, 500);
                 }
             } else {
@@ -225,7 +218,7 @@ public class DrawActivity extends AppCompatActivity {
                 return;
             }
             handler.removeCallbacks(predictRunnable);
-            predictDrawing(true); // Lưu vào DB
+            predictDrawing(true);
             UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), getString(R.string.msg_saved_history));
         });
 
@@ -252,7 +245,6 @@ public class DrawActivity extends AppCompatActivity {
         seekBar.setProgress((int) drawingView.getBrushSize());
         tvSize.setText(String.valueOf((int) drawingView.getBrushSize()));
 
-        // Update preview size
         updateBrushPreview(preview, (int) drawingView.getBrushSize());
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -266,7 +258,6 @@ public class DrawActivity extends AppCompatActivity {
             @Override public void onStopTrackingTouch(SeekBar sb) {}
         });
 
-        // Handle color clicks
         View.OnClickListener colorClickListener = v -> {
             String tag = (String) v.getTag();
             if (tag != null) {
@@ -274,14 +265,14 @@ public class DrawActivity extends AppCompatActivity {
                     int color = Color.parseColor(tag);
                     drawingView.setBrushColor(color);
                     preview.getBackground().setTint(color);
-                } catch (Exception e) { /* ignore */ }
+                } catch (Exception e) {  }
             }
         };
-        // Set click listeners for all color buttons
+
         for (int i = 0; i < ((android.view.ViewGroup) view.findViewById(R.id.seekbar_brush_size).getParent().getParent()).getChildCount(); i++) {
-            // We'll use a different approach - find all ImageButtons with tags
+
         }
-        // Find color buttons by iterating
+
         android.view.ViewGroup root = (android.view.ViewGroup) view;
         setColorListeners(root, colorClickListener);
 
@@ -335,7 +326,7 @@ public class DrawActivity extends AppCompatActivity {
 
     private void predictDrawing(boolean saveToHistory) {
         if (!isMathMode) {
-            // ── CHẾ ĐỘ 1: KÝ TỰ ĐƠN (HỖ TRỢ CẢ KÝ TỰ ĐƠN VÀ CHUỖI KÝ TỰ) ────────
+
             ArrayList<DrawingView.StrokeCluster> clusters = drawingView.getSegmentedClusters();
             if (clusters.isEmpty()) return;
 
@@ -439,12 +430,12 @@ public class DrawActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // ── CHẾ ĐỘ 2: GIẢI TOÁN AI (MULTI-DIGIT & EQUATION SOLVER) ────────
+
             Bitmap displayBitmap = saveToHistory ? drawingView.getBitmap() : null;
 
             executorService.execute(() -> {
                 try {
-                    // Hiển thị trạng thái "AI correcting..." trên UI thread
+
                     runOnUiThread(() -> {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && cardDrawResult != null) {
                             TransitionManager.beginDelayedTransition((ViewGroup) cardDrawResult.getParent());
@@ -457,7 +448,6 @@ public class DrawActivity extends AppCompatActivity {
 
                     long startTime = System.currentTimeMillis();
 
-                    // Bước 1: Phân tách nét vẽ thành các cụm
                     ArrayList<DrawingView.StrokeCluster> clusters = drawingView.getSegmentedClusters();
                     if (clusters.isEmpty()) {
                         runOnUiThread(() -> {
@@ -496,7 +486,6 @@ public class DrawActivity extends AppCompatActivity {
                         return;
                     }
 
-                    // Đánh dấu các ký tự độ tin cậy thấp (< 80%)
                     float UNSURE_THRESHOLD = 80.0f;
                     boolean hasUnsure = false;
                     for (ExpressionToken token : rawTokens) {
@@ -506,7 +495,6 @@ public class DrawActivity extends AppCompatActivity {
                         }
                     }
 
-                    // Tiến hành sửa lỗi chuỗi toán tử (Ví dụ: ++ -> +, */ -> /)
                     java.util.List<ExpressionToken> correctedTokens = correctExpression(rawTokens);
                     boolean wasCorrected = false;
                     if (correctedTokens.size() < rawTokens.size()) {
@@ -520,7 +508,6 @@ public class DrawActivity extends AppCompatActivity {
                         }
                     }
 
-                    // Xây dựng chuỗi hiển thị thô (Raw) có màu highlight cho ký tự không chắc chắn
                     SpannableStringBuilder rawSpannable = new SpannableStringBuilder();
                     float rawTotalConfidence = 0;
                     int rawAiCount = 0;
@@ -563,7 +550,6 @@ public class DrawActivity extends AppCompatActivity {
 
                     float rawAvgConfidence = rawAiCount > 0 ? (rawTotalConfidence / rawAiCount) : 100f;
 
-                    // Giải toán trên chuỗi thô (Raw)
                     StringBuilder rawExprBuilder = new StringBuilder();
                     for (ExpressionToken token : rawTokens) {
                         rawExprBuilder.append(token.text);
@@ -606,7 +592,6 @@ public class DrawActivity extends AppCompatActivity {
                         }
                     }
 
-                    // Xử lý chuỗi công thức đã được sửa lỗi (Corrected)
                     StringBuilder correctedExprBuilder = new StringBuilder();
                     for (ExpressionToken token : correctedTokens) {
                         correctedExprBuilder.append(token.text);
@@ -653,7 +638,6 @@ public class DrawActivity extends AppCompatActivity {
                     lastCorrectedMathResult = correctedMathResult;
                     lastCorrectedAvgConfidence = correctedAvgConfidence;
 
-                    // Lưu lịch sử (Sử dụng biểu thức đã sửa đổi nếu được áp dụng, hoặc biểu thức thô ban đầu)
                     if (saveToHistory && displayBitmap != null) {
                         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                         displayBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
@@ -686,7 +670,6 @@ public class DrawActivity extends AppCompatActivity {
                         }
                     }
 
-                    // Đảm bảo loading chạy tối thiểu 900ms để trải nghiệm mượt mà
                     long elapsed = System.currentTimeMillis() - startTime;
                     if (elapsed < 900) {
                         try {
@@ -710,7 +693,6 @@ public class DrawActivity extends AppCompatActivity {
                         if (tvDrawConfidence != null) tvDrawConfidence.setText(String.format(Locale.US, "%.1f%%", finalAvgConfidenceToDisplay));
                         if (cardDrawResult != null) cardDrawResult.setVisibility(View.VISIBLE);
 
-                        // Hiển thị gợi ý sửa đổi nếu phát hiện chuỗi toán tử thừa/sai
                         if (finalWasCorrected && cardAiSuggestion != null) {
                             if (tvAiSuggestionText != null) {
                                 tvAiSuggestionText.setText(lastCorrectedExpression);
@@ -718,7 +700,6 @@ public class DrawActivity extends AppCompatActivity {
                             cardAiSuggestion.setVisibility(View.VISIBLE);
                         }
 
-                        // Điều chỉnh phản hồi của AI nếu có ký tự không chắc chắn
                         if (tvAiFeedback != null) {
                             tvAiFeedback.setVisibility(View.VISIBLE);
                             if (finalHasUnsure) {
@@ -731,7 +712,6 @@ public class DrawActivity extends AppCompatActivity {
 
                         hapticFeedback();
 
-                        // Đọc kết quả qua TTS
                         boolean ttsEnabled = prefs.getBoolean("tts_enabled", true);
                         if (saveToHistory && ttsEnabled && tts != null) {
                             String speakText;

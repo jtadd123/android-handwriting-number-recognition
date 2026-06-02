@@ -3,20 +3,19 @@ package dat.nguyenvan.smarthandwritingai;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-
 @Entity(tableName = "prediction_history")
 public class PredictionEntity {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    private String imageBase64;    
-    private String result;            
-    private float confidence;      
+    private String imageBase64;
+    private String result;
+    private float confidence;
     private long timestamp;
 
     @androidx.room.ColumnInfo(name = "is_favorite")
-    public boolean isFavorite = false;        
+    public boolean isFavorite = false;
 
     @androidx.room.ColumnInfo(name = "image_url")
     private String imageUrl;
@@ -29,7 +28,6 @@ public class PredictionEntity {
         this.timestamp = timestamp;
     }
 
-    
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

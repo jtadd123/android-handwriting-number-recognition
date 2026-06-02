@@ -69,7 +69,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_back_settings).setOnClickListener(v -> finish());
 
-        // ── Confidence Threshold ──────────────────────────────────────────
         seekbarThreshold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -84,7 +83,6 @@ public class SettingsActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        // ── TTS Toggle Button (Speaker Icon) ─────────────────────────────────
         btnTtsToggle.setOnClickListener(v -> {
             boolean currentState = prefs.getBoolean("tts_enabled", true);
             boolean newState = !currentState;
@@ -98,7 +96,6 @@ public class SettingsActivity extends AppCompatActivity {
             updateTtsUI(newState);
         });
 
-        // ── Clear Data ────────────────────────────────────────────────────────
         findViewById(R.id.btn_clear_data).setOnClickListener(v -> {
             ExecutorService executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
@@ -110,7 +107,6 @@ public class SettingsActivity extends AppCompatActivity {
             executor.shutdown();
         });
 
-        // ── Account Section ───────────────────────────────────────────────────
         tvAccountEmail = findViewById(R.id.tv_account_email);
         findViewById(R.id.btn_logout).setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
@@ -122,22 +118,18 @@ public class SettingsActivity extends AppCompatActivity {
                 startActivity(new Intent(this, LoginActivity.class)));
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // TTS Engine Management
-    // ══════════════════════════════════════════════════════════════════════════
-
     private void enableTts(boolean speakConfirmation) {
-        if (tts != null) return; // Already initialized
+        if (tts != null) return;
 
         tts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
                 int langResult = tts.setLanguage(new Locale("vi", "VN"));
                 if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    // Fallback to default locale
+
                     tts.setLanguage(Locale.getDefault());
                 }
                 isTtsReady = true;
-                // Speak confirmation
+
                 if (speakConfirmation) {
                     tts.speak(getString(R.string.msg_tts_enabled_speak), TextToSpeech.QUEUE_FLUSH, null, "tts_test");
                 }
@@ -181,27 +173,21 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // Load Settings
-    // ══════════════════════════════════════════════════════════════════════════
-
     private void loadSettings() {
         int threshold = prefs.getInt("confidence_threshold", 50);
         boolean sync = prefs.getBoolean("firebase_sync", false);
-        boolean isDarkMode = prefs.getBoolean("isDarkMode", true); // Default dark
+        boolean isDarkMode = prefs.getBoolean("isDarkMode", true);
         boolean ttsEnabled = prefs.getBoolean("tts_enabled", true);
 
         seekbarThreshold.setProgress(threshold);
         tvThresholdValue.setText(threshold + "%");
 
-        // Clear listeners first to avoid loop on setChecked
         switchFirebase.setOnCheckedChangeListener(null);
         switchLanguage.setOnCheckedChangeListener(null);
         switchDarkMode.setOnCheckedChangeListener(null);
 
         switchFirebase.setChecked(sync);
-        
-        // Sync language state from App Locales if possible
+
         androidx.core.os.LocaleListCompat currentLocales = AppCompatDelegate.getApplicationLocales();
         boolean isEnglishSelected = false;
         if (!currentLocales.isEmpty()) {
@@ -210,10 +196,9 @@ public class SettingsActivity extends AppCompatActivity {
             isEnglishSelected = prefs.getBoolean("isEnglish", false);
         }
         switchLanguage.setChecked(isEnglishSelected);
-        
+
         switchDarkMode.setChecked(isDarkMode);
 
-        // Re-set listeners
         switchFirebase.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("firebase_sync", isChecked).apply();
             String msg = isChecked ? getString(R.string.msg_firebase_sync_on) : getString(R.string.msg_firebase_sync_off);
@@ -237,13 +222,11 @@ public class SettingsActivity extends AppCompatActivity {
             );
         });
 
-        // Initialize TTS UI state
         updateTtsUI(ttsEnabled);
         if (ttsEnabled) {
             enableTts(false);
         }
 
-        // Show current user info
         if (tvAccountEmail != null) {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
@@ -272,7 +255,7 @@ public class SettingsActivity extends AppCompatActivity {
         android.content.res.Configuration config = resources.getConfiguration();
         config.setLocale(locale);
         resources.updateConfiguration(config, resources.getDisplayMetrics());
-        
+
         android.content.res.Resources appResources = getApplicationContext().getResources();
         android.content.res.Configuration appConfig = appResources.getConfiguration();
         appConfig.setLocale(locale);

@@ -32,9 +32,6 @@ public class FirebaseSyncHelper {
         void onComplete(int successCount, int totalCount);
     }
 
-    /**
-     * Đồng bộ một kết quả nhận diện lên Firebase (Storage + Firestore)
-     */
     public static void syncPrediction(Context context, PredictionEntity entity, OnSyncCompleteListener listener) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
@@ -53,7 +50,6 @@ public class FirebaseSyncHelper {
         final String finalUsername = username;
         final String documentId = String.valueOf(entity.getTimestamp());
 
-        // Nếu đã có imageUrl (đã upload Storage trước đó), chỉ lưu Firestore
         if (entity.getImageUrl() != null && !entity.getImageUrl().isEmpty()) {
             saveToFirestore(context, entity, entity.getImageUrl(), finalUsername, documentId, listener);
             return;
@@ -119,9 +115,6 @@ public class FirebaseSyncHelper {
                 });
     }
 
-    /**
-     * Đồng bộ toàn bộ dữ liệu lịch sử từ SQLite lên Firebase
-     */
     public static void syncAll(Context context, OnSyncAllListener listener) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {

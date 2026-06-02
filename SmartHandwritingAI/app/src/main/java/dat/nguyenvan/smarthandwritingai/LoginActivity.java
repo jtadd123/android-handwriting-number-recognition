@@ -21,7 +21,6 @@ import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
-    /** Domain ảo dùng nội bộ – user chỉ thấy username, không biết email */
     private static final String FAKE_EMAIL_DOMAIN = "@smarthandwriting.app";
 
     private FirebaseAuth mAuth;
@@ -33,14 +32,12 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvError, tvToggleHint, tvSubtitle;
     private ProgressBar progressAuth;
 
-    /** true = đang ở chế độ Đăng ký, false = Đăng nhập */
     private boolean isRegisterMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Nếu đã đăng nhập rồi thì bypass thẳng vào app
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -53,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         initViews();
         setupListeners();
-        updateUI(); // hiển thị đúng trạng thái login/register
+        updateUI();
     }
 
     private void initViews() {
@@ -88,7 +85,6 @@ public class LoginActivity extends AppCompatActivity {
         btnForgotPassword.setOnClickListener(v -> sendPasswordReset());
     }
 
-    /** Cập nhật giao diện khi chuyển đổi Login ↔ Register */
     private void updateUI() {
         if (isRegisterMode) {
             btnLogin.setText(getString(R.string.login_btn_register));
@@ -107,7 +103,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // ── Login ────────────────────────────────────────────────────────────────
     private void login() {
         String username = getUsername();
         String password = getPassword();
@@ -115,7 +110,6 @@ public class LoginActivity extends AppCompatActivity {
 
         setLoading(true);
 
-        // Bước 1: Tra Firestore xem username có tồn tại không
         db.collection("users").document(username.toLowerCase()).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
@@ -125,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
                             showError(getString(R.string.err_account_data));
                             return;
                         }
-                        // Bước 2: Đăng nhập Firebase Auth bằng email ẩn
+
                         signInWithEmail(email, password);
                     } else {
                         setLoading(false);
@@ -134,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     setLoading(false);
-                    // Nếu offline, thử đăng nhập trực tiếp bằng email ẩn
+
                     String fallbackEmail = username.toLowerCase() + FAKE_EMAIL_DOMAIN;
                     signInWithEmail(fallbackEmail, password);
                 });
@@ -156,7 +150,6 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    // ── Register ─────────────────────────────────────────────────────────────
     private void register() {
         String username = getUsername();
         String password = getPassword();
@@ -166,7 +159,6 @@ public class LoginActivity extends AppCompatActivity {
 
         setLoading(true);
 
-        // Bước 1: Kiểm tra username đã tồn tại chưa (trên Firestore)
         String usernameLower = username.toLowerCase();
         db.collection("users").document(usernameLower).get()
                 .addOnSuccessListener(doc -> {
@@ -174,7 +166,7 @@ public class LoginActivity extends AppCompatActivity {
                         setLoading(false);
                         showError(getString(R.string.err_username_taken));
                     } else {
-                        // Bước 2: Tạo account Firebase Auth bằng email ẩn
+
                         String fakeEmail = usernameLower + FAKE_EMAIL_DOMAIN;
                         createFirebaseAccount(usernameLower, fakeEmail, password);
                     }
@@ -188,7 +180,7 @@ public class LoginActivity extends AppCompatActivity {
     private void createFirebaseAccount(String username, String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(result -> {
-                    // Bước 3: Lưu mapping username → email vào Firestore
+
                     Map<String, Object> userData = new HashMap<>();
                     userData.put("username", username);
                     userData.put("email", email);
@@ -206,8 +198,7 @@ public class LoginActivity extends AppCompatActivity {
                             })
                             .addOnFailureListener(e -> {
                                 setLoading(false);
-                                // Account đã tạo trên Auth nhưng Firestore fail
-                                // Vẫn cho vào app, lần sau sẽ retry
+
                                 UIUtils.showSuccessSnackbar(
                                         findViewById(android.R.id.content),
                                         getString(R.string.msg_register_success)
@@ -221,7 +212,6 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    // ── Password Reset ────────────────────────────────────────────────────────
     private void sendPasswordReset() {
         String username = getUsername();
         if (TextUtils.isEmpty(username)) {
@@ -259,16 +249,14 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    // ── Navigation ────────────────────────────────────────────────────────────
     private void goToMain() {
-        // Always show onboarding animations before entering the app
+
         Intent intent = new Intent(this, OnboardingActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
     private String getUsername() {
         return etUsername.getText() != null ? etUsername.getText().toString().trim() : "";
     }
@@ -333,9 +321,6 @@ public class LoginActivity extends AppCompatActivity {
         btnSkip.setEnabled(!loading);
     }
 
-    /**
-     * Chuyển lỗi Firebase (tiếng Anh) thành thông báo thân thiện tiếng Việt.
-     */
     private String friendlyError(String raw) {
         if (raw == null) return getString(R.string.err_unknown);
         if (raw.contains("no user record") || raw.contains("user-not-found"))

@@ -27,8 +27,7 @@ public class ImageProcessor {
     }
 
     public static ByteBuffer preprocessImage(Bitmap bitmap) {
-        // 1. Iterative Downscale to preserve strokes before binarization
-        // We downscale until max dimension is <= 300
+
         Bitmap workingBitmap = bitmap;
         while (workingBitmap.getWidth() > 300 || workingBitmap.getHeight() > 300) {
             int nw = workingBitmap.getWidth() / 2;
@@ -36,7 +35,6 @@ public class ImageProcessor {
             workingBitmap = Bitmap.createScaledBitmap(workingBitmap, nw, nh, true);
         }
 
-        // 2. To Grayscale
         workingBitmap = toGrayscale(workingBitmap);
         int width = workingBitmap.getWidth();
         int height = workingBitmap.getHeight();
@@ -48,7 +46,6 @@ public class ImageProcessor {
             intensities[i] = pixels[i] & 0xFF;
         }
 
-        // 3. Robust Thresholding instead of Otsu and Stretching
         int[] histogram = new int[256];
         for (int v : intensities) histogram[v]++;
 
@@ -65,7 +62,6 @@ public class ImageProcessor {
             if (cumSum >= totalPixels * 0.05) { maxVal = i; break; }
         }
 
-        // Determine inversion based on border mean
         long borderSum = 0;
         int borderCount = 0;
         for (int x = 0; x < width; x++) {
@@ -83,11 +79,9 @@ public class ImageProcessor {
 
         int[] inkPixels = adaptiveThreshold(intensities, width, height, invert, minVal, maxVal);
 
-        // 7. Morphological noise removal
         removeSmallNoise(inkPixels, width, height);
         bridgeSmallStrokeGaps(inkPixels, width, height);
 
-        // 8. Find Bounding Box
         int minX = width, minY = height, maxX = -1, maxY = -1;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -100,13 +94,12 @@ public class ImageProcessor {
             }
         }
 
-        // 9. Crop and Scale to 20x20
         Bitmap finalBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(finalBitmap);
         canvas.drawColor(Color.BLACK);
 
         if (maxX >= minX && maxY >= minY) {
-            // Expand bounding box by 3px to capture ink edge gradients
+
             minX = Math.max(0, minX - 3);
             minY = Math.max(0, minY - 3);
             maxX = Math.min(width - 1, maxX + 3);
@@ -115,11 +108,9 @@ public class ImageProcessor {
             int cropW = maxX - minX + 1;
             int cropH = maxY - minY + 1;
 
-            // Create dilated mask (2x) to include ink edge pixels
             int[] edgeMask = dilateBinary(inkPixels, width, height);
             edgeMask = dilateBinary(edgeMask, width, height);
 
-            // Create crop bitmap using GRAYSCALE values (not binary) for natural stroke gradients
             Bitmap cropBitmap = Bitmap.createBitmap(cropW, cropH, Bitmap.Config.ARGB_8888);
             int[] cropPixels = new int[cropW * cropH];
             for (int y = 0; y < cropH; y++) {
@@ -136,7 +127,6 @@ public class ImageProcessor {
             }
             cropBitmap.setPixels(cropPixels, 0, cropW, 0, 0, cropW, cropH);
 
-            // Scale to 20x20 — bilinear on grayscale produces smooth EMNIST-like strokes
             float scale = 20.0f / Math.max(cropW, cropH);
             int sw = Math.max(1, Math.round(cropW * scale));
             int sh = Math.max(1, Math.round(cropH * scale));
@@ -147,10 +137,8 @@ public class ImageProcessor {
             canvas.drawBitmap(scaledInk, offsetX, offsetY, null);
         }
 
-        // 10. Normalize contrast: scale so max pixel intensity reaches 255
         normalizeContrast(finalBitmap);
 
-        // 11. Transformation (dilation removed — EMNIST data has natural anti-aliased strokes without extra dilation)
         Matrix matrix = new Matrix();
         if (rotationDegrees != 0) matrix.postRotate(rotationDegrees);
         if (isFlipped) matrix.postScale(-1, 1, INPUT_SIZE / 2f, INPUT_SIZE / 2f);
@@ -158,7 +146,6 @@ public class ImageProcessor {
         finalBitmap = Bitmap.createBitmap(finalBitmap, 0, 0, INPUT_SIZE, INPUT_SIZE, matrix, true);
         lastPreprocessedBitmap = finalBitmap;
 
-        // Debug logging: bitmap stats for diagnosis
         int[] debugPixels = new int[INPUT_SIZE * INPUT_SIZE];
         finalBitmap.getPixels(debugPixels, 0, INPUT_SIZE, 0, 0, INPUT_SIZE, INPUT_SIZE);
         int debugMin = 255, debugMax = 0;
@@ -171,14 +158,13 @@ public class ImageProcessor {
             debugSum += dv;
             if (dv > 128) whiteCount++;
         }
-        android.util.Log.d(TAG, "[DEBUG] Final bitmap stats - Min: " + debugMin 
-            + ", Max: " + debugMax 
+        android.util.Log.d(TAG, "[DEBUG] Final bitmap stats - Min: " + debugMin
+            + ", Max: " + debugMax
             + ", Avg: " + String.format("%.1f", debugSum / debugPixels.length)
             + ", WhitePixels: " + whiteCount + "/" + debugPixels.length
             + ", Inverted: " + invert
             + ", BorderMean: " + String.format("%.1f", borderMean));
 
-        // 11. Convert to ByteBuffer (divide by 255.0 to match EMNIST training normalization)
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(INPUT_SIZE * INPUT_SIZE * FLOAT_SIZE);
         byteBuffer.order(ByteOrder.nativeOrder());
         byteBuffer.rewind();
@@ -192,8 +178,6 @@ public class ImageProcessor {
 
         return byteBuffer;
     }
-
-
 
     private static void removeSmallNoise(int[] pixels, int w, int h) {
         int[] cleaned = pixels.clone();
@@ -316,11 +300,6 @@ public class ImageProcessor {
         return out;
     }
 
-    /**
-     * Normalizes the contrast of a bitmap so the brightest pixel becomes 255.
-     * This compensates for intensity loss during bilinear downscaling of binary images,
-     * while preserving the anti-aliased edge gradients and original stroke shapes.
-     */
     private static void normalizeContrast(Bitmap bitmap) {
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
@@ -357,10 +336,9 @@ public class ImageProcessor {
     public static int[] adaptiveThreshold(int[] intensities, int width, int height, boolean invert, int minVal, int maxVal) {
         int[] binary = new int[width * height];
         int windowSize = Math.max(15, Math.min(35, Math.min(width, height) / 6));
-        if (windowSize % 2 == 0) windowSize++; // Ensure odd window size
+        if (windowSize % 2 == 0) windowSize++;
         int radius = windowSize / 2;
-        
-        // Compute integral image for fast local sum
+
         long[] integral = new long[width * height];
         for (int y = 0; y < height; y++) {
             long rowSum = 0;
@@ -375,23 +353,21 @@ public class ImageProcessor {
             }
         }
 
-        // Local thresholding
         for (int y = 0; y < height; y++) {
             int y1 = Math.max(0, y - radius);
             int y2 = Math.min(height - 1, y + radius);
             for (int x = 0; x < width; x++) {
                 int x1 = Math.max(0, x - radius);
                 int x2 = Math.min(width - 1, x + radius);
-                
-                // Get sum using integral image
+
                 long sum = integral[y2 * width + x2];
                 if (x1 > 0) sum -= integral[y2 * width + (x1 - 1)];
                 if (y1 > 0) sum -= integral[(y1 - 1) * width + x2];
                 if (x1 > 0 && y1 > 0) sum += integral[(y1 - 1) * width + (x1 - 1)];
-                
+
                 int count = (x2 - x1 + 1) * (y2 - y1 + 1);
                 float mean = (float) sum / count;
-                
+
                 int val = intensities[y * width + x];
                 if (invert) {
                     int globalCutoff = minVal + (int) ((maxVal - minVal) * 0.80f);
@@ -489,7 +465,6 @@ public class ImageProcessor {
     public static java.util.List<FractionParser.SegmentedSymbol> segmentImage(Bitmap bitmap) {
         java.util.List<FractionParser.SegmentedSymbol> resultList = new java.util.ArrayList<>();
 
-        // 1. Iterative Downscale to preserve strokes before binarization
         Bitmap workingBitmap = bitmap;
         while (workingBitmap.getWidth() > 300 || workingBitmap.getHeight() > 300) {
             int nw = workingBitmap.getWidth() / 2;
@@ -497,7 +472,6 @@ public class ImageProcessor {
             workingBitmap = Bitmap.createScaledBitmap(workingBitmap, nw, nh, true);
         }
 
-        // 2. To Grayscale
         workingBitmap = toGrayscale(workingBitmap);
         int width = workingBitmap.getWidth();
         int height = workingBitmap.getHeight();
@@ -509,7 +483,6 @@ public class ImageProcessor {
             intensities[i] = pixels[i] & 0xFF;
         }
 
-        // 3. Robust Thresholding
         int[] histogram = new int[256];
         for (int v : intensities) histogram[v]++;
 
@@ -526,7 +499,6 @@ public class ImageProcessor {
             if (cumSum >= totalPixels * 0.05) { maxVal = i; break; }
         }
 
-        // Determine inversion based on border mean
         long borderSum = 0;
         int borderCount = 0;
         for (int x = 0; x < width; x++) {
@@ -540,21 +512,17 @@ public class ImageProcessor {
             borderCount += 2;
         }
         float borderMean = (float) borderSum / borderCount;
-        boolean invert = true; // Always invert for camera/gallery photos (dark ink on light paper)
+        boolean invert = true;
 
         int[] inkPixels = adaptiveThreshold(intensities, width, height, invert, minVal, maxVal);
 
-        // 4. Remove small noise
         removeSmallNoise(inkPixels, width, height);
         bridgeSmallStrokeGaps(inkPixels, width, height);
 
-        // Save a clone of the binarized pixels before calling dilateBinary to avoid double dilation
         int[] originalInkPixels = inkPixels.clone();
 
-        // Dilate binary image to close tiny gaps in handwritten strokes before grouping components
         inkPixels = dilateBinary(inkPixels, width, height);
 
-        // 5. CCA - Find Connected Components
         boolean[] visited = new boolean[width * height];
         java.util.List<Component> components = new java.util.ArrayList<>();
 
@@ -605,7 +573,6 @@ public class ImageProcessor {
             return resultList;
         }
 
-        // 6. Gộp các component gần nhau thành cụm ký tự (Symbol Clusters) trước khi lọc nhiễu đường biên
         java.util.List<SymbolCluster> clusters = new java.util.ArrayList<>();
         float maxDist = Math.max(12f, Math.max(width, height) * 0.10f);
 
@@ -637,7 +604,6 @@ public class ImageProcessor {
             return resultList;
         }
 
-        // Find the maximum cluster size (total points count)
         int maxClusterPoints = 0;
         for (SymbolCluster sc : clusters) {
             int pts = sc.totalPoints();
@@ -646,25 +612,22 @@ public class ImageProcessor {
             }
         }
 
-        // Lọc bỏ cụm nhiễu nhỏ hoặc cụm bóng đổ ở biên (Border shadows/noise)
         java.util.List<SymbolCluster> filteredClusters = new java.util.ArrayList<>();
         for (SymbolCluster sc : clusters) {
             int pts = sc.totalPoints();
-            
-            // Lọc nhiễu kích thước siêu nhỏ (nhỏ hơn 8% cụm lớn nhất)
+
             if (pts < Math.max(8, (int) (maxClusterPoints * 0.08f))) {
                 continue;
             }
 
-            // Lọc nhiễu bám biên/bóng đổ góc ảnh
             boolean touchesBorder = (sc.minX <= 2 || sc.minY <= 2 || sc.maxX >= width - 3 || sc.maxY >= height - 3);
             float centerX = sc.minX + (sc.maxX - sc.minX) / 2f;
             float centerY = sc.minY + (sc.maxY - sc.minY) / 2f;
-            boolean overlapsCenter = (centerX >= width * 0.25f && centerX <= width * 0.75f) && 
+            boolean overlapsCenter = (centerX >= width * 0.25f && centerX <= width * 0.75f) &&
                                      (centerY >= height * 0.25f && centerY <= height * 0.75f);
-            
+
             if (touchesBorder && !overlapsCenter) {
-                // Nếu cụm chạm biên, lệch tâm và nhỏ hơn 35% cụm lớn nhất thì coi là nhiễu biên/bóng đổ
+
                 if (pts < maxClusterPoints * 0.35f) {
                     continue;
                 }
@@ -677,12 +640,10 @@ public class ImageProcessor {
             return resultList;
         }
 
-        // 7. Tạo preprocessed bitmap 28x28 cho từng cụm và lưu thành SegmentedSymbol
         for (SymbolCluster cluster : clusters) {
             int cropW = cluster.width();
             int cropH = cluster.height();
 
-            // Create a tight bitmap around the cluster components (no padding)
             Bitmap clusterBitmap = Bitmap.createBitmap(cropW, cropH, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(clusterBitmap);
             canvas.drawColor(Color.BLACK);
@@ -692,7 +653,7 @@ public class ImageProcessor {
                     int px = pt.x - cluster.minX;
                     int py = pt.y - cluster.minY;
                     if (px >= 0 && px < cropW && py >= 0 && py < cropH) {
-                        // Use inverted grayscale for natural stroke gradients
+
                         int grayVal = 255 - intensities[pt.y * width + pt.x];
                         grayVal = Math.max(0, grayVal);
                         if (grayVal > 10) {
@@ -706,18 +667,15 @@ public class ImageProcessor {
             Canvas finalCanvas = new Canvas(finalBitmap);
             finalCanvas.drawColor(Color.BLACK);
 
-            // Scale tightly to 20x20 — bilinear on grayscale produces smooth EMNIST-like strokes
             float scale = 20.0f / Math.max(cropW, cropH);
             int sw = Math.max(1, Math.round(cropW * scale));
             int sh = Math.max(1, Math.round(cropH * scale));
             Bitmap scaled = Bitmap.createScaledBitmap(clusterBitmap, sw, sh, true);
 
-            // Center the scaled bitmap in the 28x28 canvas
             float offsetX = (28 - sw) / 2f;
             float offsetY = (28 - sh) / 2f;
             finalCanvas.drawBitmap(scaled, offsetX, offsetY, null);
 
-            // Normalize contrast: scale so max pixel intensity reaches 255
             normalizeContrast(finalBitmap);
 
             float scaleX = (float) bitmap.getWidth() / width;

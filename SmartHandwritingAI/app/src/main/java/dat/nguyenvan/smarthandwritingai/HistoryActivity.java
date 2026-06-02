@@ -67,14 +67,14 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
         findViewById(R.id.btn_back_history).setOnClickListener(v -> finish());
         findViewById(R.id.btn_clear_all).setOnClickListener(v -> showClearConfirmDialog());
         findViewById(R.id.btn_sync).setOnClickListener(v -> syncFirebase());
-        
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(String query) { return false; }
             @Override public boolean onQueryTextChange(String newText) {
                 currentQuery = newText; loadHistory(); return true;
             }
         });
-        
+
         chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> {
             showFavoritesOnly = (checkedId == R.id.chip_favorites);
             loadHistory();
@@ -87,7 +87,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
         bottomNavigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_history) {
-                return true; // Already here
+                return true;
             } else if (id == R.id.nav_home) {
                 startActivity(new Intent(this, MainActivity.class));
                 finish();
@@ -123,16 +123,16 @@ public class HistoryActivity extends AppCompatActivity implements HistoryAdapter
             public void onChildDraw(android.graphics.Canvas c, RecyclerView recyclerView,
                                     RecyclerView.ViewHolder viewHolder, float dX, float dY,
                                     int actionState, boolean isCurrentlyActive) {
-                // Draw red background when swiping
+
                 View itemView = viewHolder.itemView;
                 android.graphics.Paint paint = new android.graphics.Paint();
                 paint.setColor(getColor(R.color.error));
-                
+
                 if (dX < 0) {
                     c.drawRect(itemView.getRight() + dX, itemView.getTop(),
                             itemView.getRight(), itemView.getBottom(), paint);
                 }
-                
+
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         };

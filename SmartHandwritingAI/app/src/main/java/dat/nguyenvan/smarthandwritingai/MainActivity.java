@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigation;
     private ImageButton btnSpeakResult;
 
-
     private DigitClassifier digitClassifier;
     private Bitmap currentBitmap;
     private ExecutorService executorService;
@@ -63,23 +62,20 @@ public class MainActivity extends AppCompatActivity {
 
     private Uri photoUri;
 
-    // ── Camera ──────────────────────────────────────────────────────────────
     private final ActivityResultLauncher<Intent> cameraLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && photoUri != null) {
-                    launchUCrop(photoUri); // ảnh camera → UCrop
+                    launchUCrop(photoUri);
                 }
             });
 
-    // ── Gallery ──────────────────────────────────────────────────────────────
     private final ActivityResultLauncher<String> galleryLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 if (uri != null) {
-                    launchUCrop(uri); // ảnh gallery → UCrop
+                    launchUCrop(uri);
                 }
             });
 
-    // ── UCrop ─────────────────────────────────────────────────────────────────
     private final ActivityResultLauncher<Intent> cropLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
@@ -93,14 +89,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-    // ── Permission ────────────────────────────────────────────────────────────
     private final ActivityResultLauncher<String> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
                 if (granted) openCamera();
                 else Toast.makeText(this, getString(R.string.err_camera_permission), Toast.LENGTH_SHORT).show();
             });
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         boolean isDarkMode = getSharedPreferences("AI_CONFIG", MODE_PRIVATE).getBoolean("isDarkMode", true);
@@ -145,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
         btnSpeakResult = findViewById(R.id.btn_speak_result);
         executorService = Executors.newSingleThreadExecutor();
 
-        // Auto-detect math mode is integrated directly.
     }
 
     private void initModel() {
@@ -204,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
-                // Already on home — do nothing
+
                 return true;
             } else if (id == R.id.nav_draw) {
                 startActivity(new Intent(this, DrawActivity.class));
@@ -223,11 +216,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Reset rotation and flip to prevent canvas state leaks
+
         ImageProcessor.rotationDegrees = 0;
         ImageProcessor.isFlipped = false;
 
-        // Reset bottom nav to Home when returning from other activities
         if (bottomNavigation != null) {
             bottomNavigation.setSelectedItemId(R.id.nav_home);
         }
@@ -261,18 +253,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ── UCrop ─────────────────────────────────────────────────────────────────
-
-    /**
-     * Khởi động UCrop với ảnh nguồn. Tỉ lệ cắt tự do (freeStyle),
-     * giới hạn output tối đa 1080×1080 để giảm bộ nhớ.
-     */
     private void launchUCrop(Uri sourceUri) {
         Uri destUri = Uri.fromFile(new File(getCacheDir(), "ucrop_output_" + System.currentTimeMillis() + ".jpg"));
 
         UCrop.Options options = new UCrop.Options();
         options.setCompressionQuality(90);
-        options.setFreeStyleCropEnabled(true);           // Crop tự do
+        options.setFreeStyleCropEnabled(true);
         options.setShowCropGrid(true);
         options.setShowCropFrame(true);
         options.setToolbarTitle(getString(R.string.crop_toolbar_title));
@@ -280,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
         options.setStatusBarColor(getColor(R.color.primary_dark));
         options.setActiveControlsWidgetColor(getColor(R.color.accent));
         options.setToolbarWidgetColor(getColor(R.color.white));
-        // Nút xoay & lật
+
         options.setHideBottomControls(false);
 
         Intent cropIntent = UCrop.of(sourceUri, destUri)
@@ -291,7 +277,6 @@ public class MainActivity extends AppCompatActivity {
         cropLauncher.launch(cropIntent);
     }
 
-    /** Đọc bitmap từ URI đã crop xong và classify */
     private void loadBitmapFromUri(Uri uri) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -310,8 +295,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ── Camera ────────────────────────────────────────────────────────────────
-
     private void openCamera() {
         try {
             java.io.File photoFile = new java.io.File(getExternalCacheDir(), "camera_photo.jpg");
@@ -323,8 +306,6 @@ public class MainActivity extends AppCompatActivity {
             UIUtils.showErrorSnackbar(findViewById(android.R.id.content), getString(R.string.err_open_camera, e.getMessage()));
         }
     }
-
-    // ── AI Classification ─────────────────────────────────────────────────────
 
     private void classifyImage(Bitmap bitmap) {
         if (digitClassifier == null || !digitClassifier.isInitialized()) {

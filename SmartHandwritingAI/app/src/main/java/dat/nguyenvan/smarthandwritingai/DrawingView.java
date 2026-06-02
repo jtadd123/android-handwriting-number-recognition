@@ -19,7 +19,7 @@ public class DrawingView extends View {
     private ArrayList<PathData> undonePaths = new ArrayList<>();
     private Path currentPath;
     private ArrayList<android.graphics.PointF> currentPoints = new ArrayList<>();
-    
+
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
 
@@ -33,7 +33,6 @@ public class DrawingView extends View {
         void onDrawEnd();
     }
 
-    // Inner class to store path with its paint properties and points
     public static class PathData {
         public Path path;
         public int color;
@@ -95,7 +94,6 @@ public class DrawingView extends View {
         super.onDraw(canvas);
         canvas.drawColor(BACKGROUND_COLOR);
 
-        // Draw subtle technical grid lines (opacity ~5%)
         Paint gridPaint = new Paint();
         gridPaint.setColor(Color.WHITE);
         gridPaint.setAlpha(12);
@@ -108,14 +106,13 @@ public class DrawingView extends View {
             canvas.drawLine(0, y, getWidth(), y, gridPaint);
         }
 
-        // Draw all saved paths with their own paint properties
         Paint tempPaint = new Paint(drawPaint);
         for (PathData pd : paths) {
             tempPaint.setColor(pd.color);
             tempPaint.setStrokeWidth(pd.strokeWidth);
             canvas.drawPath(pd.path, tempPaint);
         }
-        // Draw current path with current settings
+
         if (currentPath != null) {
             canvas.drawPath(currentPath, drawPaint);
         }
@@ -215,15 +212,10 @@ public class DrawingView extends View {
         return bitmap;
     }
 
-    /**
-     * Helper to create a tight-bound SQUARE bitmap around the specified paths.
-     * This avoids downscaling a giant canvas and preserves aspect ratio perfectly.
-     */
     private Bitmap getBitmapForPaths(ArrayList<PathData> pathList, float left, float top, float right, float bottom) {
         float widthVal = right - left;
         float heightVal = bottom - top;
 
-        // Determine padding based on maximum stroke width
         float maxStrokeWidth = strokeWidth;
         for (PathData pd : pathList) {
             if (pd.strokeWidth > maxStrokeWidth) {
@@ -232,7 +224,6 @@ public class DrawingView extends View {
         }
         float padding = maxStrokeWidth * 0.8f;
 
-        // Make the bitmap SQUARE to prevent vertical/horizontal aspect ratio distortion
         float maxDim = Math.max(widthVal, heightVal);
         float dx = (maxDim - widthVal) / 2f;
         float dy = (maxDim - heightVal) / 2f;
@@ -251,7 +242,7 @@ public class DrawingView extends View {
         modelPaint.setColor(Color.WHITE);
 
         canvas.save();
-        // Centered translation inside the square bitmap with padding
+
         canvas.translate(-left + padding + dx, -top + padding + dy);
 
         for (PathData pd : pathList) {
@@ -263,10 +254,6 @@ public class DrawingView extends View {
         return bitmap;
     }
 
-    /**
-     * Get bitmap specifically for model prediction.
-     * Always returns black background with white strokes, cropped tightly to the drawn area.
-     */
     public Bitmap getBitmapForModel() {
         if (paths.isEmpty()) {
             Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
@@ -275,7 +262,6 @@ public class DrawingView extends View {
             return bitmap;
         }
 
-        // Compute overall bounds of all paths
         android.graphics.RectF bounds = new android.graphics.RectF();
         paths.get(0).path.computeBounds(bounds, true);
         android.graphics.RectF temp = new android.graphics.RectF();
@@ -311,7 +297,6 @@ public class DrawingView extends View {
                 return isOverlappingOrCloseBoundingBox(newPath);
             }
 
-            // 1. Kiểm tra khoảng cách điểm-đối-điểm thực tế (đối với nét giao nhau/chạm nhau như '+', 'x')
             float minDistanceSq = Float.MAX_VALUE;
             for (PathData clusterPath : this.paths) {
                 if (clusterPath.points == null || clusterPath.points.isEmpty()) continue;
@@ -328,14 +313,13 @@ public class DrawingView extends View {
             }
 
             if (minDistanceSq != Float.MAX_VALUE) {
-                // Sử dụng ngưỡng khoảng cách từ tham số (threshold = strokeWidth * 0.75f) để gộp các nét vẽ
+
                 float distanceThreshold = Math.max(threshold, newPath.strokeWidth * 0.8f);
                 if (minDistanceSq <= (distanceThreshold * distanceThreshold)) {
                     return true;
                 }
             }
 
-            // 2. Kiểm tra phần chồng lấn nét song song xếp dọc (đặc biệt cho dấu bằng '=')
             android.graphics.RectF r1 = new android.graphics.RectF();
             newPath.path.computeBounds(r1, true);
             for (PathData clusterPath : this.paths) {
@@ -402,7 +386,7 @@ public class DrawingView extends View {
     public ArrayList<StrokeCluster> getSegmentedClusters() {
         ArrayList<StrokeCluster> clusters = new ArrayList<>();
         android.graphics.RectF bounds = new android.graphics.RectF();
-        float threshold = strokeWidth * 0.75f; // Ngưỡng khoảng cách tối đa để gộp nét vẽ gần nhau
+        float threshold = strokeWidth * 0.75f;
 
         for (PathData pd : paths) {
             pd.path.computeBounds(bounds, true);
@@ -429,7 +413,6 @@ public class DrawingView extends View {
             }
         }
 
-        // Sắp xếp các cụm từ trái sang phải theo trục X
         java.util.Collections.sort(clusters, (c1, c2) -> Float.compare(c1.left, c2.left));
         return clusters;
     }

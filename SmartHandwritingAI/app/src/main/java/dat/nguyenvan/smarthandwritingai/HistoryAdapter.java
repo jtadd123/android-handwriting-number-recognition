@@ -41,10 +41,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         PredictionEntity prediction = predictions.get(position);
         holder.tvResult.setText(String.valueOf(prediction.getResult()));
         holder.tvConfidence.setText(String.format("%.1f%%", prediction.getConfidence()));
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         holder.tvTimestamp.setText(sdf.format(new Date(prediction.getTimestamp())));
-        
+
         try {
             if (prediction.getImageBase64() != null && !prediction.getImageBase64().isEmpty()) {
                 byte[] bytes = Base64.decode(prediction.getImageBase64(), Base64.DEFAULT);
@@ -55,7 +55,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         if (prediction.getConfidence() >= 90) holder.tvConfidence.setTextColor(0xFF4CAF50);
         else if (prediction.getConfidence() >= 70) holder.tvConfidence.setTextColor(0xFFFF9800);
         else holder.tvConfidence.setTextColor(0xFFF44336);
-        
+
         holder.btnFavorite.setImageResource(prediction.isFavorite ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off);
         holder.btnFavorite.setOnClickListener(v -> listener.onFavoriteClick(prediction));
         holder.btnDelete.setOnClickListener(v -> listener.onDeleteClick(prediction, holder.getAdapterPosition()));

@@ -13,7 +13,7 @@ public class FractionParser {
         public float right;
         public float bottom;
         public Bitmap bitmap;
-        public DrawingView.PathData[] paths; // Null for camera/gallery photos
+        public DrawingView.PathData[] paths;
         public boolean isFractionBar = false;
 
         public SegmentedSymbol(float left, float top, float right, float bottom, Bitmap bitmap, DrawingView.PathData[] paths) {
@@ -44,7 +44,7 @@ public class FractionParser {
         }
 
         if (!isFractionMode) {
-            // Sắp xếp các ký tự từ trái sang phải
+
             Collections.sort(symbols, (s1, s2) -> Float.compare(s1.left, s2.left));
             for (SegmentedSymbol sym : symbols) {
                 tokens.add(classifySymbol(sym, classifier, isMathMode, brushSize));
@@ -52,14 +52,12 @@ public class FractionParser {
             return tokens;
         }
 
-        // Tìm thanh phân số (Fraction Bar) chính
         SegmentedSymbol fractionBar = null;
         for (SegmentedSymbol sym : symbols) {
             float w = sym.width();
             float h = sym.height();
             float ratio = w / Math.max(1f, h);
 
-            // Thanh phân số phải dẹt ngang (ratio > 2.0f) và có nét vẽ trên/dưới nó
             if (ratio > 2.0f && w > 15f) {
                 boolean hasAbove = false;
                 boolean hasBelow = false;
@@ -83,17 +81,16 @@ public class FractionParser {
                 if (hasAbove && hasBelow) {
                     fractionBar = sym;
                     sym.isFractionBar = true;
-                    break; // Sử dụng thanh phân số đầu tiên tìm thấy
+                    break;
                 }
             }
         }
 
         if (fractionBar == null) {
-            // Không thấy phân số, nhận dạng ngang bình thường
+
             return parseLayout(symbols, classifier, isMathMode, false, brushSize);
         }
 
-        // Tách các ký tự còn lại theo vị trí đối với thanh phân số
         List<SegmentedSymbol> leftSyms = new ArrayList<>();
         List<SegmentedSymbol> rightSyms = new ArrayList<>();
         List<SegmentedSymbol> numSyms = new ArrayList<>();
@@ -121,15 +118,13 @@ public class FractionParser {
             }
         }
 
-        // Đệ quy phân tích các nhánh, ép buộc dùng chế độ toán học (isMathMode = true) cho tử số và mẫu số để tránh đoán sai sang chữ cái (như G, Z)
         List<DrawActivity.ExpressionToken> leftTokens = parseLayout(leftSyms, classifier, isMathMode, isFractionMode, brushSize);
         List<DrawActivity.ExpressionToken> numTokens = parseLayout(numSyms, classifier, true, isFractionMode, brushSize);
         List<DrawActivity.ExpressionToken> denTokens = parseLayout(denSyms, classifier, true, isFractionMode, brushSize);
         List<DrawActivity.ExpressionToken> rightTokens = parseLayout(rightSyms, classifier, isMathMode, isFractionMode, brushSize);
 
-        // Kết hợp: Left + (Num)/(Den) + Right (Chỉ thêm ngoặc đơn nếu có nhiều hơn 1 kí tự)
         tokens.addAll(leftTokens);
-        
+
         boolean numHasParens = numTokens.size() > 1;
         if (numHasParens) {
             tokens.add(new DrawActivity.ExpressionToken("(", true, 100f));
@@ -138,9 +133,9 @@ public class FractionParser {
         if (numHasParens) {
             tokens.add(new DrawActivity.ExpressionToken(")", true, 100f));
         }
-        
+
         tokens.add(new DrawActivity.ExpressionToken("/", true, 100f));
-        
+
         boolean denHasParens = denTokens.size() > 1;
         if (denHasParens) {
             tokens.add(new DrawActivity.ExpressionToken("(", true, 100f));
@@ -149,7 +144,7 @@ public class FractionParser {
         if (denHasParens) {
             tokens.add(new DrawActivity.ExpressionToken(")", true, 100f));
         }
-        
+
         tokens.addAll(rightTokens);
 
         return tokens;
@@ -165,15 +160,14 @@ public class FractionParser {
             return new DrawActivity.ExpressionToken("/", true, 100f);
         }
 
-        // 1. Nhận dạng bằng Heuristics (Toán tử) - chỉ chạy khi ở chế độ Giải Toán AI (isMathMode)
         if (isMathMode) {
             String op = null;
             if (sym.paths != null) {
-                // Chế độ vẽ tay: Sử dụng OperatorDetector trực tiếp
+
                 op = OperatorDetector.detectOperator(sym.paths, brushSize);
             }
             if (op == null) {
-                // Thử thêm detector từ bitmap cho vẽ tay / chụp ảnh (hỗ trợ toán tử vẽ 1 nét nhanh)
+
                 float originalRatio = sym.width() / Math.max(1f, sym.height());
                 op = OperatorDetector.detectOperatorFromBitmap(sym.bitmap, originalRatio);
             }
@@ -182,7 +176,6 @@ public class FractionParser {
             }
         }
 
-        // 2. Nhận dạng bằng AI (Mô hình TFLite)
         DigitClassifier.PredictionResult pred = classifier.predict(sym.bitmap, isMathMode, sym.paths == null);
         if (pred != null) {
             String label = pred.label;

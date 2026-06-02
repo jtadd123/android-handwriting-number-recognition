@@ -13,7 +13,7 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Initialize App Locales from SharedPreferences
+
         boolean isEnglish = getSharedPreferences("AI_CONFIG", MODE_PRIVATE).getBoolean("isEnglish", false);
         androidx.core.os.LocaleListCompat currentLocales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales();
         if (currentLocales.isEmpty() || !java.util.Locale.forLanguageTag(isEnglish ? "en" : "vi").getLanguage().equals(currentLocales.get(0).getLanguage())) {
@@ -27,10 +27,10 @@ public class SplashActivity extends AppCompatActivity {
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                // Already logged in → skip login, go straight to onboarding animations
+
                 startActivity(new Intent(this, OnboardingActivity.class));
             } else {
-                // Not logged in → show login screen
+
                 startActivity(new Intent(this, LoginActivity.class));
             }
             finish();

@@ -48,12 +48,11 @@ public class DigitClassifier {
 
     public DigitClassifier(Context context) {
         try {
-            // Bước 1: Khởi tạo mô hình mặc định từ assets để chạy offline (Fallback)
+
             initializeInterpreter(context);
             isInitialized = true;
             Log.d(TAG, "Đã khởi tạo mô hình fallback thành công từ assets.");
-            
-            // Bước 2: Bất đồng bộ kiểm tra và tải mô hình mới từ Firebase ML Cloud
+
             checkForModelUpdate(context);
         } catch (Throwable e) {
             Log.e(TAG, "Lỗi khi load mô hình fallback: " + e.getMessage());
@@ -78,7 +77,7 @@ public class DigitClassifier {
 
     private void checkForModelUpdate(Context context) {
         CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
-                .build(); // Tải qua bất kỳ mạng nào để kiểm tra nhanh
+                .build();
 
         Log.d(TAG, "Đang kiểm tra cập nhật mô hình AI từ Firebase ML Cloud...");
         FirebaseModelDownloader.getInstance()
@@ -92,7 +91,6 @@ public class DigitClassifier {
                             options.setNumThreads(4);
                             Interpreter newInterpreter = new Interpreter(modelFile, options);
 
-                            // Đồng bộ hóa để thay thế interpreter cũ
                             synchronized (this) {
                                 if (interpreter != null) {
                                     interpreter.close();
@@ -143,7 +141,6 @@ public class DigitClassifier {
             }
         }
 
-        // Debug: Log tensor info and top predictions
         Log.d(TAG, "[DEBUG] Input buffer size: " + inputBuffer.capacity() + " bytes");
         float maxConf = 0;
         int maxIdx = 0;
@@ -153,8 +150,8 @@ public class DigitClassifier {
                 maxIdx = i;
             }
         }
-        Log.d(TAG, "[DEBUG] Top prediction: index=" + maxIdx 
-            + " label=" + (maxIdx < LABELS.length ? LABELS[maxIdx] : "?") 
+        Log.d(TAG, "[DEBUG] Top prediction: index=" + maxIdx
+            + " label=" + (maxIdx < LABELS.length ? LABELS[maxIdx] : "?")
             + " confidence=" + String.format("%.2f%%", maxConf * 100));
 
         return getBestPrediction(output[0], mode, inputPixels);
@@ -177,8 +174,7 @@ public class DigitClassifier {
         }
 
         if (mode == PredictionMode.MATH) {
-            // Filter: Zero out non-math classes.
-            // Allowed classes: "0"-"9", "X", "D".
+
             for (int i = 0; i < LABELS.length; i++) {
                 String label = LABELS[i];
                 boolean isDigit = label.length() == 1 && Character.isDigit(label.charAt(0));
@@ -439,7 +435,6 @@ public class DigitClassifier {
             representativeIdx = maxLetterIdx;
         }
 
-        // Set all to 0, then assign sum to representative
         for (String s : group) {
             for (int i = 0; i < LABELS.length; i++) {
                 if (LABELS[i].equals(s)) {

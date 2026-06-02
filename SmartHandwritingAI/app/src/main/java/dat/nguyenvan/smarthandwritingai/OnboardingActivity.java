@@ -55,12 +55,11 @@ public class OnboardingActivity extends AppCompatActivity {
             if (viewPager.getCurrentItem() + 1 < onboardingAdapter.getItemCount()) {
                 viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
             } else {
-                // Xem hết onboarding → đánh dấu đã xem, lần sau không hiện nữa
+
                 finishOnboarding(true);
             }
         });
 
-        // BỎ QUA: KHÔNG đánh dấu isFirstRun=false → lần sau vẫn hiện onboarding
         findViewById(R.id.btn_skip).setOnClickListener(v -> finishOnboarding(false));
     }
 
@@ -69,17 +68,17 @@ public class OnboardingActivity extends AppCompatActivity {
         items.add(new OnboardingAdapter.OnboardingItem(
                 getString(R.string.onboarding_item1_title),
                 getString(R.string.onboarding_item1_desc),
-                R.raw.ai_splash // AI brain animation
+                R.raw.ai_splash
         ));
         items.add(new OnboardingAdapter.OnboardingItem(
                 getString(R.string.onboarding_item2_title),
                 getString(R.string.onboarding_item2_desc),
-                R.raw.onboarding_draw // Drawing pencil animation
+                R.raw.onboarding_draw
         ));
         items.add(new OnboardingAdapter.OnboardingItem(
                 getString(R.string.onboarding_item3_title),
                 getString(R.string.onboarding_item3_desc),
-                R.raw.onboarding_camera // Camera scan animation
+                R.raw.onboarding_camera
         ));
         onboardingAdapter = new OnboardingAdapter(items);
     }
@@ -117,7 +116,7 @@ public class OnboardingActivity extends AppCompatActivity {
     }
 
     private void finishOnboarding(boolean markComplete) {
-        // Onboarding always shows → go to MainActivity
+
         startActivity(new Intent(getApplicationContext(), MainActivity.class));
         finish();
     }
