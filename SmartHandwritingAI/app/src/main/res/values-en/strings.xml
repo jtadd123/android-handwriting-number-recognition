@@ -50,7 +50,7 @@
     <string name="setting_header_appearance">Appearance</string>
     <string name="setting_dark_mode">🌙 Dark Mode</string>
     <string name="setting_dark_mode_desc">Switch between light and dark theme.</string>
-    <string name="setting_language">🌐 English (Tiếng Anh)</string>
+    <string name="setting_language">🌐 English</string>
     <string name="setting_language_desc">Switch app display language.</string>
     <string name="setting_header_data">Data Management</string>
     <string name="setting_firebase_sync">☁️ Firebase Sync</string>

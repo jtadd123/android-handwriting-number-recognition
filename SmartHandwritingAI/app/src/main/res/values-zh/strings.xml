@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartHandwritingAI</string>
+    <string name="title_main">手写识别</string>
+    <string name="subtitle_main">基于 TensorFlow Lite 构建</string>
+    <string name="btn_camera">📷 拍照</string>
+    <string name="btn_gallery">🖼️ 相册</string>
+    <string name="btn_draw">✏️ 手写绘图</string>
+    <string name="btn_history">📋 识别历史</string>
+    <string name="result_label">识别结果</string>
+    <string name="confidence_label">置信度</string>
+    <string name="no_result">暂无结果</string>
+    <string name="btn_back">返回</string>
+    <string name="tap_to_start">选择拍照或手写以开始</string>
+    <string name="model_loading">正在加载 AI 模型…</string>
+    <string name="model_ready">AI 模型就绪 ✓</string>
+    <string name="model_error">AI 模型加载失败 ✗</string>
+    <string name="title_draw">手写数字</string>
+    <string name="btn_clear">清除</string>
+    <string name="btn_predict">识别</string>
+    <string name="draw_hint">用手指书写一个数字 (0-9)</string>
+    <string name="draw_empty">请先书写内容！</string>
+    <string name="tab_freeform">自由识别</string>
+    <string name="tab_math">AI 数学解题</string>
+    <string name="title_history">预测历史记录</string>
+    <string name="no_history">未找到历史记录</string>
+    <string name="btn_clear_history">清除全部</string>
+    <string name="confirm_clear">确认要清除所有历史记录吗？</string>
+    <string name="yes">确定</string>
+    <string name="no">取消</string>
+    <string name="history_cleared">历史记录已清除</string>
+    <string name="title_settings">设置</string>
+    <string name="confirm_delete_item">确认要从历史记录中删除该项吗？</string>
+    <string name="item_deleted">已删除</string>
+
+    <!-- Bottom Navigation Labels -->
+    <string name="nav_home">识别</string>
+    <string name="nav_draw">手写</string>
+    <string name="nav_history">历史</string>
+
+    <!-- Settings Screen -->
+    <string name="setting_title">AI 设置</string>
+    <string name="setting_header_ai">AI 模型配置</string>
+    <string name="setting_threshold_title">置信度阈值 (Confidence Threshold)</string>
+    <string name="setting_threshold_desc">AI 的置信度高于此阈值时才会显示结果。</string>
+    <string name="setting_tts_title">语音播报识别结果 (TTS)</string>
+    <string name="setting_tts_on">已开启</string>
+    <string name="setting_tts_off">已关闭</string>
+    <string name="setting_tts_desc">AI 将以语音方式朗读识别结果。</string>
+    <string name="setting_header_appearance">界面外观</string>
+    <string name="setting_dark_mode">🌙 深色模式 (Dark Mode)</string>
+    <string name="setting_dark_mode_desc">在浅色和深色主题之间切换。</string>
+    <string name="setting_language">🌐 中文 (简体)</string>
+    <string name="setting_language_desc">更改应用显示语言。</string>
+    <string name="setting_header_data">数据管理</string>
+    <string name="setting_firebase_sync">☁️ Firebase 同步</string>
+    <string name="setting_firebase_desc">自动备份识别历史至云端。</string>
+    <string name="setting_clear_data">🗑️ 清除所有历史数据</string>
+    <string name="setting_header_account">账号</string>
+    <string name="setting_account_offline">⬜ 未登录 (Offline)</string>
+    <string name="setting_logged_in">✅ 已登录: %1$s</string>
+    <string name="setting_logout">🚪 退出登录</string>
+    <string name="setting_login_register">🔑 登录 / 注册</string>
+    <string name="setting_header_about">关于应用</string>
+    <string name="setting_version">版本号: 2.1.0</string>
+    <string name="setting_model_info">AI 模型: EMNIST TFLite (36 classes)</string>
+    <string name="setting_features_info">应用特性: TTS, 触觉反馈, AI 纠正, 底部导航</string>
+    
+    <!-- Settings Toast & Messages -->
+    <string name="msg_firebase_sync_on">已开启 Firebase 同步</string>
+    <string name="msg_firebase_sync_off">已关闭同步</string>
+    <string name="msg_history_cleared">所有历史数据已清除！</string>
+    <string name="msg_logged_out">已退出登录</string>
+    <string name="msg_tts_init_failed">语音播报初始化失败，请检查设备语音引擎配置。</string>
+    <string name="msg_tts_disabled">语音播报已关闭</string>
+    <string name="msg_tts_enabled_speak">语音播报已开启</string>
+
+    <!-- Draw -->
+    <string name="draw_guide_hint">用手指书写数字或字母 (0-9, A-Z)</string>
+    <string name="btn_rotate">旋转 90°</string>
+    <string name="btn_flip">水平镜像</string>
+    <string name="draw_direction_format">方向: %1$d°%2$s</string>
+    <string name="draw_flipped_suffix"> (镜像)</string>
+    <string name="draw_result_prefix">识别结果: </string>
+    <string name="btn_save_result">保存结果</string>
+    <string name="msg_saved_history">已保存至历史记录</string>
+    <string name="msg_model_not_ready">模型未就绪</string>
+    <string name="draw_tts_speak_format">结果为 %1$s 置信度为百分之 %2$.0f</string>
+    <string name="draw_feedback_hard_to_read">🤔 字迹有些难辨认，请书写得更清晰一些！</string>
+    <string name="draw_feedback_excellent">🌟 字迹非常工整和美观！</string>
+    <string name="draw_feedback_good">👍 书写良好，可以尝试加粗笔迹。</string>
+    <string name="draw_feedback_average">✏️ 请书写得更粗、更清晰一些。</string>
+    <string name="draw_feedback_poor">🔄 难以辨认字迹，请重新书写。</string>
+
+    <!-- History -->
+    <string name="history_tab_all">全部</string>
+    <string name="history_tab_favorites">收藏夹</string>
+    <string name="history_search_hint">搜索识别历史</string>
+    <string name="msg_offline_mode">离线模式: 无网络连接</string>
+    <string name="msg_firebase_not_configured">Firebase 未配置</string>
+    <string name="msg_syncing_firebase">正在同步至 Firebase...</string>
+    <string name="msg_sync_success">同步成功！</string>
+
+    <!-- Login -->
+    <string name="login_subtitle">登录以同步您的识别历史</string>
+    <string name="login_hint_username">用户名</string>
+    <string name="login_hint_password">密码</string>
+    <string name="login_hint_confirm_password">确认密码</string>
+    <string name="login_btn_forgot_password">忘记密码？</string>
+    <string name="login_btn_login">登录</string>
+    <string name="login_toggle_hint">还没有账号？</string>
+    <string name="login_btn_toggle_register">注册</string>
+    <string name="login_btn_skip">跳过，离线使用</string>
+    
+    <string name="login_subtitle_register">创建新账号以同步数据</string>
+    <string name="login_btn_register">创建账号</string>
+    <string name="login_toggle_hint_register">已有账号？</string>
+    <string name="login_btn_toggle_login">立即登录</string>
+
+    <string name="err_account_data">账号数据异常</string>
+    <string name="err_username_not_exist">用户名不存在</string>
+    <string name="msg_login_success">登录成功！</string>
+    <string name="err_username_taken">该用户名已被占用</string>
+    <string name="err_check_account_failed">校验账号失败: %1$s</string>
+    <string name="msg_register_success">注册成功！</string>
+    <string name="err_enter_username_first">请先输入用户名</string>
+    <string name="err_reset_password_unsupported">暂不支持通过用户名找回密码，请联系管理员。</string>
+    <string name="err_send_reset_failed">发送重置密码邮件失败: %1$s</string>
+    <string name="err_connection_failed">连接错误: %1$s</string>
+    <string name="err_enter_username">请输入用户名</string>
+    <string name="err_username_too_short">用户名需至少 3 个字符</string>
+    <string name="err_username_invalid_chars">用户名仅能包含字母、数字及下划线 _</string>
+    <string name="err_enter_password">请输入密码</string>
+    <string name="err_password_too_short">密码需至少 6 个字符</string>
+    <string name="err_password_mismatch">两次输入的密码不一致</string>
+    <string name="err_unknown">发生未知错误</string>
+    <string name="err_wrong_password">密码错误</string>
+    <string name="err_too_many_attempts">尝试次数过多，请稍后再试。</string>
+
+    <!-- Main / Home -->
+    <string name="main_camera_guide">📸 请将手写字符置于取景框中央</string>
+    <string name="main_ai_input_title">AI 输入 (实际经过预处理的图像):</string>
+    <string name="main_result_title">识别结果</string>
+    <string name="main_confidence_title">置信度: </string>
+    <string name="main_top_predictions_title">置信度排名前三预测值:</string>
+    <string name="main_btn_camera">拍照</string>
+    <string name="main_btn_gallery">从相册选择</string>
+    <string name="main_btn_reset">清除并重试</string>
+    <string name="main_hint_text">选择图片或手写\n以进行识别</string>
+    
+    <string name="err_crop_image">裁剪图片出错: %1$s</string>
+    <string name="err_camera_permission">需要相机权限以进行拍照</string>
+    <string name="crop_toolbar_title">裁剪与旋转图片</string>
+    <string name="err_read_image">读取图片出错: %1$s</string>
+    <string name="err_open_camera">无法打开相机: %1$s</string>
+    <string name="tts_speak_format">识别结果为 %1$s 置信度为百分之 %2$.0f</string>
+    <string name="err_classification">识别出错: %1$s</string>
+    <string name="warning_low_confidence">置信度 (%1$.1f%%) 低于阈值 (50%%)</string>
+    <string name="feedback_excellent">🌟 图像十分清晰！AI 预测置信度高。</string>
+    <string name="feedback_good">👍 图像质量良好。识别结果较为可靠。</string>
+    <string name="feedback_average">✏️ 图像质量一般。可以尝试裁剪得更贴近手写字符。</string>
+    <string name="feedback_poor">🔄 图像难以辨认，请重新裁剪或拍得更清晰一些。</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_btn_skip">跳过</string>
+    <string name="onboarding_btn_next">继续</string>
+    <string name="onboarding_start">开始体验</string>
+    <string name="onboarding_item1_title">AI 智能识别</string>
+    <string name="onboarding_item2_title">手写与预测</string>
+    <string name="onboarding_item3_title">智能相机与云同步</string>
+    <string name="onboarding_item1_desc">采用高精度 TensorFlow Lite EMNIST 模型进行手写识别 — 支持数字 (0-9) 以及字母 (A-Z)。</string>
+    <string name="onboarding_item2_desc">在画布上自由绘制，可自定义画笔颜色与粗细。AI 实时同步预测识别结果。</string>
+    <string name="onboarding_item3_desc">相机扫描智能预处理图像，搭载 Firebase 自动云备份历史，结合 AI 评级提供写字练习功能。</string>
+
+    <!-- Brush Settings Dialog -->
+    <string name="brush_settings_title">画笔配置</string>
+    <string name="brush_size_label">画笔大小</string>
+    <string name="brush_color_label">画笔颜色</string>
+    <string name="btn_cancel">取消</string>
+    <string name="btn_apply">应用</string>
+</resources>

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartHandwritingAI</string>
+    <string name="title_main">Handschrifterkennung</string>
+    <string name="subtitle_main">Präsentiert von TensorFlow Lite</string>
+    <string name="btn_camera">📷 Kamera</string>
+    <string name="btn_gallery">🖼️ Galerie</string>
+    <string name="btn_draw">✏️ Zeichnen</string>
+    <string name="btn_history">📋 Verlauf</string>
+    <string name="result_label">Ergebnis</string>
+    <string name="confidence_label">Konfidenz</string>
+    <string name="no_result">Kein Ergebnis</string>
+    <string name="btn_back">Zurück</string>
+    <string name="tap_to_start">Tippen Sie, um zu beginnen</string>
+    <string name="model_loading">KI-Modell wird geladen…</string>
+    <string name="model_ready">KI-Modell bereit ✓</string>
+    <string name="model_error">Fehler beim Laden des KI-Modells ✗</string>
+    <string name="title_draw">Zahl zeichnen</string>
+    <string name="btn_clear">Löschen</string>
+    <string name="btn_predict">Erkennen</string>
+    <string name="draw_hint">Zeichnen Sie eine Ziffer (0-9)</string>
+    <string name="draw_empty">Bitte zeichnen Sie zuerst!</string>
+    <string name="tab_freeform">Freihandmodus</string>
+    <string name="tab_math">KI-Mathelöser</string>
+    <string name="title_history">Erkennungsverlauf</string>
+    <string name="no_history">Kein Verlauf gefunden</string>
+    <string name="btn_clear_history">Alles löschen</string>
+    <string name="confirm_clear">Möchten Sie den gesamten Verlauf löschen?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="history_cleared">Verlauf gelöscht</string>
+    <string name="title_settings">Einstellungen</string>
+    <string name="confirm_delete_item">Dieses Element aus dem Verlauf löschen?</string>
+    <string name="item_deleted">Gelöscht</string>
+
+    <!-- Bottom Navigation Labels -->
+    <string name="nav_home">Start</string>
+    <string name="nav_draw">Zeichnen</string>
+    <string name="nav_history">Verlauf</string>
+
+    <!-- Settings Screen -->
+    <string name="setting_title">KI-Einstellungen</string>
+    <string name="setting_header_ai">KI-Modell-Konfiguration</string>
+    <string name="setting_threshold_title">Konfidenzschwellenwert</string>
+    <string name="setting_threshold_desc">Die KI zeigt Ergebnisse nur an, wenn die Konfidenz über diesem Schwellenwert liegt.</string>
+    <string name="setting_tts_title">Vorlesen der Ergebnisse (TTS)</string>
+    <string name="setting_tts_on">Aktiviert</string>
+    <string name="setting_tts_off">Deaktiviert</string>
+    <string name="setting_tts_desc">Die KI liest das Erkennungsergebnis laut vor.</string>
+    <string name="setting_header_appearance">Aussehen</string>
+    <string name="setting_dark_mode">🌙 Dunkelmodus</string>
+    <string name="setting_dark_mode_desc">Zwischen hellem und dunklem Design wechseln.</string>
+    <string name="setting_language">🌐 Deutsch</string>
+    <string name="setting_language_desc">App-Anzeigesprache ändern.</string>
+    <string name="setting_header_data">Datenverwaltung</string>
+    <string name="setting_firebase_sync">☁️ Firebase-Synchronisierung</string>
+    <string name="setting_firebase_desc">Verlauf automatisch in der Cloud sichern.</string>
+    <string name="setting_clear_data">🗑️ Gesamten Verlauf löschen</string>
+    <string name="setting_header_account">Konto</string>
+    <string name="setting_account_offline">⬜ Abgemeldet (Offline)</string>
+    <string name="setting_logged_in">✅ Angemeldet als: %1$s</string>
+    <string name="setting_logout">🚪 Abmelden</string>
+    <string name="setting_login_register">🔑 Anmelden / Registrieren</string>
+    <string name="setting_header_about">Über</string>
+    <string name="setting_version">Version: 2.1.0</string>
+    <string name="setting_model_info">KI-Modell: EMNIST TFLite (36 Klassen)</string>
+    <string name="setting_features_info">Funktionen: TTS, Haptik, KI-Feedback, Navigation unten</string>
+    
+    <!-- Settings Toast & Messages -->
+    <string name="msg_firebase_sync_on">Firebase-Synchronisierung aktiviert</string>
+    <string name="msg_firebase_sync_off">Firebase-Synchronisierung deaktiviert</string>
+    <string name="msg_history_cleared">Gesamter Verlauf gelöscht!</string>
+    <string name="msg_logged_out">Abgemeldet</string>
+    <string name="msg_tts_init_failed">TTS konnte nicht initialisiert werden. Überprüfen Sie die Sprachausgabe Ihres Geräts.</string>
+    <string name="msg_tts_disabled">Sprachausgabe deaktiviert</string>
+    <string name="msg_tts_enabled_speak">Sprachausgabe aktiviert</string>
+
+    <!-- Draw -->
+    <string name="draw_guide_hint">Zeichnen Sie Ziffern oder Buchstaben mit Ihrem Finger (0-9, A-Z)</string>
+    <string name="btn_rotate">Um 90° drehen</string>
+    <string name="btn_flip">Spiegeln</string>
+    <string name="draw_direction_format">Richtung: %1$d°%2$s</string>
+    <string name="draw_flipped_suffix"> (Gespiegelt)</string>
+    <string name="draw_result_prefix">Ergebnis: </string>
+    <string name="btn_save_result">Ergebnis speichern</string>
+    <string name="msg_saved_history">Im Verlauf gespeichert</string>
+    <string name="msg_model_not_ready">Modell nicht bereit</string>
+    <string name="draw_tts_speak_format">Das Ergebnis ist %1$s mit %2$.0f Prozent Konfidenz</string>
+    <string name="draw_feedback_hard_to_read">🤔 Schwer zu lesen. Bitte deutlicher schreiben!</string>
+    <string name="draw_feedback_excellent">🌟 Sehr klare und schöne Schrift!</string>
+    <string name="draw_feedback_good">👍 Gute Schrift, Sie können dicker zeichnen.</string>
+    <string name="draw_feedback_average">✏️ Bitte zeichnen Sie dicker und deutlicher.</string>
+    <string name="draw_feedback_poor">🔄 Schwer zu erkennen. Bitte neu zeichnen.</string>
+
+    <!-- History -->
+    <string name="history_tab_all">Alle</string>
+    <string name="history_tab_favorites">Favoriten</string>
+    <string name="history_search_hint">Verlauf durchsuchen</string>
+    <string name="msg_offline_mode">Offline-Modus: Keine Internetverbindung</string>
+    <string name="msg_firebase_not_configured">Firebase ist nicht konfiguriert</string>
+    <string name="msg_syncing_firebase">Synchronisierung mit Firebase...</string>
+    <string name="msg_sync_success">Synchronisierung erfolgreich!</string>
+
+    <!-- Login -->
+    <string name="login_subtitle">Melden Sie sich an, um Ihren Verlauf zu synchronisieren</string>
+    <string name="login_hint_username">Benutzername</string>
+    <string name="login_hint_password">Passwort</string>
+    <string name="login_hint_confirm_password">Passwort bestätigen</string>
+    <string name="login_btn_forgot_password">Passwort vergessen?</string>
+    <string name="login_btn_login">Anmelden</string>
+    <string name="login_toggle_hint">Noch kein Konto?</string>
+    <string name="login_btn_toggle_register">Registrieren</string>
+    <string name="login_btn_skip">Überspringen, offline nutzen</string>
+    
+    <string name="login_subtitle_register">Neues Konto erstellen, um Daten zu synchronisieren</string>
+    <string name="login_btn_register">Konto erstellen</string>
+    <string name="login_toggle_hint_register">Bereits ein Konto?</string>
+    <string name="login_btn_toggle_login">Anmelden</string>
+
+    <string name="err_account_data">Kontodatenfehler</string>
+    <string name="err_username_not_exist">Benutzername existiert nicht</string>
+    <string name="msg_login_success">Erfolgreich angemeldet!</string>
+    <string name="err_username_taken">Benutzername ist bereits vergeben</string>
+    <string name="err_check_account_failed">Überprüfung des Kontos fehlgeschlagen: %1$s</string>
+    <string name="msg_register_success">Konto erfolgreich erstellt!</string>
+    <string name="err_enter_username_first">Bitte geben Sie zuerst einen Benutzernamen ein</string>
+    <string name="err_reset_password_unsupported">Passwort-Reset über Benutzernamen wird noch nicht unterstützt. Bitte kontaktieren Sie den Admin.</string>
+    <string name="err_send_reset_failed">Zurücksetzen-E-Mail konnte nicht gesendet werden: %1$s</string>
+    <string name="err_connection_failed">Verbindungsfehler: %1$s</string>
+    <string name="err_enter_username">Bitte geben Sie einen Benutzernamen ein</string>
+    <string name="err_username_too_short">Benutzername muss mindestens 3 Zeichen lang sein</string>
+    <string name="err_username_invalid_chars">Benutzername darf nur Buchstaben, Zahlen und _ enthalten</string>
+    <string name="err_enter_password">Bitte geben Sie ein Passwort ein</string>
+    <string name="err_password_too_short">Passwort muss mindestens 6 Zeichen lang sein</string>
+    <string name="err_password_mismatch">Passwörter stimmen nicht überein</string>
+    <string name="err_unknown">Ein Fehler ist aufgetreten</string>
+    <string name="err_wrong_password">Falsches Passwort</string>
+    <string name="err_too_many_attempts">Zu viele Fehlversuche. Bitte versuchen Sie es später noch einmal.</string>
+
+    <!-- Main / Home -->
+    <string name="main_camera_guide">📸 Platzieren Sie das Zeichen im Rahmen</string>
+    <string name="main_ai_input_title">KI-Eingabe (Vorverarbeitetes Bild):</string>
+    <string name="main_result_title">ERGEBNIS</string>
+    <string name="main_confidence_title">Konfidenz: </string>
+    <string name="main_top_predictions_title">Top 3 Vorhersagen (KI-Konfidenz):</string>
+    <string name="main_btn_camera">Kamera</string>
+    <string name="main_btn_gallery">Galerie</string>
+    <string name="main_btn_reset">Löschen &amp; Zurücksetzen</string>
+    <string name="main_hint_text">Bild auswählen oder zeichnen\nzur Erkennung</string>
+    
+    <string name="err_crop_image">Fehler beim Zuschneiden: %1$s</string>
+    <string name="err_camera_permission">Kameraberechtigung zum Fotografieren erforderlich</string>
+    <string name="crop_toolbar_title">Bild zuschneiden &amp; drehen</string>
+    <string name="err_read_image">Fehler beim Lesen des Bildes: %1$s</string>
+    <string name="err_open_camera">Kamera kann nicht geöffnet werden: %1$s</string>
+    <string name="tts_speak_format">Das Erkennungsergebnis ist %1$s mit %2$.0f Prozent Konfidenz</string>
+    <string name="err_classification">Erkennungsfehler: %1$s</string>
+    <string name="warning_low_confidence">Konfidenz (%1$.1f%%) liegt unter dem konfigurierten Schwellenwert (50%%)</string>
+    <string name="feedback_excellent">🌟 Sehr klares Bild! KI-Erkennungsergebnis ist sehr sicher.</string>
+    <string name="feedback_good">👍 Gute Bildqualität. Zuverlässiges Ergebnis.</string>
+    <string name="feedback_average">✏️ Durchschnittliche Qualität. Versuchen Sie, näher am Zeichen zuzuschneiden.</string>
+    <string name="feedback_poor">🔄 Bild schwer lesbar. Erneut zuschneiden oder ein klareres Foto machen.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_btn_skip">ÜBERSPRINGEN</string>
+    <string name="onboarding_btn_next">WEITER</string>
+    <string name="onboarding_start">START</string>
+    <string name="onboarding_item1_title">KI-Erkennung</string>
+    <string name="onboarding_item2_title">Zeichnen &amp; Erkennen</string>
+    <string name="onboarding_item3_title">Smarte Kamera &amp; Cloud</string>
+    <string name="onboarding_item1_desc">Genaue Handschrifterkennung mit dem TensorFlow Lite EMNIST-Modell – unterstützt Ziffern (0-9) und Buchstaben (A-Z).</string>
+    <string name="onboarding_item2_desc">Zeichnen Sie direkt auf der Leinwand mit anpassbarer Farbe und Pinselgröße. Echtzeit-KI-Vorhersage beim Zeichnen.</string>
+    <string name="onboarding_item3_desc">Intelligenter Scanner mit automatischer Vorverarbeitung, Firebase-Cloud-Synchronisierung und KI-Übungsmodus.</string>
+
+    <!-- Brush Settings Dialog -->
+    <string name="brush_settings_title">Pinseleinstellungen</string>
+    <string name="brush_size_label">Pinselgröße</string>
+    <string name="brush_color_label">Pinselfarbe</string>
+    <string name="btn_cancel">Abbrechen</string>
+    <string name="btn_apply">Anwenden</string>
+</resources>

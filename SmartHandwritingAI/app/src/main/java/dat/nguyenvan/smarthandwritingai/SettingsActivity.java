@@ -29,7 +29,7 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView tvThresholdValue;
     private TextView tvAccountEmail;
     private MaterialSwitch switchFirebase;
-    private MaterialSwitch switchLanguage;
+    private android.widget.AutoCompleteTextView spinnerLanguage;
     private MaterialSwitch switchDarkMode;
     private ImageButton btnTtsToggle;
     private TextView tvTtsStatus;
@@ -41,8 +41,13 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         prefs = getSharedPreferences("AI_CONFIG", MODE_PRIVATE);
-        boolean isEnglish = prefs.getBoolean("isEnglish", false);
-        setLocaleTemp(isEnglish ? "en" : "vi");
+        String langCode = prefs.getString("app_language", null);
+        if (langCode == null) {
+            boolean isEnglish = prefs.getBoolean("isEnglish", false);
+            langCode = isEnglish ? "en" : "vi";
+            prefs.edit().putString("app_language", langCode).apply();
+        }
+        setLocaleTemp(langCode);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_OPEN, android.R.anim.fade_in, android.R.anim.fade_out);
@@ -62,7 +67,7 @@ public class SettingsActivity extends AppCompatActivity {
         seekbarThreshold = findViewById(R.id.seekbar_threshold);
         tvThresholdValue = findViewById(R.id.tv_threshold_value);
         switchFirebase = findViewById(R.id.switch_firebase);
-        switchLanguage = findViewById(R.id.switch_language);
+        spinnerLanguage = findViewById(R.id.spinner_language);
         switchDarkMode = findViewById(R.id.switch_dark_mode);
         btnTtsToggle = findViewById(R.id.btn_tts_toggle);
         tvTtsStatus = findViewById(R.id.tv_tts_status);
@@ -182,20 +187,39 @@ public class SettingsActivity extends AppCompatActivity {
         seekbarThreshold.setProgress(threshold);
         tvThresholdValue.setText(threshold + "%");
 
+        final String[] languageCodes = {"vi", "en", "es", "fr", "de", "zh", "ja", "ko", "ru"};
+        final String[] languageNames = {
+            "Vietnamese (Tiếng Việt)",
+            "English",
+            "Spanish (Español)",
+            "French (Français)",
+            "German (Deutsch)",
+            "Chinese (中文 (简体))",
+            "Japanese (日本語)",
+            "Korean (한국어)",
+            "Russian (Русский)"
+        };
+
         switchFirebase.setOnCheckedChangeListener(null);
-        switchLanguage.setOnCheckedChangeListener(null);
         switchDarkMode.setOnCheckedChangeListener(null);
 
         switchFirebase.setChecked(sync);
 
-        androidx.core.os.LocaleListCompat currentLocales = AppCompatDelegate.getApplicationLocales();
-        boolean isEnglishSelected = false;
-        if (!currentLocales.isEmpty()) {
-            isEnglishSelected = "en".equals(currentLocales.get(0).getLanguage());
-        } else {
-            isEnglishSelected = prefs.getBoolean("isEnglish", false);
+        String currentLangCode = prefs.getString("app_language", "vi");
+        int currentLangIdx = 0;
+        for (int i = 0; i < languageCodes.length; i++) {
+            if (languageCodes[i].equals(currentLangCode)) {
+                currentLangIdx = i;
+                break;
+            }
         }
-        switchLanguage.setChecked(isEnglishSelected);
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            languageNames
+        );
+        spinnerLanguage.setAdapter(adapter);
+        spinnerLanguage.setText(languageNames[currentLangIdx], false);
 
         switchDarkMode.setChecked(isDarkMode);
 
@@ -205,9 +229,13 @@ public class SettingsActivity extends AppCompatActivity {
             UIUtils.showSuccessSnackbar(findViewById(android.R.id.content), msg);
         });
 
-        switchLanguage.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean("isEnglish", isChecked).apply();
-            setLocaleTemp(isChecked ? "en" : "vi");
+        spinnerLanguage.setOnItemClickListener((parent, view, position, id) -> {
+            String targetLangCode = languageCodes[position];
+            prefs.edit().putString("app_language", targetLangCode).apply();
+            prefs.edit().putBoolean("isEnglish", "en".equals(targetLangCode)).apply();
+            
+            setLocaleTemp(targetLangCode);
+            
             Intent intent = new Intent(this, SettingsActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             startActivity(intent);
@@ -264,9 +292,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
-        boolean isEnglish = prefs.getBoolean("isEnglish", false);
+        String langCode = prefs.getString("app_language", "vi");
         androidx.core.os.LocaleListCompat locales = androidx.core.os.LocaleListCompat.create(
-                java.util.Locale.forLanguageTag(isEnglish ? "en" : "vi")
+                java.util.Locale.forLanguageTag(langCode)
         );
         if (!locales.equals(AppCompatDelegate.getApplicationLocales())) {
             AppCompatDelegate.setApplicationLocales(locales);

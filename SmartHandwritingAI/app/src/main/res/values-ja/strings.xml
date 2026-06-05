@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartHandwritingAI</string>
+    <string name="title_main">手書き文字認識</string>
+    <string name="subtitle_main">Powered by TensorFlow Lite</string>
+    <string name="btn_camera">📷 写真撮影</string>
+    <string name="btn_gallery">🖼️ ギャラリー</string>
+    <string name="btn_draw">✏️ 手書き描画</string>
+    <string name="btn_history">📋 認識履歴</string>
+    <string name="result_label">認識結果</string>
+    <string name="confidence_label">信頼度</string>
+    <string name="no_result">結果なし</string>
+    <string name="btn_back">戻る</string>
+    <string name="tap_to_start">カメラ撮影か手書きで開始します</string>
+    <string name="model_loading">AIモデルを読み込み中…</string>
+    <string name="model_ready">AIモデル準備完了 ✓</string>
+    <string name="model_error">AIモデル読み込みエラー ✗</string>
+    <string name="title_draw">数字を描く</string>
+    <string name="btn_clear">消去</string>
+    <string name="btn_predict">認識する</string>
+    <string name="draw_hint">指で数字を1つ描いてください (0-9)</string>
+    <string name="draw_empty">まず描いてください！</string>
+    <string name="tab_freeform">自由認識モード</string>
+    <string name="tab_math">AI数学ソルバー</string>
+    <string name="title_history">認識履歴</string>
+    <string name="no_history">履歴が見つかりません</string>
+    <string name="btn_clear_history">すべて削除</string>
+    <string name="confirm_clear">すべての履歴を削除しますか？</string>
+    <string name="yes">はい</string>
+    <string name="no">いいえ</string>
+    <string name="history_cleared">履歴を削除しました</string>
+    <string name="title_settings">設定</string>
+    <string name="confirm_delete_item">履歴からこの項目を削除しますか？</string>
+    <string name="item_deleted">削除しました</string>
+
+    <!-- Bottom Navigation Labels -->
+    <string name="nav_home">認識</string>
+    <string name="nav_draw">手書き</string>
+    <string name="nav_history">履歴</string>
+
+    <!-- Settings Screen -->
+    <string name="setting_title">AI設定</string>
+    <string name="setting_header_ai">AIモデル設定</string>
+    <string name="setting_threshold_title">信頼度しきい値</string>
+    <string name="setting_threshold_desc">AIは信頼度がこのしきい値を超えた場合のみ結果を表示します。</string>
+    <string name="setting_tts_title">結果を音声で読み上げる (TTS)</string>
+    <string name="setting_tts_on">有効</string>
+    <string name="setting_tts_off">無効</string>
+    <string name="setting_tts_desc">AIが予測結果を音声で読み上げます。</string>
+    <string name="setting_header_appearance">外観</string>
+    <string name="setting_dark_mode">🌙 ダークモード</string>
+    <string name="setting_dark_mode_desc">ライトテーマとダークテーマを切り替えます。</string>
+    <string name="setting_language">🌐 日本語</string>
+    <string name="setting_language_desc">アプリの表示言語を切り替えます。</string>
+    <string name="setting_header_data">データ管理</string>
+    <string name="setting_firebase_sync">☁️ Firebase同期</string>
+    <string name="setting_firebase_desc">履歴データをクラウドに自動バックアップします。</string>
+    <string name="setting_clear_data">🗑️ すべての履歴データを消去</string>
+    <string name="setting_header_account">アカウント</string>
+    <string name="setting_account_offline">⬜ 未ログイン (Offline)</string>
+    <string name="setting_logged_in">✅ ログイン中: %1$s</string>
+    <string name="setting_logout">🚪 ログアウト</string>
+    <string name="setting_login_register">🔑 ログイン / 新規登録</string>
+    <string name="setting_header_about">アプリについて</string>
+    <string name="setting_version">バージョン: 2.1.0</string>
+    <string name="setting_model_info">AIモデル: EMNIST TFLite (36 classes)</string>
+    <string name="setting_features_info">機能: TTS, 触覚フィードバック, AIフィードバック, ナビゲーション</string>
+    
+    <!-- Settings Toast & Messages -->
+    <string name="msg_firebase_sync_on">Firebase同期が有効になりました</string>
+    <string name="msg_firebase_sync_off">同期が非表示になりました</string>
+    <string name="msg_history_cleared">すべての履歴が消去されました！</string>
+    <string name="msg_logged_out">ログアウトしました</string>
+    <string name="msg_tts_init_failed">音声読み上げを初期化できません。デバイスの音声設定を確認してください。</string>
+    <string name="msg_tts_disabled">AI音声を無効にしました</string>
+    <string name="msg_tts_enabled_speak">AI音声を有効にしました</string>
+
+    <!-- Draw -->
+    <string name="draw_guide_hint">指で数字や英字を描いてください (0-9, A-Z)</string>
+    <string name="btn_rotate">90°回転</string>
+    <string name="btn_flip">左右反転</string>
+    <string name="draw_direction_format">方向: %1$d°%2$s</string>
+    <string name="draw_flipped_suffix"> (反転)</string>
+    <string name="draw_result_prefix">結果: </string>
+    <string name="btn_save_result">結果を保存</string>
+    <string name="msg_saved_history">履歴に保存しました</string>
+    <string name="msg_model_not_ready">モデルの準備ができていません</string>
+    <string name="draw_tts_speak_format">結果は %1$s 信頼度は %2$.0f パーセントです</string>
+    <string name="draw_feedback_hard_to_read">🤔 文字が読みにくいです。もっとはっきりと描いてください！</string>
+    <string name="draw_feedback_excellent">🌟 とてもきれいで分かりやすい書き方です！</string>
+    <string name="draw_feedback_good">👍 上手に描けています。線を太くするとさらによくなります。</string>
+    <string name="draw_feedback_average">✏️ 線を太く、はっきりと描いてください。</string>
+    <string name="draw_feedback_poor">🔄 文字を識別しにくいです。もう一度描き直してください。</string>
+
+    <!-- History -->
+    <string name="history_tab_all">すべて</string>
+    <string name="history_tab_favorites">お気に入り</string>
+    <string name="history_search_hint">履歴を検索</string>
+    <string name="msg_offline_mode">オフラインモード: インターネットに接続されていません</string>
+    <string name="msg_firebase_not_configured">Firebaseが構成されていません</string>
+    <string name="msg_syncing_firebase">Firebaseに同期中...</string>
+    <string name="msg_sync_success">同期に成功しました！</string>
+
+    <!-- Login -->
+    <string name="login_subtitle">ログインして履歴を同期しましょう</string>
+    <string name="login_hint_username">ユーザー名</string>
+    <string name="login_hint_password">パスワード</string>
+    <string name="login_hint_confirm_password">パスワードの確認</string>
+    <string name="login_btn_forgot_password">パスワードをお忘れですか？</string>
+    <string name="login_btn_login">ログイン</string>
+    <string name="login_toggle_hint">アカウントをお持ちでないですか？</string>
+    <string name="login_btn_toggle_register">新規登録</string>
+    <string name="login_btn_skip">スキップしてオフラインで使用</string>
+    
+    <string name="login_subtitle_register">データを同期するためアカウントを登録</string>
+    <string name="login_btn_register">登録する</string>
+    <string name="login_toggle_hint_register">すでにアカウントをお持ちですか？</string>
+    <string name="login_btn_toggle_login">ログイン画面へ</string>
+
+    <string name="err_account_data">アカウントデータエラー</string>
+    <string name="err_username_not_exist">ユーザー名が存在しません</string>
+    <string name="msg_login_success">ログインしました！</string>
+    <string name="err_username_taken">そのユーザー名は既に使用されています</string>
+    <string name="err_check_account_failed">アカウント確認エラー: %1$s</string>
+    <string name="msg_register_success">アカウント登録が完了しました！</string>
+    <string name="err_enter_username_first">先にユーザー名を入力してください</string>
+    <string name="err_reset_password_unsupported">ユーザー名でのパスワード再設定は未対応です。管理者に連絡してください。</string>
+    <string name="err_send_reset_failed">再設定メールの送信に失敗しました: %1$s</string>
+    <string name="err_connection_failed">接続エラー: %1$s</string>
+    <string name="err_enter_username">ユーザー名を入力してください</string>
+    <string name="err_username_too_short">ユーザー名は3文字以上である必要があります</string>
+    <string name="err_username_invalid_chars">ユーザー名には半角英数字と _ のみが使用できます</string>
+    <string name="err_enter_password">パスワードを入力してください</string>
+    <string name="err_password_too_short">パスワードは6文字以上である必要があります</string>
+    <string name="err_password_mismatch">パスワードが一致しません</string>
+    <string name="err_unknown">エラーが発生しました</string>
+    <string name="err_wrong_password">パスワードが正しくありません</string>
+    <string name="err_too_many_attempts">試行回数が多すぎます。しばらく経ってからやり直してください。</string>
+
+    <!-- Main / Home -->
+    <string name="main_camera_guide">📸 枠の中に文字を配置してください</string>
+    <string name="main_ai_input_title">AI入力用 (前処理済み画像):</string>
+    <string name="main_result_title">認識結果</string>
+    <string name="main_confidence_title">信頼度: </string>
+    <string name="main_top_predictions_title">上位3つの予測値 (AI信頼度):</string>
+    <string name="main_btn_camera">カメラ撮影</string>
+    <string name="main_btn_gallery">ギャラリーから選択</string>
+    <string name="main_btn_reset">クリア &amp; リセット</string>
+    <string name="main_hint_text">写真を選択するか手書きで\n認識を開始します</string>
+    
+    <string name="err_crop_image">切り抜きエラー: %1$s</string>
+    <string name="err_camera_permission">撮影にはカメラのアクセス許可が必要です</string>
+    <string name="crop_toolbar_title">画像の切り抜きと回転</string>
+    <string name="err_read_image">画像の読み込みエラー: %1$s</string>
+    <string name="err_open_camera">カメラを起動できません: %1$s</string>
+    <string name="tts_speak_format">認識結果は %1$s 信頼度は %2$.0f パーセントです</string>
+    <string name="err_classification">認識エラー: %1$s</string>
+    <string name="warning_low_confidence">信頼度 (%1$.1f%%) が設定しきい値 (50%%) を下回っています</string>
+    <string name="feedback_excellent">🌟 とても鮮明な画像です！AIは高い信頼度で認識しています。</string>
+    <string name="feedback_good">👍 画像品質が良好です。信頼できる結果です。</string>
+    <string name="feedback_average">✏️ 平均的な品質です。文字の近くで切り抜いてみてください。</string>
+    <string name="feedback_poor">🔄 画像が読みにくいです。切り抜くか、より鮮明な写真を撮り直してください。</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_btn_skip">スキップ</string>
+    <string name="onboarding_btn_next">次へ</string>
+    <string name="onboarding_start">開始する</string>
+    <string name="onboarding_item1_title">AI認識機能</string>
+    <string name="onboarding_item2_title">手書き &amp; 予測</string>
+    <string name="onboarding_item3_title">スマートカメラとクラウド</string>
+    <string name="onboarding_item1_desc">TensorFlow Lite EMNISTモデルによる正確な手書き文字認識 — 数字 (0-9) および英語文字 (A-Z) に対応しています。</string>
+    <string name="onboarding_item2_desc">ペンの太さや色を選んで画面に手書きで描画できます。描画が終わるとリアルタイムにAIが認識します。</string>
+    <string name="onboarding_item3_desc">画像の自動前処理スキャナー、Firebaseを通じたクラウド履歴同期、AI採点付きの手書き練習モードを搭載。</string>
+
+    <!-- Brush Settings Dialog -->
+    <string name="brush_settings_title">ペンの設定</string>
+    <string name="brush_size_label">ペンの太さ</string>
+    <string name="brush_color_label">ペンの色</string>
+    <string name="btn_cancel">キャンセル</string>
+    <string name="btn_apply">適用</string>
+</resources>

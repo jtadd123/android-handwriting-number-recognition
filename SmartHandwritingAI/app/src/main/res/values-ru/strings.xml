@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartHandwritingAI</string>
+    <string name="title_main">Распознавание рукописного текста</string>
+    <string name="subtitle_main">Работает на TensorFlow Lite</string>
+    <string name="btn_camera">📷 Сделать фото</string>
+    <string name="btn_gallery">🖼️ Галерея</string>
+    <string name="btn_draw">✏️ Рисование</string>
+    <string name="btn_history">📋 История</string>
+    <string name="result_label">Результат</string>
+    <string name="confidence_label">Точность</string>
+    <string name="no_result">Нет результата</string>
+    <string name="btn_back">Назад</string>
+    <string name="tap_to_start">Сделайте фото или начните рисовать</string>
+    <string name="model_loading">Загрузка модели ИИ…</string>
+    <string name="model_ready">Модель ИИ готова ✓</string>
+    <string name="model_error">Ошибка загрузки модели ИИ ✗</string>
+    <string name="title_draw">Нарисуйте число</string>
+    <string name="btn_clear">Очистить</string>
+    <string name="btn_predict">Распознать</string>
+    <string name="draw_hint">Нарисуйте пальцем одну цифру (0-9)</string>
+    <string name="draw_empty">Пожалуйста, нарисуйте сначала!</string>
+    <string name="tab_freeform">Свободный режим</string>
+    <string name="tab_math">Решение математики ИИ</string>
+    <string name="title_history">История распознавания</string>
+    <string name="no_history">История пуста</string>
+    <string name="btn_clear_history">Очистить всё</string>
+    <string name="confirm_clear">Вы действительно хотите очистить всю историю?</string>
+    <string name="yes">Да</string>
+    <string name="no">Отмена</string>
+    <string name="history_cleared">История очищена</string>
+    <string name="title_settings">Настройки</string>
+    <string name="confirm_delete_item">Удалить этот элемент из истории?</string>
+    <string name="item_deleted">Удалено</string>
+
+    <!-- Bottom Navigation Labels -->
+    <string name="nav_home">Распознать</string>
+    <string name="nav_draw">Рисование</string>
+    <string name="nav_history">История</string>
+
+    <!-- Settings Screen -->
+    <string name="setting_title">Настройки ИИ</string>
+    <string name="setting_header_ai">Конфигурация модели ИИ</string>
+    <string name="setting_threshold_title">Порог уверенности</string>
+    <string name="setting_threshold_desc">ИИ показывает результаты только в том случае, если уверенность выше этого порога.</string>
+    <string name="setting_tts_title">Озвучивать результаты (TTS)</string>
+    <string name="setting_tts_on">Включено</string>
+    <string name="setting_tts_off">Выключено</string>
+    <string name="setting_tts_desc">ИИ будет зачитывать вслух результаты распознавания.</string>
+    <string name="setting_header_appearance">Внешний вид</string>
+    <string name="setting_dark_mode">🌙 Темный режим</string>
+    <string name="setting_dark_mode_desc">Переключение между светлой и темной темами.</string>
+    <string name="setting_language">🌐 Русский</string>
+    <string name="setting_language_desc">Сменить язык интерфейса приложения.</string>
+    <string name="setting_header_data">Управление данными</string>
+    <string name="setting_firebase_sync">☁️ Синхронизация Firebase</string>
+    <string name="setting_firebase_desc">Автоматическое резервное копирование истории в облако.</string>
+    <string name="setting_clear_data">🗑️ Очистить всю историю данных</string>
+    <string name="setting_header_account">Аккаунт</string>
+    <string name="setting_account_offline">⬜ Не в сети (Offline)</string>
+    <string name="setting_logged_in">✅ Вошел в сеть: %1$s</string>
+    <string name="setting_logout">🚪 Выйти</string>
+    <string name="setting_login_register">🔑 Войти / Регистрация</string>
+    <string name="setting_header_about">О приложении</string>
+    <string name="setting_version">Версия: 2.1.0</string>
+    <string name="setting_model_info">Модель ИИ: EMNIST TFLite (36 классов)</string>
+    <string name="setting_features_info">Функции: TTS, виброотклик, исправление ИИ, навигация</string>
+    
+    <!-- Settings Toast & Messages -->
+    <string name="msg_firebase_sync_on">Синхронизация Firebase включена</string>
+    <string name="msg_firebase_sync_off">Синхронизация отключена</string>
+    <string name="msg_history_cleared">Вся история удалена!</string>
+    <string name="msg_logged_out">Вы вышли из системы</string>
+    <string name="msg_tts_init_failed">Не удалось инициализировать TTS. Проверьте голосовой движок на устройстве.</string>
+    <string name="msg_tts_disabled">Озвучка ИИ отключена</string>
+    <string name="msg_tts_enabled_speak">Озвучка ИИ включена</string>
+
+    <!-- Draw -->
+    <string name="draw_guide_hint">Нарисуйте пальцем цифры или буквы (0-9, A-Z)</string>
+    <string name="btn_rotate">Повернуть на 90°</string>
+    <string name="btn_flip">Отразить зеркально</string>
+    <string name="draw_direction_format">Направление: %1$d°%2$s</string>
+    <string name="draw_flipped_suffix"> (Отражено)</string>
+    <string name="draw_result_prefix">Результат: </string>
+    <string name="btn_save_result">Сохранить результат</string>
+    <string name="msg_saved_history">Сохранено в историю</string>
+    <string name="msg_model_not_ready">Модель ИИ не готова</string>
+    <string name="draw_tts_speak_format">Результат %1$s с точностью %2$.0f процентов</string>
+    <string name="draw_feedback_hard_to_read">🤔 Плохой почерк. Пишите четче, пожалуйста!</string>
+    <string name="draw_feedback_excellent">🌟 Очень четкое и красивое письмо!</string>
+    <string name="draw_feedback_good">👍 Написано хорошо, вы можете сделать линии толще.</string>
+    <string name="draw_feedback_average">✏️ Пожалуйста, рисуйте толще и понятнее.</string>
+    <string name="draw_feedback_poor">🔄 Сложно распознать почерк. Пожалуйста, напишите заново.</string>
+
+    <!-- History -->
+    <string name="history_tab_all">Все</string>
+    <string name="history_tab_favorites">Избранное</string>
+    <string name="history_search_hint">Поиск истории</string>
+    <string name="msg_offline_mode">Автономный режим: нет подключения к сети</string>
+    <string name="msg_firebase_not_configured">Firebase не настроен</string>
+    <string name="msg_syncing_firebase">Синхронизация с Firebase...</string>
+    <string name="msg_sync_success">Синхронизация успешна!</string>
+
+    <!-- Login -->
+    <string name="login_subtitle">Войдите в систему для синхронизации истории</string>
+    <string name="login_hint_username">Имя пользователя</string>
+    <string name="login_hint_password">Пароль</string>
+    <string name="login_hint_confirm_password">Подтвердите пароль</string>
+    <string name="login_btn_forgot_password">Забыли пароль?</string>
+    <string name="login_btn_login">Войти</string>
+    <string name="login_toggle_hint">Еще нет аккаунта?</string>
+    <string name="login_btn_toggle_register">Зарегистрироваться</string>
+    <string name="login_btn_skip">Пропустить, использовать оффлайн</string>
+    
+    <string name="login_subtitle_register">Создайте новый аккаунт для синхронизации</string>
+    <string name="login_btn_register">Создать аккаунт</string>
+    <string name="login_toggle_hint_register">Уже есть аккаунт?</string>
+    <string name="login_btn_toggle_login">Войти в аккаунт</string>
+
+    <string name="err_account_data">Ошибка данных аккаунта</string>
+    <string name="err_username_not_exist">Имя пользователя не существует</string>
+    <string name="msg_login_success">Успешный вход!</string>
+    <string name="err_username_taken">Имя пользователя уже занято</string>
+    <string name="err_check_account_failed">Не удалось проверить аккаунт: %1$s</string>
+    <string name="msg_register_success">Аккаунт успешно создан!</string>
+    <string name="err_enter_username_first">Пожалуйста, сначала введите имя пользователя</string>
+    <string name="err_reset_password_unsupported">Сброс пароля по имени пользователя не поддерживается. Обратитесь к администратору.</string>
+    <string name="err_send_reset_failed">Не удалось отправить письмо для сброса: %1$s</string>
+    <string name="err_connection_failed">Ошибка подключения: %1$s</string>
+    <string name="err_enter_username">Пожалуйста, введите имя пользователя</string>
+    <string name="err_username_too_short">Имя пользователя должно содержать не менее 3 символов</string>
+    <string name="err_username_invalid_chars">Имя пользователя может содержать только буквы, цифры и символ подчёркивания _</string>
+    <string name="err_enter_password">Пожалуйста, введите пароль</string>
+    <string name="err_password_too_short">Пароль должен содержать не менее 6 символов</string>
+    <string name="err_password_mismatch">Пароли не совпадают</string>
+    <string name="err_unknown">Произошла ошибка</string>
+    <string name="err_wrong_password">Неверный пароль</string>
+    <string name="err_too_many_attempts">Слишком много попыток. Пожалуйста, повторите попытку позже.</string>
+
+    <!-- Main / Home -->
+    <string name="main_camera_guide">📸 Разместите символ по центру кадра</string>
+    <string name="main_ai_input_title">Ввод ИИ (Предобработанное изображение):</string>
+    <string name="main_result_title">РЕЗУЛЬТАТ</string>
+    <string name="main_confidence_title">Точность: </string>
+    <string name="main_top_predictions_title">Топ 3 распознавания (уверенность ИИ):</string>
+    <string name="main_btn_camera">Камера</string>
+    <string name="main_btn_gallery">Галерея</string>
+    <string name="main_btn_reset">Сброс и заново</string>
+    <string name="main_hint_text">Выберите фото или нарисуйте\nдля распознавания</string>
+    
+    <string name="err_crop_image">Ошибка кадрирования: %1$s</string>
+    <string name="err_camera_permission">Требуется разрешение на использование камеры для съемки</string>
+    <string name="crop_toolbar_title">Обрезать и повернуть фото</string>
+    <string name="err_read_image">Ошибка чтения фотографии: %1$s</string>
+    <string name="err_open_camera">Не удалось запустить камеру: %1$s</string>
+    <string name="tts_speak_format">Результат распознавания %1$s с точностью %2$.0f процентов</string>
+    <string name="err_classification">Ошибка классификации: %1$s</string>
+    <string name="warning_low_confidence">Точность (%1$.1f%%) ниже настроенного порога (50%%)</string>
+    <string name="feedback_excellent">🌟 Очень четкое изображение! Уверенность распознавания ИИ высока.</string>
+    <string name="feedback_good">👍 Отличное качество фото. Надежный результат.</string>
+    <string name="feedback_average">✏️ Среднее качество. Попробуйте обрезать ближе к символу.</string>
+    <string name="feedback_poor">🔄 Изображение трудно прочесть. Обрежьте заново или сделайте более четкое фото.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_btn_skip">ПРОПУСТИТЬ</string>
+    <string name="onboarding_btn_next">ПРОДОЛЖИТЬ</string>
+    <string name="onboarding_start">НАЧАТЬ</string>
+    <string name="onboarding_item1_title">Распознавание ИИ</string>
+    <string name="onboarding_item2_title">Рисование и распознавание</string>
+    <string name="onboarding_item3_title">Камера ИИ и облако</string>
+    <string name="onboarding_item1_desc">Точное распознавание почерка с использованием модели TensorFlow Lite EMNIST — поддерживаются как цифры (0-9), так и буквы (A-Z).</string>
+    <string name="onboarding_item2_desc">Рисуйте пальцем прямо на холсте с возможностью настройки цвета и толщины кисти. ИИ распознает символ в реальном времени.</string>
+    <string name="onboarding_item3_desc">Умный сканер с автообработкой, синхронизация с облаком Firebase и режим практики письма с ИИ.</string>
+
+    <!-- Brush Settings Dialog -->
+    <string name="brush_settings_title">Параметры кисти</string>
+    <string name="brush_size_label">Размер кисти</string>
+    <string name="brush_color_label">Цвет кисти</string>
+    <string name="btn_cancel">Отмена</string>
+    <string name="btn_apply">Применить</string>
+</resources>

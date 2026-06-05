@@ -56,7 +56,7 @@
     <string name="setting_header_appearance">Giao diện</string>
     <string name="setting_dark_mode">🌙 Chế độ tối (Dark Mode)</string>
     <string name="setting_dark_mode_desc">Chuyển đổi giữa giao diện sáng và tối.</string>
-    <string name="setting_language">🌐 Tiếng Anh (English)</string>
+    <string name="setting_language">🌐 Tiếng Việt</string>
     <string name="setting_language_desc">Chuyển ngôn ngữ hiển thị trong ứng dụng.</string>
     <string name="setting_header_data">Quản lý dữ liệu</string>
     <string name="setting_firebase_sync">☁️ Đồng bộ Firebase</string>

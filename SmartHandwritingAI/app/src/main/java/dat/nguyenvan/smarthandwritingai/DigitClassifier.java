@@ -221,7 +221,7 @@ public class DigitClassifier {
 
     private static void applyShapeDisambiguation(java.util.List<PredictionItem> predictions, float[] pixels) {
         PredictionItem top = predictions.get(0);
-        if ((top.label.equals("3") || top.label.equals("E")) && isNineLike(pixels)) {
+        if ((top.label.equals("3") || top.label.equals("E") || top.label.equals("8")) && isNineLike(pixels)) {
             boostLabel(predictions, "9", top.confidence + 0.01f);
         } else if ((top.label.equals("G") || top.label.equals("Q") || top.label.equals("Z")) && isEightLike(pixels)) {
             boostLabel(predictions, "8", top.confidence + 0.01f);
@@ -237,8 +237,240 @@ public class DigitClassifier {
             boostLabel(predictions, "5", top.confidence + 0.01f);
         } else if (top.label.equals("J") && isSevenLike(pixels)) {
             boostLabel(predictions, "7", top.confidence + 0.01f);
+        } else if (top.label.equals("O") && isZeroLike(pixels)) {
+            boostLabel(predictions, "0", top.confidence + 0.01f);
+        } else if (top.label.equals("0") && isOLike(pixels)) {
+            boostLabel(predictions, "O", top.confidence + 0.01f);
+        } else if ((top.label.equals("I") || top.label.equals("L")) && isOneLike(pixels)) {
+            boostLabel(predictions, "1", top.confidence + 0.01f);
+        } else if ((top.label.equals("1") || top.label.equals("I")) && isLLike(pixels)) {
+            boostLabel(predictions, "L", top.confidence + 0.01f);
+        } else if ((top.label.equals("9") || top.label.equals("3") || top.label.equals("8")) && isELike(pixels)) {
+            boostLabel(predictions, "E", top.confidence + 0.01f);
         }
     }
+
+    private static boolean isLLike(float[] pixels) {
+        int minX = 28, maxX = -1, minY = 28, maxY = -1;
+        for (int y = 0; y < 28; y++) {
+            for (int x = 0; x < 28; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        if (minX == 28) return false;
+
+        int midY = minY + (maxY - minY) / 2;
+        float topXSum = 0;
+        float topTotal = 0;
+        for (int y = minY; y <= midY; y++) {
+            for (int x = minX; x <= maxX; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    topXSum += x * pixels[y * 28 + x];
+                    topTotal += pixels[y * 28 + x];
+                }
+            }
+        }
+        if (topTotal == 0) return false;
+        float topCenterX = topXSum / topTotal;
+
+        // Check if the drawing extends significantly further to the right of topCenterX than to the left
+        float leftExtension = topCenterX - minX;
+        float rightExtension = maxX - topCenterX;
+        if (rightExtension < 2.0f || rightExtension < leftExtension * 1.5f) {
+            return false;
+        }
+
+        int bottomStart = maxY - (maxY - minY) / 4;
+        float bottomLeftInk = 0;
+        float bottomRightInk = 0;
+        for (int y = bottomStart; y <= maxY; y++) {
+            for (int x = minX; x <= maxX; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    if (x < topCenterX - 1.0f) {
+                        bottomLeftInk += pixels[y * 28 + x];
+                    } else if (x > topCenterX + 1.0f) {
+                        bottomRightInk += pixels[y * 28 + x];
+                    }
+                }
+            }
+        }
+        return bottomRightInk > 0.5f && bottomRightInk > bottomLeftInk * 1.5f;
+    }
+
+    private static boolean isELike(float[] pixels) {
+        int minX = 28, maxX = -1, minY = 28, maxY = -1;
+        for (int y = 0; y < 28; y++) {
+            for (int x = 0; x < 28; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        if (minX == 28) return false;
+
+        float spineXSum = 0;
+        float spineTotal = 0;
+        int leftThirdLimit = minX + (maxX - minX) / 3;
+        for (int y = minY; y <= maxY; y++) {
+            for (int x = minX; x <= leftThirdLimit; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    spineXSum += x * pixels[y * 28 + x];
+                    spineTotal += pixels[y * 28 + x];
+                }
+            }
+        }
+        if (spineTotal == 0) return false;
+        float spineX = spineXSum / spineTotal;
+
+        int midY = minY + (maxY - minY) / 2;
+        int upperGapYStart = minY + 3;
+        int upperGapYEnd = midY - 2;
+
+        boolean hasUpperRightWall = false;
+        int startCol = Math.max(0, (int)(spineX + 3.0f));
+        for (int x = startCol; x <= maxX; x++) {
+            float colInk = 0f;
+            for (int y = upperGapYStart; y <= upperGapYEnd; y++) {
+                if (y >= 0 && y < 28 && x >= 0 && x < 28) {
+                    colInk += pixels[y * 28 + x];
+                }
+            }
+            if (colInk > 2.0f) {
+                hasUpperRightWall = true;
+                break;
+            }
+        }
+        boolean hasUpperGap = !hasUpperRightWall;
+
+        int lowerGapYStart = midY + 2;
+        int lowerGapYEnd = maxY - 3;
+        boolean hasLowerRightWall = false;
+        for (int x = startCol; x <= maxX; x++) {
+            float colInk = 0f;
+            for (int y = lowerGapYStart; y <= lowerGapYEnd; y++) {
+                if (y >= 0 && y < 28 && x >= 0 && x < 28) {
+                    colInk += pixels[y * 28 + x];
+                }
+            }
+            if (colInk > 2.0f) {
+                hasLowerRightWall = true;
+                break;
+            }
+        }
+        boolean hasLowerGap = !hasLowerRightWall;
+
+        int bottomStart = maxY - (maxY - minY) / 4;
+        float bottomRightInk = 0f;
+        for (int y = bottomStart; y <= maxY; y++) {
+            for (int x = startCol; x <= maxX; x++) {
+                if (x >= 0 && x < 28 && y >= 0 && y < 28) {
+                    bottomRightInk += pixels[y * 28 + x];
+                }
+            }
+        }
+        boolean hasBottomBar = bottomRightInk > 0.5f;
+
+        float total = inkInRect(pixels, 0, 27, 0, 27);
+        float leftThird = inkInRect(pixels, 0, Math.min(27, (int)(spineX + 1.5f)), minY, maxY);
+        boolean hasSpine = leftThird > total * 0.25f;
+
+        return hasUpperGap && hasLowerGap && hasBottomBar && hasSpine;
+    }
+
+    private static boolean isOneLike(float[] pixels) {
+        float total = inkInRect(pixels, 0, 27, 0, 27);
+        if (total < 5f) return false;
+
+        int minX = 28, maxX = -1, minY = 28, maxY = -1;
+        for (int y = 0; y < 28; y++) {
+            for (int x = 0; x < 28; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        if (minX == 28) return false;
+
+        int midY = minY + (maxY - minY) / 2;
+        float topXSum = 0;
+        float topTotal = 0;
+        for (int y = minY; y <= midY; y++) {
+            for (int x = minX; x <= maxX; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    topXSum += x * pixels[y * 28 + x];
+                    topTotal += pixels[y * 28 + x];
+                }
+            }
+        }
+        if (topTotal == 0) return false;
+        float topCenterX = topXSum / topTotal;
+
+        if (isLLike(pixels)) {
+            return false;
+        }
+
+        int topLimit = minY + (maxY - minY) / 4;
+        float topLeftInk = 0;
+        float topRightInk = 0;
+        for (int y = minY; y <= topLimit; y++) {
+            for (int x = minX; x <= maxX; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    if (x < topCenterX - 1.5f) {
+                        topLeftInk += pixels[y * 28 + x];
+                    } else if (x > topCenterX + 1.5f) {
+                        topRightInk += pixels[y * 28 + x];
+                    }
+                }
+            }
+        }
+
+        boolean hasLeftSerif = topLeftInk > 0.5f && topLeftInk > topRightInk * 2.0f;
+        boolean isSimpleVerticalLine = (topLeftInk + topRightInk) < total * 0.05f;
+
+        return hasLeftSerif || isSimpleVerticalLine;
+    }
+
+    private static boolean isZeroLike(float[] pixels) {
+        float ratio = getInkAspectRatio(pixels);
+        return ratio < 0.78f;
+    }
+
+    private static boolean isOLike(float[] pixels) {
+        float ratio = getInkAspectRatio(pixels);
+        return ratio >= 0.78f;
+    }
+
+    private static float getInkAspectRatio(float[] pixels) {
+        int minX = 28, maxX = -1, minY = 28, maxY = -1;
+        for (int y = 0; y < 28; y++) {
+            for (int x = 0; x < 28; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        if (maxX < minX || maxY < minY) {
+            return 1.0f; // Default if empty
+        }
+        float width = maxX - minX + 1;
+        float height = maxY - minY + 1;
+        return width / height;
+    }
+
 
     private static void boostLabel(java.util.List<PredictionItem> predictions, String label, float confidence) {
         for (int i = 0; i < predictions.size(); i++) {
@@ -285,6 +517,8 @@ public class DigitClassifier {
     }
 
     private static boolean isNineLike(float[] pixels) {
+        if (hasUpperRightGap(pixels)) return false;
+
         float total = inkInRect(pixels, 0, 27, 0, 27);
         if (total < 14f) return false;
 
@@ -299,6 +533,54 @@ public class DigitClassifier {
         boolean hasTopAndMiddle = topBand > total * 0.10f && middleBand > total * 0.10f;
         boolean rightTailDominates = lowerRight > total * 0.12f && lowerLeft < lowerRight * 0.75f;
         return hasUpperLoop && hasTopAndMiddle && rightTailDominates;
+    }
+
+    private static boolean hasUpperRightGap(float[] pixels) {
+        int minX = 28, maxX = -1, minY = 28, maxY = -1;
+        for (int y = 0; y < 28; y++) {
+            for (int x = 0; x < 28; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        if (minX == 28) return false;
+
+        float spineXSum = 0;
+        float spineTotal = 0;
+        int leftThirdLimit = minX + (maxX - minX) / 3;
+        for (int y = minY; y <= maxY; y++) {
+            for (int x = minX; x <= leftThirdLimit; x++) {
+                if (pixels[y * 28 + x] > 0.1f) {
+                    spineXSum += x * pixels[y * 28 + x];
+                    spineTotal += pixels[y * 28 + x];
+                }
+            }
+        }
+        if (spineTotal == 0) return false;
+        float spineX = spineXSum / spineTotal;
+
+        int gapYStart = minY + 3;
+        int gapYEnd = minY + (maxY - minY) / 2 - 2;
+
+        boolean hasRightWall = false;
+        int startCol = Math.max(0, (int)(spineX + 3.0f));
+        for (int x = startCol; x <= maxX; x++) {
+            float colInk = 0f;
+            for (int y = gapYStart; y <= gapYEnd; y++) {
+                if (y >= 0 && y < 28 && x >= 0 && x < 28) {
+                    colInk += pixels[y * 28 + x];
+                }
+            }
+            if (colInk > 2.0f) {
+                hasRightWall = true;
+                break;
+            }
+        }
+        return !hasRightWall;
     }
 
     private static boolean isTwoLike(float[] pixels) {

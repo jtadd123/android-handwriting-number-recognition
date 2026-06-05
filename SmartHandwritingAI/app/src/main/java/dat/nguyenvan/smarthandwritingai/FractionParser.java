@@ -179,9 +179,9 @@ public class FractionParser {
         DigitClassifier.PredictionResult pred = classifier.predict(sym.bitmap, isMathMode, sym.paths == null);
         if (pred != null) {
             String label = pred.label;
-            if (label.equalsIgnoreCase("X")) {
+            if (isMathMode && label.equalsIgnoreCase("X")) {
                 return new DrawActivity.ExpressionToken("*", true, pred.confidence);
-            } else if (label.equalsIgnoreCase("D")) {
+            } else if (isMathMode && label.equalsIgnoreCase("D")) {
                 return new DrawActivity.ExpressionToken("/", true, pred.confidence);
             } else {
                 boolean isDigit = label.length() == 1 && Character.isDigit(label.charAt(0));

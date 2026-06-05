@@ -158,8 +158,38 @@ public class DrawActivity extends AppCompatActivity {
 
         tts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
-                boolean isEnglish = prefs.getBoolean("isEnglish", false);
-                tts.setLanguage(isEnglish ? Locale.US : new Locale("vi", "VN"));
+                String langCode = prefs.getString("app_language", "vi");
+                java.util.Locale locale;
+                switch (langCode) {
+                    case "en":
+                        locale = java.util.Locale.US;
+                        break;
+                    case "es":
+                        locale = new java.util.Locale("es", "ES");
+                        break;
+                    case "fr":
+                        locale = java.util.Locale.FRANCE;
+                        break;
+                    case "de":
+                        locale = java.util.Locale.GERMANY;
+                        break;
+                    case "zh":
+                        locale = java.util.Locale.SIMPLIFIED_CHINESE;
+                        break;
+                    case "ja":
+                        locale = java.util.Locale.JAPAN;
+                        break;
+                    case "ko":
+                        locale = java.util.Locale.KOREA;
+                        break;
+                    case "ru":
+                        locale = new java.util.Locale("ru", "RU");
+                        break;
+                    default:
+                        locale = new java.util.Locale("vi", "VN");
+                        break;
+                }
+                tts.setLanguage(locale);
             }
         });
 
