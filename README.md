@@ -11,6 +11,8 @@
 ## 🎥 Video Demo
 
 > 📺 [Bấm vào đây để xem Video Demo Ứng dụng](https://www.youtube.com/watch?v=uzIhsjt82VQ)
+>
+> 💡 [Bấm vào đây để xem Video Giải thích cách làm](https://www.youtube.com/watch?v=xmDOYce-r3I)
 
 ---
 
